@@ -74,13 +74,6 @@ Master DSA through structured modules covering:
 
 ---
 
-## 📱 Access Online
-
-View your progress and continue learning on the go:
-[Open in AI Studio](https://ai.studio/apps/a7a9b161-02f2-4fdf-86df-9e827ddacaa5)
-
----
-
 ## 🤝 Contributing
 
 Have suggestions or improvements? Contributions are welcome! Feel free to:
