@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw, Server, Wifi, WifiOff } from "lucide-react";
+import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw, Server, Wifi, WifiOff, Plus, Code2 } from "lucide-react";
 import { DocumentMetadata } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
 import PreviewPanel from "./components/PreviewPanel";
+import ProblemsTab from "./components/ProblemsTab";
+import AddProblemModal from "./components/AddProblemModal";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -16,6 +18,10 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   
+  // Top-level tab state: controls which main view is active
+  const [activeMainTab, setActiveMainTab] = useState<'learn' | 'problems'>('learn');
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+
   // Backend connection tracking states
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'connected' | 'unreachable'>("connecting");
   const [backendLatency, setBackendLatency] = useState<number | null>(null);
@@ -138,17 +144,61 @@ export default function App() {
             </div>
           </div>
 
-          <div id="navbar-controls-sec" className="flex items-center gap-2">
+          {/* Center: Tab Selectors */}
+          <div id="main-tab-selector" className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1">
             <button
-              id="refresh-docs-btn"
-              onClick={() => fetchDocumentsList(true)}
-              disabled={refreshing}
-              title="Scan and synchronize markdown directories"
-              className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
+              id="tab-learn"
+              onClick={() => setActiveMainTab('learn')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                activeMainTab === 'learn'
+                  ? 'bg-white text-indigo-700 shadow-xs border border-indigo-100'
+                  : 'text-neutral-500 hover:text-neutral-900'
+              }`}
             >
-              <RefreshCcw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
-              Sync
+              <BookOpen className="w-3.5 h-3.5" />
+              Learn
             </button>
+            <button
+              id="tab-problems"
+              onClick={() => setActiveMainTab('problems')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                activeMainTab === 'problems'
+                  ? 'bg-white text-indigo-700 shadow-xs border border-indigo-100'
+                  : 'text-neutral-500 hover:text-neutral-900'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              Problems
+            </button>
+          </div>
+
+          <div id="navbar-controls-sec" className="flex items-center gap-2">
+            {/* Show Sync button only in Learn tab */}
+            {activeMainTab === 'learn' && (
+              <button
+                id="refresh-docs-btn"
+                onClick={() => fetchDocumentsList(true)}
+                disabled={refreshing}
+                title="Scan and synchronize markdown directories"
+                className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
+              >
+                <RefreshCcw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
+                Sync
+              </button>
+            )}
+
+            {/* Show Add Problem button only in Problems tab */}
+            {activeMainTab === 'problems' && (
+              <button
+                id="add-problem-btn"
+                onClick={() => setShowAddModal(true)}
+                className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Problem
+              </button>
+            )}
+
             <div id="version-pill" className="px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[10px] font-bold text-indigo-600 font-mono" onClick={()=>window.open("https://jimfleax.in", "blank")}>
               Jim Fleax
             </div>
@@ -158,8 +208,14 @@ export default function App() {
 
       {/* Main Workspace Frame container */}
       <main id="dsa-main-content-layout" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
-        
 
+        {/* === PROBLEMS TAB VIEW === */}
+        {activeMainTab === 'problems' && (
+          <ProblemsTab onOpenAddModal={() => setShowAddModal(true)} />
+        )}
+
+        {/* === LEARN TAB VIEW (existing content) === */}
+        {activeMainTab === 'learn' && (<>
 
         {/* Loaded Documents Dynamic Stats Strip */}
         <StatsGrid documents={documents} />
@@ -319,6 +375,8 @@ export default function App() {
           />
         </div>
 
+        </>)}{/* End Learn Tab conditional */}
+
       </main>
 
       {/* Footer Info Hub */}
@@ -370,6 +428,13 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Add Problem Modal — rendered at root level for proper z-index stacking */}
+      <AddProblemModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdded={() => {}}
+      />
     </div>
   );
 }

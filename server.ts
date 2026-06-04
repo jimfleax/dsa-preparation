@@ -1,7 +1,11 @@
+import 'dotenv/config';
 import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
+import { connectDB } from "./src/lib/db.ts";
+import problemRoutes from "./src/routes/problemRoutes.ts";
+import syncRoutes from "./src/routes/syncRoutes.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -144,6 +148,10 @@ app.get("/api/document", (req, res) => {
   }
 });
 
+// Mount Problem Tracking API routes
+app.use('/api/problems', problemRoutes);
+app.use('/api/sync', syncRoutes);
+
 // Added lightweight /api/health endpoint for separate hosting connectivity checks
 app.get("/api/health", (req, res) => {
   res.json({
@@ -156,6 +164,9 @@ app.get("/api/health", (req, res) => {
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {
+  // Connect to MongoDB before accepting requests
+  await connectDB();
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
