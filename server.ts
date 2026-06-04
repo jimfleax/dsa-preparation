@@ -14,7 +14,7 @@ interface DocumentMetadata {
 }
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
 
@@ -142,6 +142,16 @@ app.get("/api/document", (req, res) => {
     console.error("Error loading document:", error);
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// Added lightweight /api/health endpoint for separate hosting connectivity checks
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Vite server middleware setup for development, or static serving for production
