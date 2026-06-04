@@ -2,15 +2,15 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 /**
  * Represents a tracked DSA problem in the database.
- * Each problem is uniquely identified by its LeetCode titleSlug.
+ * Every problem here is one the user has solved.
+ * Revisiting increments attemptCount and updates lastAttemptedDate.
  */
 export interface IProblemProgress extends Document {
   titleSlug: string;
   title: string;
   url: string;
-  isSolved: boolean;
   attemptCount: number;
-  lastSolvedDate: Date | null;
+  lastAttemptedDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,24 +33,20 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
       type: String,
       trim: true,
     },
-    isSolved: {
-      type: Boolean,
-      default: false,
-    },
     attemptCount: {
       type: Number,
-      default: 0,
-      min: [0, 'attemptCount cannot be negative'],
+      default: 1,
+      min: [1, 'attemptCount must be at least 1'],
     },
-    lastSolvedDate: {
+    lastAttemptedDate: {
       type: Date,
-      default: null,
+      default: Date.now,
     },
   },
   { timestamps: true }
 );
 
-// Compound index for common query patterns (filter by solved status + sort by date)
-ProblemProgressSchema.index({ isSolved: 1, lastSolvedDate: -1 });
+// Index for sorting by last attempted date
+ProblemProgressSchema.index({ lastAttemptedDate: -1 });
 
 export default mongoose.model<IProblemProgress>('ProblemProgress', ProblemProgressSchema);

@@ -19,9 +19,8 @@ export interface ProblemProgress {
   titleSlug: string;
   title: string;
   url: string;
-  isSolved: boolean;
   attemptCount: number;
-  lastSolvedDate: string | null;
+  lastAttemptedDate: string;
   createdAt: string;
   updatedAt: string;
 }

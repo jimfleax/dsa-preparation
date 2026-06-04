@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, X, CheckCircle2, Clock, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2 } from "lucide-react";
+import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock } from "lucide-react";
 import { ProblemProgress } from "../types";
 
 interface ProblemsTabProps {
@@ -9,8 +9,7 @@ interface ProblemsTabProps {
 /**
  * Computes a human-readable relative time string (e.g. "3 days ago").
  */
-function timeAgo(dateString: string | null): string {
-  if (!dateString) return "—";
+function timeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -26,10 +25,9 @@ function timeAgo(dateString: string | null): string {
 export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
   const [problems, setProblems] = useState<ProblemProgress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'unsolved'>("all");
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
 
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
@@ -49,33 +47,31 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
   };
 
   /**
-   * Toggles the solved/unsolved status of a problem.
-   * When marking as solved, the backend records the current date and increments attempts.
+   * Records a revisit: increments attemptCount, updates lastAttemptedDate to now.
    */
-  const toggleSolved = async (problemId: string) => {
-    setTogglingId(problemId);
+  const handleRevisit = async (problemId: string) => {
+    setRevisitingId(problemId);
     try {
-      const response = await fetch(`${apiBase}/api/problems/${problemId}/solve`, {
+      const response = await fetch(`${apiBase}/api/problems/${problemId}/revisit`, {
         method: "PATCH",
       });
       const data = await response.json();
       if (data.success) {
-        // Update the local state with the returned problem
         setProblems(prev =>
           prev.map(p => p._id === problemId ? data.problem : p)
         );
       }
     } catch (err) {
-      console.error("Error toggling solved:", err);
+      console.error("Error recording revisit:", err);
     } finally {
-      setTogglingId(null);
+      setRevisitingId(null);
     }
   };
 
   /**
    * Deletes a problem from the tracker.
    */
-  const deleteProblem = async (problemId: string) => {
+  const handleDelete = async (problemId: string) => {
     setDeletingId(problemId);
     try {
       const response = await fetch(`${apiBase}/api/problems/${problemId}`, {
@@ -92,7 +88,6 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
     }
   };
 
-  // Fetch problems on mount
   useEffect(() => {
     fetchProblems();
   }, []);
@@ -101,11 +96,6 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
   const filteredProblems = useMemo(() => {
     let result = [...problems];
 
-    // Status filter
-    if (statusFilter === "solved") result = result.filter(p => p.isSolved);
-    else if (statusFilter === "unsolved") result = result.filter(p => !p.isSolved);
-
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(p =>
@@ -113,20 +103,18 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
       );
     }
 
-    // Sort
     result.sort((a, b) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "attempts") return b.attemptCount - a.attemptCount;
-      // date: most recently updated first, then solved date
-      const aDate = a.lastSolvedDate ? new Date(a.lastSolvedDate).getTime() : 0;
-      const bDate = b.lastSolvedDate ? new Date(b.lastSolvedDate).getTime() : 0;
-      return bDate - aDate;
+      return new Date(b.lastAttemptedDate).getTime() - new Date(a.lastAttemptedDate).getTime();
     });
 
     return result;
-  }, [problems, searchQuery, statusFilter, sortBy]);
+  }, [problems, searchQuery, sortBy]);
 
-  const solvedCount = problems.filter(p => p.isSolved).length;
+  // Calculate stats
+  const totalAttempts = problems.reduce((sum, p) => sum + p.attemptCount, 0);
+  const multiRevisited = problems.filter(p => p.attemptCount > 1).length;
 
   if (loading) {
     return (
@@ -147,26 +135,26 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
             <Inbox className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Total Tracked</p>
+            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Problems Solved</p>
             <p className="text-2xl font-extrabold text-neutral-800">{problems.length}</p>
           </div>
         </div>
         <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-emerald-100 transition-colors">
           <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-600">
-            <CheckCircle2 className="w-5 h-5" />
+            <Hash className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Solved</p>
-            <p className="text-2xl font-extrabold text-emerald-700">{solvedCount}</p>
+            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Total Attempts</p>
+            <p className="text-2xl font-extrabold text-emerald-700">{totalAttempts}</p>
           </div>
         </div>
-        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-amber-100 transition-colors">
-          <div className="bg-amber-50 p-2.5 rounded-xl text-amber-600">
-            <Clock className="w-5 h-5" />
+        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-violet-100 transition-colors">
+          <div className="bg-violet-50 p-2.5 rounded-xl text-violet-600">
+            <RotateCcw className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Unsolved</p>
-            <p className="text-2xl font-extrabold text-amber-700">{problems.length - solvedCount}</p>
+            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Revisited</p>
+            <p className="text-2xl font-extrabold text-violet-700">{multiRevisited}</p>
           </div>
         </div>
       </div>
@@ -195,43 +183,21 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
             )}
           </div>
 
-          {/* Status Filter Tabs */}
-          <div className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 shrink-0">
-            {(["all", "solved", "unsolved"] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer capitalize whitespace-nowrap ${
-                  statusFilter === status
-                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
-              >
-                {status === "all" ? "All" : status === "solved" ? "✅ Solved" : "⏳ Unsolved"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-neutral-50 text-xs">
-          <div className="flex items-center gap-2">
+          {/* Sort */}
+          <div className="flex items-center gap-2 shrink-0">
             <ArrowUpDown className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="text-neutral-400 font-medium">Sort by:</span>
+            <span className="text-neutral-400 font-medium text-xs">Sort:</span>
             <select
               id="problems-sort-select"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-700 outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-white border border-neutral-200 px-2.5 py-1.5 rounded-lg text-xs font-medium text-neutral-700 outline-none focus:ring-1 focus:ring-indigo-500"
             >
-              <option value="date">Last Solved</option>
+              <option value="date">Last Attempted</option>
               <option value="title">Title</option>
-              <option value="attempts">Attempts</option>
+              <option value="attempts">Attempt Count</option>
             </select>
           </div>
-
-          <span className="text-neutral-400 font-medium">
-            Click status badge to toggle solved
-          </span>
         </div>
       </div>
 
@@ -239,11 +205,11 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
       {filteredProblems.length === 0 ? (
         <div id="problems-empty-state" className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto">
           <Inbox className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-neutral-800">No Problems Found</h3>
+          <h3 className="text-base font-bold text-neutral-800">No Problems Tracked Yet</h3>
           <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed">
             {problems.length === 0
-              ? "Start tracking your DSA journey! Add your first problem."
-              : "No problems match your current filters. Try adjusting your search."}
+              ? "Start tracking your DSA journey! Add a problem you've solved."
+              : "No problems match your search. Try a different query."}
           </p>
           {problems.length === 0 && (
             <button
@@ -260,10 +226,10 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50/50">
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Title</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Problem</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Attempts</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Last Solved</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Status</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Last Attempted</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Revisit</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-12"></th>
                 </tr>
               </thead>
@@ -273,6 +239,7 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
                     key={problem._id}
                     className="border-b border-neutral-50 hover:bg-indigo-50/20 transition-colors group"
                   >
+                    {/* Problem Title + Link */}
                     <td className="px-5 py-3.5">
                       <a
                         href={problem.url}
@@ -285,47 +252,49 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
                       </a>
                       <p className="text-[11px] text-neutral-400 font-mono mt-0.5">{problem.titleSlug}</p>
                     </td>
+
+                    {/* Attempt Count Badge */}
                     <td className="px-5 py-3.5 text-center">
                       <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
-                        problem.attemptCount > 0
-                          ? "bg-indigo-50 text-indigo-700"
-                          : "bg-neutral-50 text-neutral-400"
+                        problem.attemptCount > 1
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-indigo-50 text-indigo-700"
                       }`}>
                         {problem.attemptCount}
                       </span>
                     </td>
+
+                    {/* Last Attempted Date */}
                     <td className="px-5 py-3.5">
-                      <span className="text-xs font-medium text-neutral-500">
-                        {timeAgo(problem.lastSolvedDate)}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <CalendarClock className="w-3 h-3 text-neutral-300" />
+                        <span className="text-xs font-medium text-neutral-500">
+                          {timeAgo(problem.lastAttemptedDate)}
+                        </span>
+                      </div>
                     </td>
+
+                    {/* Revisit Button */}
                     <td className="px-5 py-3.5 text-center">
                       <button
-                        onClick={() => toggleSolved(problem._id)}
-                        disabled={togglingId === problem._id}
-                        className="cursor-pointer active:scale-90 transition-transform disabled:opacity-50"
-                        title={problem.isSolved ? "Mark as unsolved" : "Mark as solved"}
+                        onClick={() => handleRevisit(problem._id)}
+                        disabled={revisitingId === problem._id}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-[11px] font-bold active:scale-95 transition-all cursor-pointer disabled:opacity-50 border border-indigo-100/50"
+                        title="I revisited and solved this problem again"
                       >
-                        {togglingId === problem._id ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-50 text-neutral-400 rounded-full text-[11px] font-bold">
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                          </span>
-                        ) : problem.isSolved ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold hover:bg-emerald-100 transition-colors">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Solved
-                          </span>
+                        {revisitingId === problem._id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-[11px] font-bold hover:bg-amber-100 transition-colors">
-                            <Clock className="w-3 h-3" />
-                            Unsolved
-                          </span>
+                          <RotateCcw className="w-3 h-3" />
                         )}
+                        {revisitingId === problem._id ? "Saving..." : "Revisit"}
                       </button>
                     </td>
+
+                    {/* Delete (hover reveal) */}
                     <td className="px-5 py-3.5 text-center">
                       <button
-                        onClick={() => deleteProblem(problem._id)}
+                        onClick={() => handleDelete(problem._id)}
                         disabled={deletingId === problem._id}
                         className="p-1.5 rounded-lg text-neutral-300 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer opacity-0 group-hover:opacity-100 disabled:opacity-50"
                         title="Remove from tracker"
@@ -343,9 +312,9 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
             </table>
           </div>
 
-          {/* Table footer count */}
-          <div className="px-5 py-3 border-t border-neutral-50 bg-neutral-50/30 flex items-center justify-between text-[11px] text-neutral-400 font-medium">
-            <span>Showing {filteredProblems.length} of {problems.length} problems</span>
+          {/* Table footer */}
+          <div className="px-5 py-3 border-t border-neutral-50 bg-neutral-50/30 text-[11px] text-neutral-400 font-medium">
+            Showing {filteredProblems.length} of {problems.length} problems
           </div>
         </div>
       )}
