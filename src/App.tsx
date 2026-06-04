@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, Activity, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw } from "lucide-react";
+import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, Activity, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw, Server, Wifi, WifiOff } from "lucide-react";
 import { DocumentMetadata } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
@@ -15,6 +15,10 @@ export default function App() {
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  
+  // Backend connection tracking states
+  const [backendStatus, setBackendStatus] = useState<'connecting' | 'connected' | 'unreachable'>("connecting");
+  const [backendLatency, setBackendLatency] = useState<number | null>(null);
 
   // Load all listed documents on mount
   const fetchDocumentsList = async (showRefreshIndicator = false) => {
@@ -36,8 +40,40 @@ export default function App() {
     }
   };
 
+  // Perform dynamic ping health check
+  const checkBackendStatus = async () => {
+    setBackendStatus("connecting");
+    const startTime = performance.now();
+    try {
+      const apiBase = (import.meta as any).env.VITE_API_URL || "";
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+      const response = await fetch(`${apiBase}/api/health`, { 
+        signal: controller.signal,
+        cache: 'no-store'
+      });
+      clearTimeout(timeoutId);
+      
+      const data = await response.json();
+      const endTime = performance.now();
+      if (response.ok && data.success) {
+        setBackendStatus("connected");
+        setBackendLatency(Math.round(endTime - startTime));
+      } else {
+        setBackendStatus("unreachable");
+        setBackendLatency(null);
+      }
+    } catch (err) {
+      console.error("Backend status check failed:", err);
+      setBackendStatus("unreachable");
+      setBackendLatency(null);
+    }
+  };
+
   useEffect(() => {
     fetchDocumentsList();
+    checkBackendStatus();
   }, []);
 
   // Filter Categories dynamically from currently loaded files
@@ -319,9 +355,56 @@ export default function App() {
       <footer id="dsa-footer" className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400">
         <div id="footer-inner" className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
           <p id="footer-copy">© 2026 DSA Preparation. Built with React Workspace, Express, & Markdown MDX.</p>
-          <div id="footer-meta" className="flex items-center gap-1 bg-neutral-50 py-1 px-3 border border-neutral-100 rounded-lg text-[11px] font-medium text-neutral-500">
-            <HelpCircle className="w-3.5 h-3.5" />
-            <span>Drop markdown files in <code>/content/theory</code> or <code>/content/problemsheets</code> to synchronize automatically</span>
+          <div id="footer-meta" className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600">
+            <span className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-neutral-100 font-semibold shadow-xs">
+              <Server className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="text-neutral-400">Target API:</span>
+              <code className="text-indigo-650 bg-indigo-50/45 px-1.5 py-0.5 rounded font-mono text-[10px]">
+                {(import.meta as any).env.VITE_API_URL || "Relative Local Path"}
+              </code>
+            </span>
+
+            <div className="flex items-center gap-2 pl-2 pr-2 py-1 bg-white rounded-lg border border-neutral-100 shadow-3xs">
+              {backendStatus === "connecting" ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                  </span>
+                  <span className="text-amber-600 font-bold">Checking Connection...</span>
+                </span>
+              ) : backendStatus === "connected" ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    Connected {backendLatency !== null ? `(${backendLatency}ms)` : ""}
+                  </span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  <span className="text-rose-600 font-bold flex items-center gap-1 text-[11px]">
+                    <WifiOff className="w-3 h-3 text-rose-500 shrink-0" />
+                    Unreachable / Offline
+                  </span>
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={checkBackendStatus}
+              disabled={backendStatus === "connecting"}
+              className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg border border-indigo-100/50 hover:border-indigo-200 text-[10px] font-bold active:scale-95 transition-all cursor-pointer flex items-center gap-1 hover:text-indigo-700 disabled:opacity-50"
+              title="Test backend connection strength"
+            >
+              <RefreshCcw className={`w-3 h-3 ${backendStatus === "connecting" ? "animate-spin text-indigo-500" : ""}`} />
+              Test API Ping
+            </button>
           </div>
         </div>
       </footer>
