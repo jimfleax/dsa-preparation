@@ -149,8 +149,8 @@ export default function App() {
               <RefreshCcw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
               Sync Folders
             </button>
-            <div id="version-pill" className="px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[10px] font-bold text-indigo-600 font-mono">
-              V2.2.0-SLEEK
+            <div id="version-pill" className="px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[10px] font-bold text-indigo-600 font-mono" onClick={()=>window.open("https://jimfleax.in", "blank")}>
+              Jim Fleax
             </div>
           </div>
         </div>
