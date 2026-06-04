@@ -3,10 +3,6 @@ import ProblemProgress from '../models/ProblemProgress.ts';
 
 /**
  * Extracts the titleSlug from a LeetCode problem URL.
- * Handles URLs like:
- *   - https://leetcode.com/problems/two-sum/
- *   - https://leetcode.com/problems/two-sum
- *   - leetcode.com/problems/two-sum/description/
  */
 function extractTitleSlug(url: string): string | null {
   const match = url.match(/leetcode\.com\/problems\/([a-z0-9-]+)/i);
@@ -15,28 +11,24 @@ function extractTitleSlug(url: string): string | null {
 
 /**
  * GET /api/problems
- * Lists all tracked problems with optional search and status filtering.
- * Query params: ?search=<text>&status=solved|unsolved&sort=title|attempts|date
+ * Lists all tracked problems with optional search filtering.
+ * Query params: ?search=<text>&sort=title|attempts|date
  */
 export const listProblems = async (req: Request, res: Response) => {
   try {
-    const { search, status, sort } = req.query;
+    const { search, sort } = req.query;
 
-    // Build dynamic filter
     const filter: Record<string, any> = {};
-
-    if (status === 'solved') filter.isSolved = true;
-    else if (status === 'unsolved') filter.isSolved = false;
 
     if (search && typeof search === 'string' && search.trim()) {
       filter.title = { $regex: search.trim(), $options: 'i' };
     }
 
     // Build sort criteria
-    let sortCriteria: Record<string, 1 | -1> = { updatedAt: -1 };
+    let sortCriteria: Record<string, 1 | -1> = { lastAttemptedDate: -1 };
     if (sort === 'title') sortCriteria = { title: 1 };
     else if (sort === 'attempts') sortCriteria = { attemptCount: -1 };
-    else if (sort === 'date') sortCriteria = { lastSolvedDate: -1 };
+    else if (sort === 'date') sortCriteria = { lastAttemptedDate: -1 };
 
     const problems = await ProblemProgress.find(filter).sort(sortCriteria).lean();
 
@@ -49,9 +41,9 @@ export const listProblems = async (req: Request, res: Response) => {
 
 /**
  * POST /api/problems
- * Adds a new problem to the tracker.
+ * Adds a new solved problem to the tracker.
  * Body: { url: string }
- * Generates title from the slug (no external API dependency).
+ * Sets attemptCount=1 and lastAttemptedDate=now.
  */
 export const addProblem = async (req: Request, res: Response) => {
   try {
@@ -66,7 +58,6 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Could not parse a valid problem slug from the URL.' });
     }
 
-    // Check if problem already exists
     const existing = await ProblemProgress.findOne({ titleSlug });
     if (existing) {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.', problem: existing });
@@ -79,12 +70,13 @@ export const addProblem = async (req: Request, res: Response) => {
       titleSlug,
       title,
       url: url.trim(),
+      attemptCount: 1,
+      lastAttemptedDate: new Date(),
     });
 
     res.status(201).json({ success: true, problem });
   } catch (error: any) {
     console.error('Error adding problem:', error);
-    // Handle Mongoose duplicate key error gracefully
     if (error.code === 11000) {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.' });
     }
@@ -93,12 +85,10 @@ export const addProblem = async (req: Request, res: Response) => {
 };
 
 /**
- * PATCH /api/problems/:id/solve
- * Toggles the solved status of a problem.
- * When marking as solved: increments attemptCount and sets lastSolvedDate to now.
- * When marking as unsolved: resets isSolved but preserves attempt history.
+ * PATCH /api/problems/:id/revisit
+ * Records a revisit: increments attemptCount and sets lastAttemptedDate to now.
  */
-export const toggleSolved = async (req: Request, res: Response) => {
+export const revisitProblem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -107,21 +97,13 @@ export const toggleSolved = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Problem not found.' });
     }
 
-    if (problem.isSolved) {
-      // Toggle OFF: mark as unsolved (preserve attemptCount for history)
-      problem.isSolved = false;
-    } else {
-      // Toggle ON: mark as solved with current timestamp
-      problem.isSolved = true;
-      problem.attemptCount += 1;
-      problem.lastSolvedDate = new Date();
-    }
-
+    problem.attemptCount += 1;
+    problem.lastAttemptedDate = new Date();
     await problem.save();
 
     res.json({ success: true, problem });
   } catch (error: any) {
-    console.error('Error toggling solved status:', error);
+    console.error('Error recording revisit:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
