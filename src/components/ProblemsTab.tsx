@@ -4,6 +4,7 @@ import { ProblemProgress } from "../types";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
+  refreshKey?: number;
 }
 
 /**
@@ -22,7 +23,7 @@ function timeAgo(dateString: string): string {
   return `${Math.floor(diffDays / 365)} years ago`;
 }
 
-export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
+export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabProps) {
   const [problems, setProblems] = useState<ProblemProgress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
 
   useEffect(() => {
     fetchProblems();
-  }, []);
+  }, [refreshKey]);
 
   // Client-side filtering and sorting
   const filteredProblems = useMemo(() => {
