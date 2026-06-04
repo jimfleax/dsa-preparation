@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { Search, X, CheckCircle2, Clock, ExternalLink, RefreshCcw, Loader2, ArrowUpDown, Inbox } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Search, X, CheckCircle2, Clock, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2 } from "lucide-react";
 import { ProblemProgress } from "../types";
 
 interface ProblemsTabProps {
@@ -26,11 +26,11 @@ function timeAgo(dateString: string | null): string {
 export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
   const [problems, setProblems] = useState<ProblemProgress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [syncing, setSyncing] = useState<boolean>(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'unsolved'>("all");
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
-  const hasSynced = useRef(false);
 
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
 
@@ -48,34 +48,53 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
     }
   };
 
-  const triggerSync = async () => {
-    setSyncing(true);
+  /**
+   * Toggles the solved/unsolved status of a problem.
+   * When marking as solved, the backend records the current date and increments attempts.
+   */
+  const toggleSolved = async (problemId: string) => {
+    setTogglingId(problemId);
     try {
-      await fetch(`${apiBase}/api/sync`, { method: "POST" });
-      await fetchProblems(); // Refresh list after sync
+      const response = await fetch(`${apiBase}/api/problems/${problemId}/solve`, {
+        method: "PATCH",
+      });
+      const data = await response.json();
+      if (data.success) {
+        // Update the local state with the returned problem
+        setProblems(prev =>
+          prev.map(p => p._id === problemId ? data.problem : p)
+        );
+      }
     } catch (err) {
-      console.error("Error syncing:", err);
+      console.error("Error toggling solved:", err);
     } finally {
-      setSyncing(false);
+      setTogglingId(null);
     }
   };
 
-  // Auto-sync on first mount, then fetch problems
-  useEffect(() => {
-    const init = async () => {
-      if (!hasSynced.current) {
-        hasSynced.current = true;
-        setSyncing(true);
-        try {
-          await fetch(`${apiBase}/api/sync`, { method: "POST" });
-        } catch (err) {
-          console.error("Auto-sync failed:", err);
-        }
-        setSyncing(false);
+  /**
+   * Deletes a problem from the tracker.
+   */
+  const deleteProblem = async (problemId: string) => {
+    setDeletingId(problemId);
+    try {
+      const response = await fetch(`${apiBase}/api/problems/${problemId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (data.success) {
+        setProblems(prev => prev.filter(p => p._id !== problemId));
       }
-      await fetchProblems();
-    };
-    init();
+    } catch (err) {
+      console.error("Error deleting problem:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Fetch problems on mount
+  useEffect(() => {
+    fetchProblems();
   }, []);
 
   // Client-side filtering and sorting
@@ -98,7 +117,7 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
     result.sort((a, b) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "attempts") return b.attemptCount - a.attemptCount;
-      // date: most recently solved first
+      // date: most recently updated first, then solved date
       const aDate = a.lastSolvedDate ? new Date(a.lastSolvedDate).getTime() : 0;
       const bDate = b.lastSolvedDate ? new Date(b.lastSolvedDate).getTime() : 0;
       return bDate - aDate;
@@ -210,19 +229,9 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
             </select>
           </div>
 
-          <button
-            id="manual-sync-btn"
-            onClick={triggerSync}
-            disabled={syncing}
-            className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg border border-indigo-100/50 text-xs font-bold active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {syncing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <RefreshCcw className="w-3.5 h-3.5" />
-            )}
-            {syncing ? "Syncing..." : "Sync LeetCode"}
-          </button>
+          <span className="text-neutral-400 font-medium">
+            Click status badge to toggle solved
+          </span>
         </div>
       </div>
 
@@ -233,7 +242,7 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
           <h3 className="text-base font-bold text-neutral-800">No Problems Found</h3>
           <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed">
             {problems.length === 0
-              ? "Start tracking your DSA journey! Add your first problem or sync with LeetCode."
+              ? "Start tracking your DSA journey! Add your first problem."
               : "No problems match your current filters. Try adjusting your search."}
           </p>
           {problems.length === 0 && (
@@ -255,6 +264,7 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Attempts</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Last Solved</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Status</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-12"></th>
                 </tr>
               </thead>
               <tbody>
@@ -290,17 +300,42 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-center">
-                      {problem.isSolved ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Solved
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-[11px] font-bold">
-                          <Clock className="w-3 h-3" />
-                          Unsolved
-                        </span>
-                      )}
+                      <button
+                        onClick={() => toggleSolved(problem._id)}
+                        disabled={togglingId === problem._id}
+                        className="cursor-pointer active:scale-90 transition-transform disabled:opacity-50"
+                        title={problem.isSolved ? "Mark as unsolved" : "Mark as solved"}
+                      >
+                        {togglingId === problem._id ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-50 text-neutral-400 rounded-full text-[11px] font-bold">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          </span>
+                        ) : problem.isSolved ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold hover:bg-emerald-100 transition-colors">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Solved
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-[11px] font-bold hover:bg-amber-100 transition-colors">
+                            <Clock className="w-3 h-3" />
+                            Unsolved
+                          </span>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      <button
+                        onClick={() => deleteProblem(problem._id)}
+                        disabled={deletingId === problem._id}
+                        className="p-1.5 rounded-lg text-neutral-300 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                        title="Remove from tracker"
+                      >
+                        {deletingId === problem._id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -311,11 +346,6 @@ export default function ProblemsTab({ onOpenAddModal }: ProblemsTabProps) {
           {/* Table footer count */}
           <div className="px-5 py-3 border-t border-neutral-50 bg-neutral-50/30 flex items-center justify-between text-[11px] text-neutral-400 font-medium">
             <span>Showing {filteredProblems.length} of {problems.length} problems</span>
-            {syncing && (
-              <span className="flex items-center gap-1.5 text-indigo-500">
-                <Loader2 className="w-3 h-3 animate-spin" /> Syncing with LeetCode...
-              </span>
-            )}
           </div>
         </div>
       )}

@@ -8,6 +8,7 @@
 const BASE_URL = process.env.API_URL || 'http://localhost:3000';
 let passed = 0;
 let failed = 0;
+let testProblemId: string | null = null;
 
 async function test(name: string, fn: () => Promise<void>) {
   try {
@@ -61,6 +62,16 @@ async function runTests() {
     if (res.status === 201) {
       assert(data.success === true, 'Expected success: true');
       assert(data.problem.titleSlug === 'two-sum', 'Expected titleSlug: two-sum');
+      assert(data.problem.isSolved === false, 'New problem should be unsolved');
+      assert(data.problem.attemptCount === 0, 'New problem should have 0 attempts');
+      testProblemId = data.problem._id;
+    } else {
+      // Already exists — fetch the list to get its ID for subsequent tests
+      const listRes = await fetch(`${BASE_URL}/api/problems?search=two-sum`);
+      const listData = await listRes.json();
+      if (listData.problems.length > 0) {
+        testProblemId = listData.problems[0]._id;
+      }
     }
   });
 
@@ -74,20 +85,31 @@ async function runTests() {
     assert(res.status === 400, `Expected 400, got ${res.status}`);
   });
 
-  // 5. Sync endpoint
-  await test('POST /api/sync returns sync result', async () => {
-    const res = await fetch(`${BASE_URL}/api/sync`, { method: 'POST' });
-    const data = await res.json();
-    // May succeed or fail depending on env config - we just check the shape
-    if (res.ok) {
+  // 5. Toggle solved status
+  if (testProblemId) {
+    await test('PATCH /api/problems/:id/solve marks problem as solved', async () => {
+      const res = await fetch(`${BASE_URL}/api/problems/${testProblemId}/solve`, {
+        method: 'PATCH',
+      });
+      const data = await res.json();
+      assert(res.ok, `Status ${res.status}`);
       assert(data.success === true, 'Expected success: true');
-      assert(typeof data.synced === 'number', 'Expected synced number');
-      assert(typeof data.total === 'number', 'Expected total number');
-    } else {
-      // 500 if LEETCODE_USERNAME not set, 502 if API unreachable - both acceptable in test
-      assert(typeof data.error === 'string', 'Expected error message');
-    }
-  });
+      assert(data.problem.isSolved === true, 'Expected isSolved: true after toggle');
+      assert(data.problem.attemptCount >= 1, 'Expected attemptCount >= 1');
+      assert(data.problem.lastSolvedDate !== null, 'Expected lastSolvedDate to be set');
+    });
+
+    await test('PATCH /api/problems/:id/solve toggles back to unsolved', async () => {
+      const res = await fetch(`${BASE_URL}/api/problems/${testProblemId}/solve`, {
+        method: 'PATCH',
+      });
+      const data = await res.json();
+      assert(res.ok, `Status ${res.status}`);
+      assert(data.problem.isSolved === false, 'Expected isSolved: false after second toggle');
+      // attemptCount should NOT decrement when toggling back
+      assert(data.problem.attemptCount >= 1, 'attemptCount should be preserved');
+    });
+  }
 
   // 6. List problems with filters
   await test('GET /api/problems?status=solved works', async () => {
@@ -105,6 +127,18 @@ async function runTests() {
     assert(res.ok, `Status ${res.status}`);
     assert(data.success === true, 'Expected success: true');
   });
+
+  // 8. Delete problem (cleanup)
+  if (testProblemId) {
+    await test('DELETE /api/problems/:id removes problem', async () => {
+      const res = await fetch(`${BASE_URL}/api/problems/${testProblemId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      assert(res.ok, `Status ${res.status}`);
+      assert(data.success === true, 'Expected success: true');
+    });
+  }
 
   console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
   process.exit(failed > 0 ? 1 : 0);

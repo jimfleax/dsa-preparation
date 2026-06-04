@@ -5,7 +5,6 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { connectDB } from "./src/lib/db.ts";
 import problemRoutes from "./src/routes/problemRoutes.ts";
-import syncRoutes from "./src/routes/syncRoutes.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -150,7 +149,6 @@ app.get("/api/document", (req, res) => {
 
 // Mount Problem Tracking API routes
 app.use('/api/problems', problemRoutes);
-app.use('/api/sync', syncRoutes);
 
 // Added lightweight /api/health endpoint for separate hosting connectivity checks
 app.get("/api/health", (req, res) => {
