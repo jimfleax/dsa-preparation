@@ -1,0 +1,6 @@
+# Google Cloud Buildpack configuration
+# Overrides the stale GOOGLE_ENTRYPOINT env var with the correct production entrypoint
+
+[[build.env]]
+name = "GOOGLE_ENTRYPOINT"
+value = "NODE_ENV=production node dist/server.cjs"
