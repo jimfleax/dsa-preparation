@@ -322,18 +322,10 @@ export default function App() {
       </main>
 
       {/* Footer Info Hub */}
-      <footer id="dsa-footer" className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400">
+       <footer id="dsa-footer" className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400">
         <div id="footer-inner" className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p id="footer-copy">© 2026 DSA Preparation.<br />Built with ❤️ by <a href="https://jimfleax.in/" target="_blank">Reetabrata Bhandari</a>.</p>
+          <p id="footer-copy">© 2026 DSA Preparation. Built with ❤️ by <a href="https://jimfleax.in/" target="_blank">Reetabrata Bhandari</a>.</p>
           <div id="footer-meta" className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600">
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-neutral-100 font-semibold shadow-xs">
-              <Server className="w-3.5 h-3.5 text-indigo-500" />
-              <span className="text-neutral-400">Target API:</span>
-              <code className="text-indigo-650 bg-indigo-50/45 px-1.5 py-0.5 rounded font-mono text-[10px]">
-                {(import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app"}
-              </code>
-            </span>
-
             <div className="flex items-center gap-2 pl-2 pr-2 py-1 bg-white rounded-lg border border-neutral-100 shadow-3xs">
               {backendStatus === "connecting" ? (
                 <span className="flex items-center gap-1.5">
