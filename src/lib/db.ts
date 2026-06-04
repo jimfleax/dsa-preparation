@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
 
 /**
- * Establishes a single Mongoose connection to MongoDB Atlas.
- * Must be called once before the Express server starts accepting requests.
- * Exits the process on connection failure to prevent the server from running without a DB.
+ * Attempts to connect to MongoDB Atlas.
+ * Non-fatal: the server will start even if the DB is unavailable.
+ * Problem-tracking routes will fail gracefully when there's no connection.
  */
 export const connectDB = async (): Promise<void> => {
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
-    console.error('FATAL: MONGODB_URI is not defined in environment variables. Exiting.');
-    process.exit(1);
+    console.warn('WARNING: MONGODB_URI is not set. Problem tracking features will be unavailable.');
+    return;
   }
 
   try {
@@ -18,7 +18,8 @@ export const connectDB = async (): Promise<void> => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB Connection Error: ${(error as Error).message}`);
-    process.exit(1);
+    console.warn('Server will continue without MongoDB. Problem tracking will be unavailable.');
+    return;
   }
 
   // Runtime error listener — logs errors without crashing
@@ -29,9 +30,11 @@ export const connectDB = async (): Promise<void> => {
 
 // Graceful shutdown: close DB connection on process termination signals
 const gracefulShutdown = async (signal: string) => {
-  console.log(`\n${signal} received. Closing MongoDB connection...`);
-  await mongoose.connection.close();
-  console.log('MongoDB disconnected on app termination.');
+  if (mongoose.connection.readyState === 1) {
+    console.log(`\n${signal} received. Closing MongoDB connection...`);
+    await mongoose.connection.close();
+    console.log('MongoDB disconnected on app termination.');
+  }
   process.exit(0);
 };
 
