@@ -13,3 +13,22 @@ export interface DocumentDetail {
   metadata: DocumentMetadata;
   content: string;
 }
+
+export interface ProblemProgress {
+  _id: string;
+  titleSlug: string;
+  title: string;
+  url: string;
+  isSolved: boolean;
+  attemptCount: number;
+  lastSolvedDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SyncResult {
+  success: boolean;
+  synced: number;
+  skipped: number;
+  total: number;
+}
