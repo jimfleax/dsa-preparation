@@ -21,6 +21,7 @@ export default function App() {
   // Top-level tab state: controls which main view is active
   const [activeMainTab, setActiveMainTab] = useState<'learn' | 'problems'>('learn');
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [problemsRefreshKey, setProblemsRefreshKey] = useState<number>(0);
 
   // Backend connection tracking states
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'connected' | 'unreachable'>("connecting");
@@ -211,7 +212,7 @@ export default function App() {
 
         {/* === PROBLEMS TAB VIEW === */}
         {activeMainTab === 'problems' && (
-          <ProblemsTab onOpenAddModal={() => setShowAddModal(true)} />
+          <ProblemsTab onOpenAddModal={() => setShowAddModal(true)} refreshKey={problemsRefreshKey} />
         )}
 
         {/* === LEARN TAB VIEW (existing content) === */}
@@ -433,7 +434,7 @@ export default function App() {
       <AddProblemModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onAdded={() => {}}
+        onAdded={() => setProblemsRefreshKey(k => k + 1)}
       />
     </div>
   );
