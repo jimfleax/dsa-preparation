@@ -324,7 +324,7 @@ export default function App() {
       {/* Footer Info Hub */}
       <footer id="dsa-footer" className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400">
         <div id="footer-inner" className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p id="footer-copy">© 2026 DSA Preparation.<br>Built with ❤️ by <a href="https://jimfleax.in/" target="_blank">Reetabrata Bhandari</a>.</p>
+          <p id="footer-copy">© 2026 DSA Preparation.<br />Built with ❤️ by <a href="https://jimfleax.in/" target="_blank">Reetabrata Bhandari</a>.</p>
           <div id="footer-meta" className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600">
             <span className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-neutral-100 font-semibold shadow-xs">
               <Server className="w-3.5 h-3.5 text-indigo-500" />
