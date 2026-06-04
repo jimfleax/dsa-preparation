@@ -25,10 +25,3 @@ export interface ProblemProgress {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface SyncResult {
-  success: boolean;
-  synced: number;
-  skipped: number;
-  total: number;
-}

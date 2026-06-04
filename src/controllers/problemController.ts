@@ -51,7 +51,7 @@ export const listProblems = async (req: Request, res: Response) => {
  * POST /api/problems
  * Adds a new problem to the tracker.
  * Body: { url: string }
- * Auto-fetches the title from alfa-leetcode-api using the parsed titleSlug.
+ * Generates title from the slug (no external API dependency).
  */
 export const addProblem = async (req: Request, res: Response) => {
   try {
@@ -72,29 +72,8 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.', problem: existing });
     }
 
-    // Auto-fetch the title from alfa-leetcode-api
-    const apiBase = process.env.ALFA_LEETCODE_API_BASE || 'https://alfa-leetcode-api.onrender.com';
-    let title = titleSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); // Fallback: capitalize slug
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout for cold starts
-
-      const apiResponse = await fetch(`${apiBase}/select?titleSlug=${titleSlug}`, {
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      if (apiResponse.ok) {
-        const apiData = await apiResponse.json();
-        if (apiData.questionTitle) {
-          title = apiData.questionTitle;
-        }
-      }
-    } catch (fetchErr) {
-      // Non-fatal: use the fallback title derived from slug
-      console.warn(`alfa-leetcode-api title fetch failed for "${titleSlug}", using fallback title.`, fetchErr);
-    }
+    // Generate title from slug (e.g. "two-sum" → "Two Sum")
+    const title = titleSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     const problem = await ProblemProgress.create({
       titleSlug,
@@ -109,6 +88,60 @@ export const addProblem = async (req: Request, res: Response) => {
     if (error.code === 11000) {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.' });
     }
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * PATCH /api/problems/:id/solve
+ * Toggles the solved status of a problem.
+ * When marking as solved: increments attemptCount and sets lastSolvedDate to now.
+ * When marking as unsolved: resets isSolved but preserves attempt history.
+ */
+export const toggleSolved = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const problem = await ProblemProgress.findById(id);
+    if (!problem) {
+      return res.status(404).json({ success: false, error: 'Problem not found.' });
+    }
+
+    if (problem.isSolved) {
+      // Toggle OFF: mark as unsolved (preserve attemptCount for history)
+      problem.isSolved = false;
+    } else {
+      // Toggle ON: mark as solved with current timestamp
+      problem.isSolved = true;
+      problem.attemptCount += 1;
+      problem.lastSolvedDate = new Date();
+    }
+
+    await problem.save();
+
+    res.json({ success: true, problem });
+  } catch (error: any) {
+    console.error('Error toggling solved status:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * DELETE /api/problems/:id
+ * Removes a problem from the tracker.
+ */
+export const deleteProblem = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const problem = await ProblemProgress.findByIdAndDelete(id);
+    if (!problem) {
+      return res.status(404).json({ success: false, error: 'Problem not found.' });
+    }
+
+    res.json({ success: true, message: 'Problem removed from tracker.' });
+  } catch (error: any) {
+    console.error('Error deleting problem:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

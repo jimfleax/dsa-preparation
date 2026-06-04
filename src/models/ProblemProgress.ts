@@ -11,7 +11,6 @@ export interface IProblemProgress extends Document {
   isSolved: boolean;
   attemptCount: number;
   lastSolvedDate: Date | null;
-  syncedSubmissionIds: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,8 +46,6 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
       type: Date,
       default: null,
     },
-    // Stores IDs of synced submissions to avoid counting the same one twice
-    syncedSubmissionIds: [{ type: String }],
   },
   { timestamps: true }
 );
