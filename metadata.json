@@ -1,0 +1,6 @@
+{
+  "name": "DSA Preparation",
+  "description": "A simple and clean dashboard to store, filter, search, and preview DSA theory documents and problemsheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
