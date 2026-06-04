@@ -1,4 +1,4 @@
-import { BookOpen, MapPin, Terminal, Award, ChevronRight } from "lucide-react";
+import { BookOpen, MapPin, Terminal, ChevronRight } from "lucide-react";
 import { DocumentMetadata } from "../types";
 
 interface DocumentCardProps {
@@ -8,13 +8,6 @@ interface DocumentCardProps {
 }
 
 export default function DocumentCard({ doc, isActive, onSelect }: DocumentCardProps) {
-  // Difficulty levels
-  const difficultyStyles = {
-    Easy: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    Medium: "bg-amber-50 text-amber-700 border-amber-100",
-    Hard: "bg-rose-50 text-rose-700 border-rose-100"
-  };
-
   const isTheory = doc.type === "theory";
 
   return (
@@ -46,19 +39,9 @@ export default function DocumentCard({ doc, isActive, onSelect }: DocumentCardPr
             {isTheory ? "Theory" : "Problemsheet"}
           </span>
 
-          {isActive ? (
+          {isActive && (
             <span className="text-[10px] font-bold text-indigo-600 bg-white border border-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-3xs animate-pulse">
               Selected
-            </span>
-          ) : (
-            <span 
-              id={`badge-diff-${doc.id}`}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 border rounded-md text-[10px] font-bold tracking-wide uppercase ${
-                difficultyStyles[doc.difficulty] || "bg-neutral-50 text-neutral-600 border-neutral-100"
-              }`}
-            >
-              <Award className="w-3 h-3" />
-              {doc.difficulty}
             </span>
           )}
         </div>

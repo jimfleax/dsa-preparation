@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, Activity, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw, Server, Wifi, WifiOff } from "lucide-react";
+import { Search, BookOpen, Terminal, SlidersHorizontal, Layers, X, HelpCircle, GraduationCap, FolderOpen, RefreshCcw, Server, Wifi, WifiOff } from "lucide-react";
 import { DocumentMetadata } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
@@ -9,10 +9,10 @@ export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [collectionFilter, setCollectionFilter] = useState<'all' | 'theory' | 'problemsheets'>("all");
-  const [difficultyFilter, setDifficultyFilter] = useState<string>("All");
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [activeDoc, setActiveDoc] = useState<DocumentMetadata | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   
@@ -26,7 +26,7 @@ export default function App() {
     else setLoading(true);
     
     try {
-      const apiBase = (import.meta as any).env.VITE_API_URL || "";
+      const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
       const response = await fetch(`${apiBase}/api/documents`);
       const data = await response.json();
       if (data.success) {
@@ -45,7 +45,7 @@ export default function App() {
     setBackendStatus("connecting");
     const startTime = performance.now();
     try {
-      const apiBase = (import.meta as any).env.VITE_API_URL || "";
+      const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
@@ -93,30 +93,24 @@ export default function App() {
         return false;
       }
 
-      // 2. Filter by difficulty
-      if (difficultyFilter !== "All" && doc.difficulty !== difficultyFilter) {
-        return false;
-      }
-
-      // 3. Filter by category
+      // 2. Filter by category
       if (categoryFilter !== "All" && doc.category !== categoryFilter) {
         return false;
       }
 
-      // 4. Filter by search query
+      // 3. Filter by search query
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase().trim();
         const matchesTitle = doc.title.toLowerCase().includes(query);
         const matchesCategory = doc.category.toLowerCase().includes(query);
-        const matchesDifficulty = doc.difficulty.toLowerCase().includes(query);
         const matchesTags = doc.tags.some(tag => tag.toLowerCase().includes(query));
         
-        return matchesTitle || matchesCategory || matchesDifficulty || matchesTags;
+        return matchesTitle || matchesCategory || matchesTags;
       }
 
       return true;
     });
-  }, [documents, searchQuery, collectionFilter, difficultyFilter, categoryFilter]);
+  }, [documents, searchQuery, collectionFilter, categoryFilter]);
 
   const handleSelectDocument = (doc: DocumentMetadata) => {
     setActiveDoc(doc);
@@ -126,7 +120,6 @@ export default function App() {
   const handleClearFilters = () => {
     setSearchQuery("");
     setCollectionFilter("all");
-    setDifficultyFilter("All");
     setCategoryFilter("All");
   };
 
@@ -142,7 +135,6 @@ export default function App() {
             </div>
             <div>
               <h1 id="navbar-main-heading" className="text-base font-bold text-neutral-905 tracking-tight leading-tight">DSA Preparation</h1>
-              <p id="navbar-sub-heading" className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest leading-none">Learning Hub & Playbook</p>
             </div>
           </div>
 
@@ -167,13 +159,7 @@ export default function App() {
       {/* Main Workspace Frame container */}
       <main id="dsa-main-content-layout" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
         
-        {/* Workspace Introduction Area */}
-        <div id="dsa-hero-header" className="space-y-2">
-          <h2 id="hero-heading" className="text-2xl md:text-3xl font-extrabold text-neutral-900 tracking-tight">Structured Learning Library</h2>
-          <p id="hero-subtext" className="text-sm text-neutral-500 max-w-2xl leading-relaxed">
-            Welcome to your preparation directory. Drop `.md` layout files into your standard server directories (<code>/content/theory</code> or <code>/content/problemsheets</code>) to catalog study resources automatically at runtime.
-          </p>
-        </div>
+
 
         {/* Loaded Documents Dynamic Stats Strip */}
         <StatsGrid documents={documents} />
@@ -188,7 +174,7 @@ export default function App() {
               <input
                 id="search-input-field"
                 type="text"
-                placeholder="Search by title, difficulty, category, or tags..."
+                placeholder="Search by title, category, or tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
@@ -205,11 +191,11 @@ export default function App() {
             </div>
 
             {/* Collection Type Selector Segment */}
-            <div id="collection-tabs-row" className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 self-start lg:self-auto shrink-0">
+            <div id="collection-tabs-row" className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 self-stretch sm:self-start lg:self-auto shrink-0 overflow-x-auto scrollbar-none">
               <button
                 id="tab-collection-all"
                 onClick={() => setCollectionFilter("all")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 sm:flex-initial text-center px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   collectionFilter === "all"
                     ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
                     : "text-neutral-500 hover:text-neutral-900"
@@ -220,7 +206,7 @@ export default function App() {
               <button
                 id="tab-collection-theory"
                 onClick={() => setCollectionFilter("theory")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   collectionFilter === "theory"
                     ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
                     : "text-neutral-500 hover:text-neutral-900"
@@ -232,7 +218,7 @@ export default function App() {
               <button
                 id="tab-collection-sheets"
                 onClick={() => setCollectionFilter("problemsheets")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   collectionFilter === "problemsheets"
                     ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
                     : "text-neutral-500 hover:text-neutral-900"
@@ -256,35 +242,17 @@ export default function App() {
                   id="category-dropdown"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-750 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-755 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   {availableCategories.map((cat, i) => (
                     <option key={i} value={cat}>{cat}</option>
                   ))}
                 </select>
               </div>
-
-              {/* Difficulty Filter Selector Segment */}
-              <div id="filter-diff-select-wrapper" className="flex items-center gap-2">
-                <span id="lbl-difficulty-select" className="text-neutral-400 font-medium flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-indigo-500" /> Complexity:
-                </span>
-                <select
-                  id="difficulty-dropdown"
-                  value={difficultyFilter}
-                  onChange={(e) => setDifficultyFilter(e.target.value)}
-                  className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-755 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  <option value="All">All Levels</option>
-                  <option value="Easy">Easy Only</option>
-                  <option value="Medium">Medium Only</option>
-                  <option value="Hard">Hard Only</option>
-                </select>
-              </div>
             </div>
 
             {/* Active filters summary indicator */}
-            {(searchQuery || collectionFilter !== "all" || difficultyFilter !== "All" || categoryFilter !== "All") && (
+            {(searchQuery || collectionFilter !== "all" || categoryFilter !== "All") && (
               <button
                 id="clear-all-filters-btn"
                 onClick={handleClearFilters}
@@ -304,7 +272,7 @@ export default function App() {
           <div 
             id="documents-results-scroller" 
             className={`flex-1 transition-all duration-300 ${
-              isPreviewOpen ? "lg:mr-[500px] xl:mr-[600px]" : "mr-0"
+              isPreviewOpen && !isPreviewMaximized ? "lg:mr-[600px] xl:mr-[650px]" : "mr-0"
             }`}
           >
             {loading ? (
@@ -346,6 +314,8 @@ export default function App() {
             activeDoc={activeDoc}
             isOpen={isPreviewOpen}
             onClose={() => setIsPreviewOpen(false)}
+            isMaximized={isPreviewMaximized}
+            setIsMaximized={setIsPreviewMaximized}
           />
         </div>
 
@@ -354,13 +324,13 @@ export default function App() {
       {/* Footer Info Hub */}
       <footer id="dsa-footer" className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400">
         <div id="footer-inner" className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p id="footer-copy">© 2026 DSA Preparation. Built with React Workspace, Express, & Markdown MDX.</p>
+          <p id="footer-copy">© 2026 DSA Preparation. Built with ❤️ by <a href="https://jimfleax.in/" target="_blank">Reetabrata Bhandari</a>.</p>
           <div id="footer-meta" className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600">
             <span className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-neutral-100 font-semibold shadow-xs">
               <Server className="w-3.5 h-3.5 text-indigo-500" />
               <span className="text-neutral-400">Target API:</span>
               <code className="text-indigo-650 bg-indigo-50/45 px-1.5 py-0.5 rounded font-mono text-[10px]">
-                {(import.meta as any).env.VITE_API_URL || "Relative Local Path"}
+                {(import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app"}
               </code>
             </span>
 
