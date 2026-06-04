@@ -25,7 +25,8 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/document?type=${activeDoc.type}&filename=${activeDoc.filename}`);
+        const apiBase = (import.meta as any).env.VITE_API_URL || "";
+        const response = await fetch(`${apiBase}/api/document?type=${activeDoc.type}&filename=${activeDoc.filename}`);
         const result = await response.json();
         if (result.success) {
           setData(result);

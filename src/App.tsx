@@ -22,7 +22,8 @@ export default function App() {
     else setLoading(true);
     
     try {
-      const response = await fetch("/api/documents");
+      const apiBase = (import.meta as any).env.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/documents`);
       const data = await response.json();
       if (data.success) {
         setDocuments(data.documents);
