@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-import { X, Copy, Check, FileText, ArrowRightLeft, BookOpen, Terminal, Code, Award } from "lucide-react";
+import { X, Copy, Check, FileText, ArrowRightLeft, BookOpen, Terminal, Code, Maximize2, Minimize2 } from "lucide-react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import "github-markdown-css/github-markdown-light.css";
 import { DocumentMetadata, DocumentDetail } from "../types";
 
 interface PreviewPanelProps {
   activeDoc: DocumentMetadata | null;
   isOpen: boolean;
   onClose: () => void;
+  isMaximized: boolean;
+  setIsMaximized: (val: boolean) => void;
 }
 
-export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPanelProps) {
+export default function PreviewPanel({ activeDoc, isOpen, onClose, isMaximized, setIsMaximized }: PreviewPanelProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DocumentDetail | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -25,7 +29,7 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
       setLoading(true);
       setError(null);
       try {
-        const apiBase = (import.meta as any).env.VITE_API_URL || "";
+        const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
         const response = await fetch(`${apiBase}/api/document?type=${activeDoc.type}&filename=${activeDoc.filename}`);
         const result = await response.json();
         if (result.success) {
@@ -42,9 +46,39 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
     };
 
     fetchDocument();
-    // Reset copy state
+    // Reset copy state and maximize state when switching documents
     setCopied(false);
   }, [activeDoc]);
+
+  // Lock root page scroll when a modal overlay is active on smaller screens
+  useEffect(() => {
+    if (isOpen) {
+      const lockScroll = () => {
+        const isMobileOrTablet = window.innerWidth < 1024;
+        if (isMaximized || isMobileOrTablet) {
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "";
+        }
+      };
+
+      lockScroll();
+      window.addEventListener("resize", lockScroll);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("resize", lockScroll);
+      };
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isOpen, isMaximized]);
+
+  // Reset maximized state when panel is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setIsMaximized(false);
+    }
+  }, [isOpen, setIsMaximized]);
 
   const handleCopy = () => {
     if (!data) return;
@@ -53,13 +87,29 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      id="preview-sidebar-container"
-      className="fixed inset-y-0 right-0 z-40 w-full md:w-[500px] lg:w-[600px] xl:w-[650px] bg-white border-l border-neutral-100 shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform translate-x-0"
-    >
+    <>
+      {/* Backdrop overlay - visible on mobile/tablet, or when maximized, captures clicks to dismiss panel */}
+      <div
+        id="preview-backdrop"
+        onClick={onClose}
+        className={`fixed inset-0 z-35 bg-black/40 backdrop-blur-xs transition-all duration-300 ${
+          isOpen
+            ? isMaximized
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-100 pointer-events-auto lg:opacity-0 lg:pointer-events-none"
+            : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      <div
+        id="preview-sidebar-container"
+        className={`fixed inset-y-0 right-0 z-40 bg-white border-l border-neutral-100 shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        } ${
+          isMaximized ? "w-full" : "w-full md:w-[500px] lg:w-[600px] xl:w-[650px]"
+        }`}
+      >
       {/* Top Navigation Control Strip */}
       <div id="preview-panel-header" className="h-16 border-b border-neutral-100 flex items-center justify-between px-6 bg-white shrink-0">
         <div id="header-meta-group" className="flex items-center gap-2.5">
@@ -97,6 +147,19 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
               )}
             </button>
           )}
+          {/* Maximize/Minimize Toggle Button */}
+          <button
+            id="maximize-sidebar-btn"
+            onClick={() => setIsMaximized(!isMaximized)}
+            title={isMaximized ? "Minimize Preview" : "Maximize Preview (Full Screen)"}
+            className="p-2 hover:bg-neutral-50 rounded-lg text-neutral-500 hover:text-neutral-850 active:scale-95 transition-all cursor-pointer"
+          >
+            {isMaximized ? (
+              <Minimize2 className="w-4.5 h-4.5 text-indigo-600" />
+            ) : (
+              <Maximize2 className="w-4.5 h-4.5" />
+            )}
+          </button>
           <button
             id="close-sidebar-btn"
             onClick={onClose}
@@ -145,21 +208,6 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
                   <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
                   {data.metadata.category}
                 </div>
-
-                {/* Difficulty Pill */}
-                <span 
-                  id="meta-pill-diff"
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 border rounded-md text-[10px] font-bold tracking-wide uppercase ${
-                    data.metadata.difficulty === 'Easy' 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                      : data.metadata.difficulty === 'Medium'
-                      ? 'bg-amber-50 text-amber-700 border-amber-100'
-                      : 'bg-rose-50 text-rose-700 border-rose-100'
-                  }`}
-                >
-                  <Award className="w-3.5 h-3.5" />
-                  {data.metadata.difficulty}
-                </span>
               </div>
 
               {/* Tag List */}
@@ -176,8 +224,8 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
             </div>
 
             {/* Rendered Pure Markdown */}
-            <div id="markdown-scroller" className="markdown-body prose max-w-none md:prose-neutral">
-              <Markdown>{data.content}</Markdown>
+            <div id="markdown-scroller" className="markdown-body max-w-none">
+              <Markdown remarkPlugins={[remarkGfm]}>{data.content}</Markdown>
             </div>
           </div>
         ) : null}
@@ -200,5 +248,6 @@ export default function PreviewPanel({ activeDoc, isOpen, onClose }: PreviewPane
         </div>
       )}
     </div>
+    </>
   );
 }
