@@ -23,8 +23,7 @@ interface DocumentMetadata {
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-app.use(express.json());
-
+// ─── CORS MIDDLEWARE (MUST BE FIRST) ───
 // Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting (e.g. Vercel)
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -35,6 +34,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(express.json());
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const THEORY_DIR = path.join(CONTENT_DIR, "theory");
@@ -181,7 +182,7 @@ app.use('/api/user', requireAuth, userRoutes);
 // Mount Sync API routes (requires authentication)
 app.use('/api/sync', requireAuth, syncRoutes);
 
-// ──────────────────────────────────────────────────────────
+// ───────��──────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
 // ──────────────────────────────────────────────────────────
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -192,6 +193,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   if (err.stack) {
     console.error(err.stack);
   }
+
+  // Re-apply CORS headers for error responses
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type,Authorization");
 
   // Ensure JSON response for API routes
   if (req.path.startsWith('/api/')) {
