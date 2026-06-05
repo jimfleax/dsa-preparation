@@ -38,11 +38,25 @@ app.use((req, res, next) => {
 // Clerk: Global middleware — parses the session token from Authorization header.
 // Does NOT reject unauthenticated requests; that's handled by requireAuth() on specific routes.
 // Conditional: only mount if CLERK_SECRET_KEY is available (prevents crash in unconfigured envs).
-const CLERK_CONFIGURED = !!process.env.CLERK_SECRET_KEY;
-if (CLERK_CONFIGURED) {
-  app.use(clerkMiddleware());
+let CLERK_CONFIGURED = false;
+if (process.env.CLERK_SECRET_KEY) {
+  try {
+    app.use(clerkMiddleware());
+    CLERK_CONFIGURED = true;
+    console.log('[AUTH] ✓ Clerk middleware initialized successfully.');
+  } catch (error) {
+    const err = error as Error;
+    console.error('[AUTH] ✗ Clerk middleware failed to initialize.');
+    console.error(`[AUTH]   Error: ${err.message}`);
+    if (err.message.includes('secret') || err.message.includes('key') || err.message.includes('invalid')) {
+      console.error('[AUTH]   Hint: CLERK_SECRET_KEY may be invalid, expired, or malformed.');
+      console.error('[AUTH]   Verify the key at https://dashboard.clerk.com → API Keys.');
+    }
+    console.warn('[AUTH]   Auth-protected routes will be unavailable.');
+  }
 } else {
-  console.warn('WARNING: CLERK_SECRET_KEY is not set. Auth-protected routes will be unavailable.');
+  console.warn('[AUTH] ⚠ CLERK_SECRET_KEY is not set. Auth-protected routes will be unavailable.');
+  console.warn('[AUTH]   Set CLERK_SECRET_KEY in .env or environment variables to enable authentication.');
 }
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
@@ -199,26 +213,54 @@ if (CLERK_CONFIGURED) {
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {
-  // Connect to MongoDB before accepting requests
-  await connectDB();
+  try {
+    // Connect to MongoDB before accepting requests
+    await connectDB();
 
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
+    if (process.env.NODE_ENV !== "production") {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), "dist");
+      app.use(express.static(distPath));
+      app.get("*all", (req, res) => {
+        res.sendFile(path.join(distPath, "index.html"));
+      });
+    }
+
+    app.listen(PORT, "0.0.0.0", () => {
+      // Startup diagnostic banner — summarizes which services are active
+      const mongoStatus = process.env.MONGODB_URI ? '✓ Connected' : '✗ Not configured';
+      const clerkStatus = CLERK_CONFIGURED ? '✓ Active' : '✗ Not configured';
+      const env = process.env.NODE_ENV || 'development';
+
+      console.log('');
+      console.log('╔══════════════════════════════════════════════════════╗');
+      console.log('║           DSA Preparation — Server Started           ║');
+      console.log('╠══════════════════════════════════════════════════════╣');
+      console.log(`║  URL:        http://localhost:${String(PORT).padEnd(25)}║`);
+      console.log(`║  Env:        ${env.padEnd(39)}║`);
+      console.log(`║  MongoDB:    ${mongoStatus.padEnd(39)}║`);
+      console.log(`║  Clerk Auth: ${clerkStatus.padEnd(39)}║`);
+      console.log('╚══════════════════════════════════════════════════════╝');
+      console.log('');
     });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*all", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
+  } catch (error) {
+    const err = error as Error;
+    console.error('');
+    console.error('╔══════════════════════════════════════════════════════╗');
+    console.error('║        ✗ FATAL: Server failed to start               ║');
+    console.error('╠══════════════════════════════════════════════════════╣');
+    console.error(`║  Error: ${err.message.substring(0, 44).padEnd(44)}║`);
+    console.error('╚══════════════════════════════════════════════════════╝');
+    console.error('');
+    console.error('Full stack trace:');
+    console.error(err.stack || err);
+    process.exit(1);
   }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
 }
 
 startServer();
