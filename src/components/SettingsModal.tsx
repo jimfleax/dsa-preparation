@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { X, Link2, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, Settings, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
-interface AddProblemModalProps {
+interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdded: () => void; // Callback to refresh the problems list
+  currentUsername: string;
+  onSaved: (username: string) => void;
 }
 
-export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblemModalProps) {
-  const [url, setUrl] = useState<string>("");
-  const [titlePreview, setTitlePreview] = useState<string>("");
+export default function SettingsModal({ isOpen, onClose, currentUsername, onSaved }: SettingsModalProps) {
+  const [username, setUsername] = useState<string>(currentUsername);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
@@ -18,68 +18,57 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
   const { getToken } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
 
-  /**
-   * Extracts titleSlug from URL and shows a preview of the title.
-   */
-  const handleUrlChange = (value: string) => {
-    setUrl(value);
-    setError(null);
-    setSuccess(false);
-
-    const match = value.match(/leetcode\.com\/problems\/([a-z0-9-]+)/i);
-    if (match) {
-      const slug = match[1].toLowerCase();
-      // Generate readable preview from slug
-      setTitlePreview(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
-    } else {
-      setTitlePreview("");
+  // Sync local state when the modal opens with a new value
+  useEffect(() => {
+    if (isOpen) {
+      setUsername(currentUsername);
+      setError(null);
+      setSuccess(false);
     }
-  };
+  }, [isOpen, currentUsername]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
 
-    if (!url.trim()) {
-      setError("Please enter a LeetCode problem URL.");
+    const trimmed = username.trim();
+    if (!trimmed) {
+      setError("Please enter your LeetCode username.");
       return;
     }
 
-    const match = url.match(/leetcode\.com\/problems\/([a-z0-9-]+)/i);
-    if (!match) {
-      setError("This doesn't look like a valid LeetCode problem URL.");
+    // Basic format validation — LeetCode usernames are alphanumeric + hyphens/underscores
+    if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+      setError("LeetCode username can only contain letters, numbers, hyphens, and underscores.");
       return;
     }
 
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems`, {
+      const response = await fetch(`${apiBase}/api/user/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ leetcodeUsername: trimmed }),
       });
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || "Failed to add problem.");
+        setError(data.error || "Failed to save settings.");
         return;
       }
 
       setSuccess(true);
-      setUrl("");
-      setTitlePreview("");
-      onAdded();
+      onSaved(trimmed);
 
-      // Auto-close after short delay to show success state
+      // Auto-close after showing success
       setTimeout(() => {
-        onClose();
         setSuccess(false);
-      }, 800);
+      }, 600);
     } catch (err: any) {
       setError("Network error. Could not reach the server.");
     } finally {
@@ -88,8 +77,6 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
   };
 
   const handleClose = () => {
-    setUrl("");
-    setTitlePreview("");
     setError(null);
     setSuccess(false);
     onClose();
@@ -101,27 +88,27 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
     <>
       {/* Backdrop */}
       <div
-        id="add-problem-backdrop"
+        id="settings-modal-backdrop"
         onClick={handleClose}
         className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity"
       />
 
       {/* Modal */}
       <div
-        id="add-problem-modal"
+        id="settings-modal"
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                <Link2 className="w-4 h-4" />
+                <Settings className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-neutral-900">Add Problem</h2>
-                <p className="text-[11px] text-neutral-400 font-medium">Track a new LeetCode problem</p>
+                <h2 className="text-sm font-bold text-neutral-900">Settings</h2>
+                <p className="text-[11px] text-neutral-400 font-medium">Configure your LeetCode integration</p>
               </div>
             </div>
             <button
@@ -134,35 +121,31 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
 
           {/* Form Body */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* URL Input */}
+            {/* Info banner when no username is set */}
+            {!currentUsername && (
+              <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-700 font-medium">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <span>Please link your LeetCode username to enable progress syncing.</span>
+              </div>
+            )}
+
+            {/* Username Input */}
             <div className="space-y-1.5">
-              <label htmlFor="problem-url-input" className="text-xs font-semibold text-neutral-600">
-                LeetCode URL
+              <label htmlFor="leetcode-username-input" className="text-xs font-semibold text-neutral-600">
+                LeetCode Username
               </label>
               <input
-                id="problem-url-input"
-                type="url"
-                placeholder="https://leetcode.com/problems/two-sum/"
-                value={url}
-                onChange={(e) => handleUrlChange(e.target.value)}
+                id="leetcode-username-input"
+                type="text"
+                placeholder="e.g. jimfleax"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value); setError(null); setSuccess(false); }}
                 disabled={saving}
                 autoFocus
                 className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium disabled:opacity-50"
               />
-            </div>
-
-            {/* Title Preview (auto-populated, read-only) */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-600">
-                Problem Title
-              </label>
-              <div className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center ${
-                titlePreview ? "text-neutral-800" : "text-neutral-400 italic"
-              }`}>
-                {titlePreview || "Auto-detected from URL..."}
-              </div>
               <p className="text-[10px] text-neutral-400">
-                The exact title will be fetched from LeetCode when you save.
+                This is used to sync your solved problems from LeetCode.
               </p>
             </div>
 
@@ -178,7 +161,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
             {success && (
               <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-xs text-emerald-700 font-medium">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>Problem added successfully!</span>
+                <span>Settings saved successfully!</span>
               </div>
             )}
 
@@ -190,11 +173,11 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
                 disabled={saving}
                 className="px-4 py-2.5 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 text-xs font-bold rounded-xl border border-neutral-200 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
-                Cancel
+                {currentUsername ? "Cancel" : "Skip for Now"}
               </button>
               <button
                 type="submit"
-                disabled={saving || !titlePreview}
+                disabled={saving || !username.trim()}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-100"
               >
                 {saving ? (
@@ -203,7 +186,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
                     Saving...
                   </>
                 ) : (
-                  "Save Problem"
+                  "Save Settings"
                 )}
               </button>
             </div>
