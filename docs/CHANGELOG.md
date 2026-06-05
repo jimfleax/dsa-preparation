@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-06-05] - Backend Deployment Stability & Error Handling Fix
+- **Changed:** `server.src.ts`
+- **Why:** Fixed a critical bug in production where missing Clerk keys (e.g., `CLERK_PUBLISHABLE_KEY`) caused `clerkMiddleware()` to crash silently inside Express, returning a 500 HTML error on public endpoints like `/api/documents` and `/api/health`. Added a global Express error handler to guarantee JSON responses, explicit checks for environment variables, and detailed server logs.
+- **Risk:** LOW — Improves server robustness and error transparency without changing business logic.
+- **Verification:** Verified via local simulated failure testing (`curl -s http://localhost:3000/api/health`) with intentionally missing keys.
+
 ## [2026-06-05] - DSA Problem Tracking Feature
 
 - **Changed:** `server.ts`, `src/App.tsx`, `src/types.ts`, `package.json`
