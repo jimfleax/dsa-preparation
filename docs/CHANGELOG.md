@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-06-05] - Native Authentication Migration (Clerk Removal)
+- **Changed:** `src/main.tsx`, `src/App.tsx`, `src/models/User.ts`, `server.src.ts`, `src/components/SettingsModal.tsx`, `src/components/AddProblemModal.tsx`, `src/components/ProblemsTab.tsx`
+- **Why:** Migrated authentication from Clerk to a native JWT-based system to ensure data ownership and decouple from third-party vendor limits. Replaced all Clerk UI components with native `LoginModal` and `RegisterModal`, backed by `AuthContext`.
+- **Risk:** HIGH — Replaces the entire authentication core and touches all protected routes/components.
+- **Verification:** Verified via `_test_feature.ts` script for end-to-end user registration, login (JWT minting), and protected route (`/api/user/settings`) access using the minted token.
+
 ## [2026-06-05] - Backend Deployment Stability & Error Handling Fix
 - **Changed:** `server.src.ts`
 - **Why:** Fixed a critical bug in production where missing Clerk keys (e.g., `CLERK_PUBLISHABLE_KEY`) caused `clerkMiddleware()` to crash silently inside Express, returning a 500 HTML error on public endpoints like `/api/documents` and `/api/health`. Added a global Express error handler to guarantee JSON responses, explicit checks for environment variables, and detailed server logs.

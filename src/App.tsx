@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
+import LoginModal from "./components/LoginModal";
+import RegisterModal from "./components/RegisterModal";
 import { Search, BookOpen, Terminal, Layers, X, GraduationCap, FolderOpen, RefreshCcw, Plus, Code2, LogIn, Settings } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
@@ -32,8 +34,10 @@ export default function App() {
   // User settings state
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
 
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn, logout, user } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   /**
@@ -255,26 +259,38 @@ export default function App() {
                 <Settings className="w-3.5 h-3.5" />
               </button>
 
-              {/* Clerk UserButton — avatar + account management dropdown */}
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-8 h-8',
-                  },
-                }}
-              />
+              {/* Native Logout / User Info */}
+              <div className="relative group">
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer"
+                  title="Account"
+                >
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-lg rounded-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="p-3 border-b border-neutral-50 bg-neutral-50/50">
+                    <p className="text-sm font-bold text-neutral-900 truncate">{user?.username}</p>
+                    <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
+                  </div>
+                  <button
+                    onClick={() => logout()}
+                    className="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-semibold cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
             </SignedIn>
 
             <SignedOut>
-              <SignInButton mode="modal">
-                <button
-                  id="sign-in-btn"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  Sign In
-                </button>
-              </SignInButton>
+              <button
+                id="sign-in-btn"
+                onClick={() => setShowLoginModal(true)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Sign In
+              </button>
             </SignedOut>
 
             <div id="version-pill" className="px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[10px] font-bold text-indigo-600 font-mono" onClick={()=>window.open("https://jimfleax.in", "blank")}>
@@ -298,12 +314,13 @@ export default function App() {
               <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
                 Track your DSA problem-solving journey, organize study materials, and sync your LeetCode progress — all in one place.
               </p>
-              <SignInButton mode="modal">
-                <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100 flex items-center gap-2 mx-auto">
-                  <LogIn className="w-4 h-4" />
-                  Sign In to Get Started
-                </button>
-              </SignInButton>
+              <button 
+                onClick={() => setShowLoginModal(true)}
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100 flex items-center gap-2 mx-auto"
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In to Get Started
+              </button>
             </div>
           </div>
         </SignedOut>
@@ -549,6 +566,24 @@ export default function App() {
           }}
         />
       </SignedIn>
+      <SignedOut>
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)} 
+          onSwitchToRegister={() => {
+            setShowLoginModal(false);
+            setShowRegisterModal(true);
+          }} 
+        />
+        <RegisterModal 
+          isOpen={showRegisterModal} 
+          onClose={() => setShowRegisterModal(false)} 
+          onSwitchToLogin={() => {
+            setShowRegisterModal(false);
+            setShowLoginModal(true);
+          }} 
+        />
+      </SignedOut>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 # Feature Landscape
 
-**Domain:** Authentication & User Settings Management
-**Researched:** 2024
+**Domain:** User Authentication
+**Researched:** 2024-05
 
 ## Table Stakes
 
@@ -9,9 +9,11 @@ Features users expect. Missing = product feels incomplete.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Secure Login/Logout | Core necessity for personal progress tracking | Low | Provided out-of-the-box by `<SignInButton>` and `<UserButton>`. |
-| Protected API Routes | Prevents unauthorized modifications to progress | Low | Implemented via `requireAuth()` Express middleware. |
-| Contextual UI | Shows content only when logged in | Low | Achieved wrapping content in `<SignedIn>` and `<SignedOut>`. |
+| Registration (`/register`) | To create an account | Low | Must validate email uniqueness and hash password before saving. |
+| Login (`/login`) | To access the app | Low | Must compare input password against DB hash. Returns signed JWT. |
+| Logout | To end session | Low | Handled client-side by clearing `localStorage` and resetting `AuthContext`. |
+| Protected Routes | Security/Privacy | Low | React Router `ProtectedRoute` component that checks for token existence. API middleware to block unauthenticated requests. |
+| Persistent Session | Avoid re-login on refresh | Low | `AuthContext` initializes by checking `localStorage` for the token. |
 
 ## Differentiators
 
@@ -19,8 +21,9 @@ Features that set product apart. Not expected, but valued.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Seamless Theming | Auth components don't look like an iframe/3rd party embed | Medium | Uses the `appearance={{ elements: {...} }}` prop to map Clerk styles to the project's Tailwind neutral/indigo theme. |
-| Instant Settings Load | LeetCode username or preferences load instantly without DB lookup | Low | Utilizing Clerk's `publicMetadata` includes settings directly in the session JWT. |
+| Password Reset Flow | Recover lost accounts | High | Requires email service (SendGrid/Nodemailer) and short-lived reset tokens. |
+| Refresh Tokens | Enhanced security | Medium | Short-lived access tokens + long-lived refresh tokens in `HttpOnly` cookies. Prevents XSS from completely compromising long-term access. |
+| "Remember Me" Checkbox | User convenience | Low | Toggles between `localStorage` (persistent) and `sessionStorage` (cleared on tab close). |
 
 ## Anti-Features
 
@@ -28,24 +31,26 @@ Features to explicitly NOT build.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Custom JWT Issuance | High risk of security vulnerabilities, complex refresh token logic. | Rely on Clerk's session tokens and `@clerk/express` to verify them automatically. |
-| Custom Password Reset UI | Unnecessary development overhead. | Use Clerk's built-in, highly optimized `<SignIn>` component flows. |
+| Stateful Server Sessions | Breaks REST principles and scaling | Use stateless JWTs where the token contains the payload (e.g., `userId`). |
+| Client-Side Password Hashing | Meaningless security theater; attacker can just steal the hash | Send password over HTTPS, hash on the server using `bcryptjs`. |
 
 ## Feature Dependencies
 
 ```
-<ClerkProvider> Wrapper → `<SignedIn>` State → Express API Requests (with auth header)
+Registration → Login (requires created user)
+Login → Protected Routes (requires JWT)
+Protected Routes → Logout (session management)
 ```
 
 ## MVP Recommendation
 
 Prioritize:
-1. Wrap `<App>` in `<ClerkProvider>`.
-2. Add `<SignedIn><UserButton /></SignedIn>` and `<SignedOut><SignInButton /></SignedOut>` to the main navigation.
-3. Secure the `/api/progress` Express route with `requireAuth()`.
+1. Registration (`/api/auth/register`)
+2. Login (`/api/auth/login`)
+3. Protected API Middleware (`verifyToken`)
+4. React `AuthContext` and Protected UI Routes
 
-Defer: Complex webhook synchronization to mirror the Clerk user base into MongoDB until a specific feature (like a social leaderboard) demands it.
+Defer: Password Reset, Email Verification, Refresh Tokens. Keep it strictly to the core MVP flow for now.
 
 ## Sources
-
-- [Clerk Component Customization](https://clerk.com/docs/components/customization/overview)
+- General SaaS Auth requirements.

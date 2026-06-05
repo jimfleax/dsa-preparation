@@ -11,13 +11,13 @@ import User from '../models/User.ts';
  */
 export const syncLeetCode = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
     // Fetch the user's LeetCode username from our DB
-    const user = await User.findOne({ clerkUserId: userId });
+    const user = await User.findById(userId);
     if (!user || !user.leetcodeUsername) {
       return res.status(400).json({
         success: false,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
 import { X, Link2, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface AddProblemModalProps {

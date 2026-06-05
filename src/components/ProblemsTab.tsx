@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
 import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock } from "lucide-react";
 import { ProblemProgress } from "../types";
 
