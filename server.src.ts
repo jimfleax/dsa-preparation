@@ -37,7 +37,13 @@ app.use((req, res, next) => {
 
 // Clerk: Global middleware — parses the session token from Authorization header.
 // Does NOT reject unauthenticated requests; that's handled by requireAuth() on specific routes.
-app.use(clerkMiddleware());
+// Conditional: only mount if CLERK_SECRET_KEY is available (prevents crash in unconfigured envs).
+const CLERK_CONFIGURED = !!process.env.CLERK_SECRET_KEY;
+if (CLERK_CONFIGURED) {
+  app.use(clerkMiddleware());
+} else {
+  console.warn('WARNING: CLERK_SECRET_KEY is not set. Auth-protected routes will be unavailable.');
+}
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const THEORY_DIR = path.join(CONTENT_DIR, "theory");
@@ -172,14 +178,24 @@ app.get("/api/health", (req, res) => {
 //  PROTECTED ENDPOINTS (Clerk auth required)
 // ──────────────────────────────────────────────────────────
 
-// Mount Problem Tracking API routes (requires authentication)
-app.use('/api/problems', requireAuth(), problemRoutes);
+if (CLERK_CONFIGURED) {
+  // Mount Problem Tracking API routes (requires authentication)
+  app.use('/api/problems', requireAuth(), problemRoutes);
 
-// Mount User Settings API routes (requires authentication)
-app.use('/api/user', requireAuth(), userRoutes);
+  // Mount User Settings API routes (requires authentication)
+  app.use('/api/user', requireAuth(), userRoutes);
 
-// Mount Sync API routes (requires authentication)
-app.use('/api/sync', requireAuth(), syncRoutes);
+  // Mount Sync API routes (requires authentication)
+  app.use('/api/sync', requireAuth(), syncRoutes);
+} else {
+  // Fallback: return 503 for protected routes when Clerk is not configured
+  app.use(['/api/problems', '/api/user', '/api/sync'], (req, res) => {
+    res.status(503).json({
+      success: false,
+      error: 'Authentication service is not configured. Please set CLERK_SECRET_KEY.',
+    });
+  });
+}
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {
