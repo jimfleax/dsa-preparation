@@ -1,86 +1,94 @@
 # Architecture
 
-**Analysis Date:** 2024-05-24
+**Analysis Date:** 2025-05-18
 
 ## Pattern Overview
 
-**Overall:** Client-Server Monolithic SPA
+**Overall:** Client-Server Monolithic API with Native JWT Authentication
 
 **Key Characteristics:**
-- React Single Page Application (SPA) consuming a lightweight Express API.
-- File-based Content Management System (CMS) leveraging Markdown and YAML frontmatter.
-- No explicit client-side router; navigation and views are state-driven within a single component.
+- Express backend serving both React SPA (via Vite in dev, static dist in prod) and REST API.
+- Native authentication utilizing JSON Web Tokens (JWT) for stateless sessions.
+- Multi-tenant data isolation handled at the application layer through specific query filtering based on verified token claims.
 
 ## Layers
 
-**Frontend (React/Vite):**
-- Purpose: Renders UI, filters content, and displays markdown previews.
-- Location: `src/`
-- Contains: React components, custom hooks (inlined in components), global CSS.
-- Depends on: Backend API endpoints for data payload.
-- Used by: End users.
+**Frontend State Management:**
+- Purpose: Maintain user session state and dispatch authenticated API calls
+- Location: `src/context/AuthContext.tsx`
+- Contains: React context managing JWT and User object, wrapped around `localStorage` interactions
+- Depends on: LocalStorage API, `/api/auth/` backend endpoints
+- Used by: All protected React components (e.g., `ProblemsTab`, `SettingsModal`)
 
-**Backend (Express):**
-- Purpose: Reads local markdown files, parses frontmatter, and serves content to the frontend.
-- Location: `server.ts`
-- Contains: Express server logic, File System (`fs`) reading utilities.
-- Depends on: `content/` directory.
-- Used by: Frontend application.
+**Authentication Middleware:**
+- Purpose: Verify JWTs and extract user identity for downstream controllers
+- Location: `src/middleware/authMiddleware.ts`
+- Contains: Express middleware parsing `Authorization: Bearer <token>`
+- Depends on: `jsonwebtoken`, `JWT_SECRET`
+- Used by: Protected routes defined in `server.src.ts`
+
+**Database Access (Models & Controllers):**
+- Purpose: Scope queries strictly to the authenticated user ID
+- Location: `src/controllers/problemController.ts`, `src/models/ProblemProgress.ts`
+- Contains: Mongoose operations (`find`, `findOne`, `create`) utilizing the extracted `userId`
+- Depends on: Mongoose, `req.user.id`
 
 ## Data Flow
 
-**Document Fetch Flow:**
+**User Identity Request Flow:**
 
-1. `App.tsx` mounts and calls `fetchDocumentsList()`.
-2. HTTP GET request to `/api/documents`.
-3. Express backend reads `content/theory/` and `content/problemsheets/`, parses YAML frontmatter of `.md` files.
-4. Backend returns an array of `DocumentMetadata`.
-5. Frontend stores this in `documents` state and distributes to `StatsGrid` and `DocumentCard`s.
+1. **Authentication:** User logs in/registers via frontend form. Frontend calls `POST /api/auth/login`.
+2. **Token Generation:** Backend verifies credentials, creates JWT encoding the Mongoose `_id`, and returns the token and user metadata.
+3. **Session Persistence:** Frontend (`AuthContext.tsx`) stores the JWT and user JSON in `localStorage`.
+4. **Subsequent API Requests:** Frontend `fetch` calls inject `Authorization: Bearer <token>` into headers.
+5. **Request Interception:** `requireAuth` middleware intercepts the request, verifies the JWT, and extracts `userId` from the decoded payload.
+6. **User Context Assignment:** Middleware assigns `req.user = { id: decoded.userId }` and calls `next()`.
 
-**Document Preview Flow:**
+**Problem Isolation Flow:**
 
-1. User clicks a `DocumentCard` setting `activeDoc` state.
-2. `PreviewPanel.tsx` detects `activeDoc` change and fetches `/api/document?type=...&filename=...`.
-3. Backend verifies file, strips frontmatter, and returns pure markdown content.
-4. `PreviewPanel.tsx` renders content using `react-markdown`.
-
-**State Management:**
-- Local component state via React hooks (`useState`, `useEffect`, `useMemo`) in `App.tsx` and `PreviewPanel.tsx`.
-- Filtering is handled via derived state (`useMemo` for `filteredDocuments`).
+1. **List Problems:** Controller extracts `req.user.id`, initializes `filter = { userId: req.user.id }`, and performs `ProblemProgress.find(filter)`.
+2. **Modify Problem (Revisit/Delete):** Controller extracts `req.user.id` and problem `id`. It uses compound querying: `ProblemProgress.findOne({ _id: id, userId: req.user.id })` to ensure the entity belongs to the user, acting as a safeguard against Insecure Direct Object Reference (IDOR).
+3. **Add Problem:** Controller inserts `userId: req.user.id` into the new document, tying it to the user. Compound unique indexing on `{userId, titleSlug}` ensures idempotency per user.
 
 ## Key Abstractions
 
-**DocumentMetadata:**
-- Purpose: Standardizes the representation of a markdown file's frontmatter.
-- Examples: `src/types.ts`, `server.ts`
-- Pattern: TypeScript Interface matching backend schema.
+**Auth Context:**
+- Purpose: Global frontend identity and token provider
+- Examples: `src/context/AuthContext.tsx`
+- Pattern: React Context API, LocalStorage persistence
+
+**Protected API Routes:**
+- Purpose: Enforce identity validation on backend groups
+- Examples: `server.src.ts` (e.g., `app.use('/api/problems', requireAuth, ...);`)
+- Pattern: Express Router Middleware chaining
 
 ## Entry Points
 
-**Frontend Entry:**
-- Location: `src/main.tsx`
-- Triggers: Browser load
-- Responsibilities: Bootstraps the React application and imports global styles.
+**API Auth Router:**
+- Location: `src/routes/authRoutes.ts`
+- Triggers: Frontend `fetch` to `/api/auth/login` and `/api/auth/register`
+- Responsibilities: Validating credentials and issuing JWTs
 
-**Backend Entry:**
-- Location: `server.ts`
-- Triggers: `npm run dev` or `npm run start`
-- Responsibilities: Initializes Express, sets up CORS, defines API routes, and serves Vite middleware in dev or static files in production.
+**Protected Controllers:**
+- Location: `src/controllers/problemController.ts`, `src/controllers/userController.ts`
+- Triggers: Frontend `fetch` using tokens
+- Responsibilities: Ensuring IDOR protection by tying operations directly to `req.user.id`
 
 ## Error Handling
 
-**Strategy:** Try-Catch with API fallback.
+**Strategy:** Explicit HTTP Status Codes and JSON Envelopes
 
 **Patterns:**
-- Backend: Uses `try...catch` blocks to wrap file reading operations and returns 500 status with JSON error payload.
-- Frontend: `try...catch` in fetch calls, setting `error` state variables in components (e.g., `PreviewPanel.tsx`) and rendering fallback UI.
+- **401 Unauthorized:** Handled in `authMiddleware.ts` for missing or invalid tokens. Controllers also do a safety check `if (!userId) return res.status(401)`.
+- **404 Not Found:** Returned when compound query `({_id: id, userId})` yields null (hides whether the problem ID exists for *another* user, mitigating enumeration attacks).
+- **11000 Duplicate Key:** Handled in `addProblem` utilizing Mongoose's error code to return 409 Conflict.
 
 ## Cross-Cutting Concerns
 
-**Logging:** Basic `console.error` and `console.log`.
-**Validation:** Basic query parameter validation in backend `/api/document` route (prevents directory traversal).
-**Authentication:** None.
+**Logging:** Console.error used directly in catch blocks.
+**Validation:** Mongoose Schema validation + explicit checks in controllers.
+**Authentication:** Custom JWT-based stateless implementation.
 
 ---
 
-*Architecture analysis: 2024-05-24*
+*Architecture analysis: 2025-05-18*
