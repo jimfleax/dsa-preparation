@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock } from "lucide-react";
 import { ProblemProgress } from "../types";
 
@@ -31,11 +32,15 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
 
+  const { getToken } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   const fetchProblems = async () => {
     try {
-      const response = await fetch(`${apiBase}/api/problems`);
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/problems`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await response.json();
       if (data.success) {
         setProblems(data.problems);
@@ -53,8 +58,10 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const handleRevisit = async (problemId: string) => {
     setRevisitingId(problemId);
     try {
+      const token = await getToken();
       const response = await fetch(`${apiBase}/api/problems/${problemId}/revisit`, {
         method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (data.success) {
@@ -75,8 +82,10 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const handleDelete = async (problemId: string) => {
     setDeletingId(problemId);
     try {
+      const token = await getToken();
       const response = await fetch(`${apiBase}/api/problems/${problemId}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (data.success) {

@@ -3,8 +3,11 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
+import { clerkMiddleware, requireAuth } from "@clerk/express";
 import { connectDB } from "./src/lib/db.ts";
 import problemRoutes from "./src/routes/problemRoutes.ts";
+import userRoutes from "./src/routes/userRoutes.ts";
+import syncRoutes from "./src/routes/syncRoutes.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -31,6 +34,10 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Clerk: Global middleware — parses the session token from Authorization header.
+// Does NOT reject unauthenticated requests; that's handled by requireAuth() on specific routes.
+app.use(clerkMiddleware());
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const THEORY_DIR = path.join(CONTENT_DIR, "theory");
@@ -80,6 +87,10 @@ function parseFrontmatter(content: string, filename: string, type: 'theory' | 'p
 
   return meta;
 }
+
+// ──────────────────────────────────────────────────────────
+//  PUBLIC ENDPOINTS (no auth required)
+// ──────────────────────────────────────────────────────────
 
 // API endpoint to retrieve all listed documents
 app.get("/api/documents", (req, res) => {
@@ -147,9 +158,6 @@ app.get("/api/document", (req, res) => {
   }
 });
 
-// Mount Problem Tracking API routes
-app.use('/api/problems', problemRoutes);
-
 // Added lightweight /api/health endpoint for separate hosting connectivity checks
 app.get("/api/health", (req, res) => {
   res.json({
@@ -159,6 +167,19 @@ app.get("/api/health", (req, res) => {
     uptime: process.uptime()
   });
 });
+
+// ──────────────────────────────────────────────────────────
+//  PROTECTED ENDPOINTS (Clerk auth required)
+// ──────────────────────────────────────────────────────────
+
+// Mount Problem Tracking API routes (requires authentication)
+app.use('/api/problems', requireAuth(), problemRoutes);
+
+// Mount User Settings API routes (requires authentication)
+app.use('/api/user', requireAuth(), userRoutes);
+
+// Mount Sync API routes (requires authentication)
+app.use('/api/sync', requireAuth(), syncRoutes);
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {

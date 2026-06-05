@@ -11,14 +11,20 @@ function extractTitleSlug(url: string): string | null {
 
 /**
  * GET /api/problems
- * Lists all tracked problems with optional search filtering.
+ * Lists all tracked problems for the authenticated user, with optional search filtering.
  * Query params: ?search=<text>&sort=title|attempts|date
  */
 export const listProblems = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { search, sort } = req.query;
 
-    const filter: Record<string, any> = {};
+    // Always scope to the authenticated user — prevents IDOR
+    const filter: Record<string, any> = { userId };
 
     if (search && typeof search === 'string' && search.trim()) {
       filter.title = { $regex: search.trim(), $options: 'i' };
@@ -41,12 +47,17 @@ export const listProblems = async (req: Request, res: Response) => {
 
 /**
  * POST /api/problems
- * Adds a new solved problem to the tracker.
+ * Adds a new solved problem to the tracker for the authenticated user.
  * Body: { url: string }
  * Sets attemptCount=1 and lastAttemptedDate=now.
  */
 export const addProblem = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { url } = req.body;
 
     if (!url || typeof url !== 'string') {
@@ -58,7 +69,8 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Could not parse a valid problem slug from the URL.' });
     }
 
-    const existing = await ProblemProgress.findOne({ titleSlug });
+    // Check for existing record scoped to this user
+    const existing = await ProblemProgress.findOne({ userId, titleSlug });
     if (existing) {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.', problem: existing });
     }
@@ -67,6 +79,7 @@ export const addProblem = async (req: Request, res: Response) => {
     const title = titleSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     const problem = await ProblemProgress.create({
+      userId,
       titleSlug,
       title,
       url: url.trim(),
@@ -87,12 +100,19 @@ export const addProblem = async (req: Request, res: Response) => {
 /**
  * PATCH /api/problems/:id/revisit
  * Records a revisit: increments attemptCount and sets lastAttemptedDate to now.
+ * Uses compound query {_id, userId} to prevent IDOR.
  */
 export const revisitProblem = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { id } = req.params;
 
-    const problem = await ProblemProgress.findById(id);
+    // Compound query prevents accessing another user's problem (IDOR prevention)
+    const problem = await ProblemProgress.findOne({ _id: id, userId });
     if (!problem) {
       return res.status(404).json({ success: false, error: 'Problem not found.' });
     }
@@ -110,13 +130,19 @@ export const revisitProblem = async (req: Request, res: Response) => {
 
 /**
  * DELETE /api/problems/:id
- * Removes a problem from the tracker.
+ * Removes a problem from the tracker. Scoped to authenticated user only.
  */
 export const deleteProblem = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { id } = req.params;
 
-    const problem = await ProblemProgress.findByIdAndDelete(id);
+    // Compound query prevents deleting another user's problem (IDOR prevention)
+    const problem = await ProblemProgress.findOneAndDelete({ _id: id, userId });
     if (!problem) {
       return res.status(404).json({ success: false, error: 'Problem not found.' });
     }

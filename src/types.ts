@@ -16,6 +16,7 @@ export interface DocumentDetail {
 
 export interface ProblemProgress {
   _id: string;
+  userId: string;
   titleSlug: string;
   title: string;
   url: string;
@@ -23,4 +24,9 @@ export interface ProblemProgress {
   lastAttemptedDate: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UserSettings {
+  clerkUserId: string;
+  leetcodeUsername?: string;
 }
