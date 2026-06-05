@@ -212,9 +212,13 @@ if (CLERK_CONFIGURED) {
 } else {
   // Fallback: return 503 for protected routes when Clerk is not configured
   app.use(['/api/problems', '/api/user', '/api/sync'], (req, res) => {
+    const missingKeys = [];
+    if (!clerkSecret) missingKeys.push('CLERK_SECRET_KEY');
+    if (!clerkPublishable) missingKeys.push('VITE_CLERK_PUBLISHABLE_KEY');
+    
     res.status(503).json({
       success: false,
-      error: 'Authentication service is not configured. Please set CLERK_SECRET_KEY.',
+      error: `Authentication service is not configured. Missing environment variables: ${missingKeys.join(', ')}`,
     });
   });
 }
