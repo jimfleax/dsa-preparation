@@ -39,9 +39,15 @@ app.use((req, res, next) => {
 // Does NOT reject unauthenticated requests; that's handled by requireAuth() on specific routes.
 // Conditional: only mount if CLERK_SECRET_KEY is available (prevents crash in unconfigured envs).
 let CLERK_CONFIGURED = false;
-if (process.env.CLERK_SECRET_KEY) {
+const clerkSecret = process.env.CLERK_SECRET_KEY;
+const clerkPublishable = process.env.VITE_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY;
+
+if (clerkSecret && clerkPublishable) {
   try {
-    app.use(clerkMiddleware());
+    app.use(clerkMiddleware({
+      publishableKey: clerkPublishable,
+      secretKey: clerkSecret
+    }));
     CLERK_CONFIGURED = true;
     console.log('[AUTH] ✓ Clerk middleware initialized successfully.');
   } catch (error) {
@@ -55,8 +61,10 @@ if (process.env.CLERK_SECRET_KEY) {
     console.warn('[AUTH]   Auth-protected routes will be unavailable.');
   }
 } else {
-  console.warn('[AUTH] ⚠ CLERK_SECRET_KEY is not set. Auth-protected routes will be unavailable.');
-  console.warn('[AUTH]   Set CLERK_SECRET_KEY in .env or environment variables to enable authentication.');
+  console.warn('[AUTH] ⚠ Clerk Authentication is missing environment variables.');
+  if (!clerkSecret) console.warn('[AUTH]   → Missing CLERK_SECRET_KEY');
+  if (!clerkPublishable) console.warn('[AUTH]   → Missing VITE_CLERK_PUBLISHABLE_KEY');
+  console.warn('[AUTH]   Auth-protected routes will be unavailable. Public routes will function normally.');
 }
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
@@ -210,6 +218,31 @@ if (CLERK_CONFIGURED) {
     });
   });
 }
+
+// ──────────────────────────────────────────────────────────
+//  GLOBAL ERROR HANDLER
+// ──────────────────────────────────────────────────────────
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[SERVER ERROR] ✗ Unhandled Exception in Middleware/Route');
+  console.error(`[SERVER ERROR]   Path: ${req.method} ${req.path}`);
+  console.error(`[SERVER ERROR]   Message: ${err.message}`);
+  
+  if (err.stack) {
+    console.error(err.stack);
+  }
+
+  // Ensure JSON response for API routes
+  if (req.path.startsWith('/api/')) {
+    res.status(err.status || 500).json({
+      success: false,
+      error: 'Internal Server Error',
+      message: err.message
+    });
+  } else {
+    // For non-API routes, fall back to default express handler or custom HTML
+    next(err);
+  }
+});
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {
