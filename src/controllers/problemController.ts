@@ -91,7 +91,12 @@ export const addProblem = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error adding problem:', error);
     if (error.code === 11000) {
-      return res.status(409).json({ success: false, error: 'This problem is already being tracked.' });
+      console.error('[addProblem] E11000 keyPattern:', JSON.stringify(error.keyPattern), 'keyValue:', JSON.stringify(error.keyValue));
+      return res.status(409).json({ 
+        success: false, 
+        error: 'This problem is already being tracked.',
+        debug: { keyPattern: error.keyPattern, keyValue: error.keyValue }
+      });
     }
     res.status(500).json({ success: false, error: error.message });
   }

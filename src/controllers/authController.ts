@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
 const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET as string, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not set. Cannot sign tokens.');
+  }
+  return jwt.sign({ userId }, secret, {
     expiresIn: '30d',
   });
 };
