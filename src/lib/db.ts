@@ -41,6 +41,29 @@ export const connectDB = async (): Promise<void> => {
   try {
     const conn = await mongoose.connect(uri);
     console.log(`[DB] ✓ MongoDB Connected: ${conn.connection.host} (db: ${conn.connection.name})`);
+
+    // ── Post-connection migration: drop stale Clerk-era indexes ──
+    // MongoDB does NOT auto-drop indexes when the Mongoose schema changes.
+    // The old Clerk schema had a unique index on `clerkUserId`, which now
+    // causes E11000 duplicate key errors because every new user has null.
+    try {
+      const usersCollection = conn.connection.db?.collection('users');
+      if (usersCollection) {
+        const indexes = await usersCollection.indexes();
+        const staleIndexNames = ['clerkUserId_1'];
+        for (const idx of indexes) {
+          if (staleIndexNames.includes(idx.name)) {
+            await usersCollection.dropIndex(idx.name);
+            console.log(`[DB] ✓ Migration: dropped stale index "${idx.name}" from users collection.`);
+          }
+        }
+      }
+    } catch (migrationErr: any) {
+      // Non-fatal: log and continue — index may already be gone
+      if (!migrationErr.message?.includes('index not found')) {
+        console.warn(`[DB] ⚠ Migration warning: ${migrationErr.message}`);
+      }
+    }
   } catch (error) {
     const err = error as Error;
     console.error('[DB] ✗ MongoDB Connection Failed');
