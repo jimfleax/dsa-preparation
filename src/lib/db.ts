@@ -46,15 +46,41 @@ export const connectDB = async (): Promise<void> => {
     // MongoDB does NOT auto-drop indexes when the Mongoose schema changes.
     // The old Clerk schema had a unique index on `clerkUserId`, which now
     // causes E11000 duplicate key errors because every new user has null.
+    // Similarly, problemprogresses may have a stale unique index on titleSlug
+    // alone (not compound with userId), blocking multi-tenant tracking.
     try {
-      const usersCollection = conn.connection.db?.collection('users');
-      if (usersCollection) {
-        const indexes = await usersCollection.indexes();
-        const staleIndexNames = ['clerkUserId_1'];
-        for (const idx of indexes) {
-          if (staleIndexNames.includes(idx.name)) {
+      const db = conn.connection.db;
+      if (db) {
+        // Clean users collection
+        const usersCollection = db.collection('users');
+        const userIndexes = await usersCollection.indexes();
+        const staleUserIndexes = ['clerkUserId_1'];
+        for (const idx of userIndexes) {
+          if (staleUserIndexes.includes(idx.name)) {
             await usersCollection.dropIndex(idx.name);
             console.log(`[DB] ✓ Migration: dropped stale index "${idx.name}" from users collection.`);
+          }
+        }
+
+        // Clean problemprogresses collection
+        const problemsCollection = db.collection('problemprogresses');
+        try {
+          const problemIndexes = await problemsCollection.indexes();
+          console.log('[DB] Current problemprogresses indexes:', problemIndexes.map(i => `${i.name} (${JSON.stringify(i.key)}${i.unique ? ', unique' : ''})`).join(', '));
+          
+          // Drop any unique index on titleSlug alone — it should only be unique
+          // as part of the compound {userId, titleSlug} index for multi-tenancy.
+          const staleProblemIndexes = ['titleSlug_1'];
+          for (const idx of problemIndexes) {
+            if (staleProblemIndexes.includes(idx.name) && idx.unique) {
+              await problemsCollection.dropIndex(idx.name);
+              console.log(`[DB] ✓ Migration: dropped stale index "${idx.name}" from problemprogresses collection.`);
+            }
+          }
+        } catch (e: any) {
+          // Collection may not exist yet — that's fine
+          if (!e.message?.includes('ns not found')) {
+            console.warn(`[DB] ⚠ problemprogresses migration: ${e.message}`);
           }
         }
       }
