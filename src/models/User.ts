@@ -1,24 +1,36 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-/**
- * Lightweight user profile linked to Clerk.
- * Stores per-user configuration (e.g. LeetCode username) that
- * cannot be kept in Clerk's own metadata.
- */
 export interface IUser extends Document {
-  clerkUserId: string;
+  username: string;
+  email: string;
+  passwordHash: string;
   leetcodeUsername?: string;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const UserSchema = new Schema<IUser>(
   {
-    clerkUserId: {
+    username: {
       type: String,
-      required: [true, 'clerkUserId is required'],
+      required: [true, 'username is required'],
       unique: true,
+      trim: true,
       index: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+    passwordHash: {
+      type: String,
+      required: [true, 'password is required'],
     },
     leetcodeUsername: {
       type: String,
@@ -28,5 +40,17 @@ const UserSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
+// Hash password before saving
+UserSchema.pre<IUser>('save', async function () {
+  if (!this.isModified('passwordHash')) return;
+  const salt = await bcrypt.genSalt(10);
+  this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
+});
+
+// Compare password method
+UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.passwordHash);
+};
 
 export default mongoose.model<IUser>('User', UserSchema);

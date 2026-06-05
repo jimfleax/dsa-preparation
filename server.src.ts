@@ -3,11 +3,12 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
 import { connectDB } from "./src/lib/db.ts";
 import problemRoutes from "./src/routes/problemRoutes.ts";
 import userRoutes from "./src/routes/userRoutes.ts";
 import syncRoutes from "./src/routes/syncRoutes.ts";
+import authRoutes from "./src/routes/authRoutes.ts";
+import { requireAuth } from "./src/middleware/authMiddleware.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -34,38 +35,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// Clerk: Global middleware — parses the session token from Authorization header.
-// Does NOT reject unauthenticated requests; that's handled by requireAuth() on specific routes.
-// Conditional: only mount if CLERK_SECRET_KEY is available (prevents crash in unconfigured envs).
-let CLERK_CONFIGURED = false;
-const clerkSecret = process.env.CLERK_SECRET_KEY;
-const clerkPublishable = process.env.VITE_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY;
-
-if (clerkSecret && clerkPublishable) {
-  try {
-    app.use(clerkMiddleware({
-      publishableKey: clerkPublishable,
-      secretKey: clerkSecret
-    }));
-    CLERK_CONFIGURED = true;
-    console.log('[AUTH] ✓ Clerk middleware initialized successfully.');
-  } catch (error) {
-    const err = error as Error;
-    console.error('[AUTH] ✗ Clerk middleware failed to initialize.');
-    console.error(`[AUTH]   Error: ${err.message}`);
-    if (err.message.includes('secret') || err.message.includes('key') || err.message.includes('invalid')) {
-      console.error('[AUTH]   Hint: CLERK_SECRET_KEY may be invalid, expired, or malformed.');
-      console.error('[AUTH]   Verify the key at https://dashboard.clerk.com → API Keys.');
-    }
-    console.warn('[AUTH]   Auth-protected routes will be unavailable.');
-  }
-} else {
-  console.warn('[AUTH] ⚠ Clerk Authentication is missing environment variables.');
-  if (!clerkSecret) console.warn('[AUTH]   → Missing CLERK_SECRET_KEY');
-  if (!clerkPublishable) console.warn('[AUTH]   → Missing VITE_CLERK_PUBLISHABLE_KEY');
-  console.warn('[AUTH]   Auth-protected routes will be unavailable. Public routes will function normally.');
-}
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const THEORY_DIR = path.join(CONTENT_DIR, "theory");
@@ -196,32 +165,21 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Native Auth routes
+app.use('/api/auth', authRoutes);
+
 // ──────────────────────────────────────────────────────────
-//  PROTECTED ENDPOINTS (Clerk auth required)
+//  PROTECTED ENDPOINTS (JWT auth required)
 // ──────────────────────────────────────────────────────────
 
-if (CLERK_CONFIGURED) {
-  // Mount Problem Tracking API routes (requires authentication)
-  app.use('/api/problems', requireAuth(), problemRoutes);
+// Mount Problem Tracking API routes (requires authentication)
+app.use('/api/problems', requireAuth, problemRoutes);
 
-  // Mount User Settings API routes (requires authentication)
-  app.use('/api/user', requireAuth(), userRoutes);
+// Mount User Settings API routes (requires authentication)
+app.use('/api/user', requireAuth, userRoutes);
 
-  // Mount Sync API routes (requires authentication)
-  app.use('/api/sync', requireAuth(), syncRoutes);
-} else {
-  // Fallback: return 503 for protected routes when Clerk is not configured
-  app.use(['/api/problems', '/api/user', '/api/sync'], (req, res) => {
-    const missingKeys = [];
-    if (!clerkSecret) missingKeys.push('CLERK_SECRET_KEY');
-    if (!clerkPublishable) missingKeys.push('VITE_CLERK_PUBLISHABLE_KEY');
-    
-    res.status(503).json({
-      success: false,
-      error: `Authentication service is not configured. Missing environment variables: ${missingKeys.join(', ')}`,
-    });
-  });
-}
+// Mount Sync API routes (requires authentication)
+app.use('/api/sync', requireAuth, syncRoutes);
 
 // ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
@@ -271,7 +229,7 @@ async function startServer() {
     app.listen(PORT, "0.0.0.0", () => {
       // Startup diagnostic banner — summarizes which services are active
       const mongoStatus = process.env.MONGODB_URI ? '✓ Connected' : '✗ Not configured';
-      const clerkStatus = CLERK_CONFIGURED ? '✓ Active' : '✗ Not configured';
+      const jwtStatus = process.env.JWT_SECRET ? '✓ Active' : '✗ Not configured';
       const env = process.env.NODE_ENV || 'development';
 
       console.log('');
@@ -281,7 +239,7 @@ async function startServer() {
       console.log(`║  URL:        http://localhost:${String(PORT).padEnd(25)}║`);
       console.log(`║  Env:        ${env.padEnd(39)}║`);
       console.log(`║  MongoDB:    ${mongoStatus.padEnd(39)}║`);
-      console.log(`║  Clerk Auth: ${clerkStatus.padEnd(39)}║`);
+      console.log(`║  JWT Auth:   ${jwtStatus.padEnd(39)}║`);
       console.log('╚══════════════════════════════════════════════════════╝');
       console.log('');
     });

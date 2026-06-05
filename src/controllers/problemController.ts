@@ -16,7 +16,7 @@ function extractTitleSlug(url: string): string | null {
  */
 export const listProblems = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
@@ -53,7 +53,7 @@ export const listProblems = async (req: Request, res: Response) => {
  */
 export const addProblem = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
@@ -104,7 +104,7 @@ export const addProblem = async (req: Request, res: Response) => {
  */
 export const revisitProblem = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
@@ -134,7 +134,7 @@ export const revisitProblem = async (req: Request, res: Response) => {
  */
 export const deleteProblem = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }

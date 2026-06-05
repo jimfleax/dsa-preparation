@@ -3,26 +3,24 @@ import User from '../models/User.ts';
 
 /**
  * GET /api/user/settings
- * Retrieves the current user's settings. Creates a skeleton User document
- * on first access (auto-provisioning on login).
+ * Retrieves the current user's settings.
  */
 export const getUserSettings = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
-    // Find or create the user document (auto-provision on first login)
-    let user = await User.findOne({ clerkUserId: userId });
+    const user = await User.findById(userId);
     if (!user) {
-      user = await User.create({ clerkUserId: userId });
+      return res.status(404).json({ success: false, error: 'User not found' });
     }
 
     res.json({
       success: true,
       settings: {
-        clerkUserId: user.clerkUserId,
+        userId: user._id,
         leetcodeUsername: user.leetcodeUsername || null,
       },
     });
@@ -39,7 +37,7 @@ export const getUserSettings = async (req: Request, res: Response) => {
  */
 export const updateUserSettings = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
@@ -50,20 +48,22 @@ export const updateUserSettings = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'leetcodeUsername must be a string.' });
     }
 
-    // Upsert: create if not exists, update if exists
-    const user = await User.findOneAndUpdate(
-      { clerkUserId: userId },
+    const user = await User.findByIdAndUpdate(
+      userId,
       {
-        clerkUserId: userId,
         ...(leetcodeUsername !== undefined && { leetcodeUsername: leetcodeUsername.trim() }),
       },
-      { upsert: true, new: true, runValidators: true }
+      { new: true, runValidators: true }
     );
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
 
     res.json({
       success: true,
       settings: {
-        clerkUserId: user.clerkUserId,
+        userId: user._id,
         leetcodeUsername: user.leetcodeUsername || null,
       },
     });
