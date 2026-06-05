@@ -41,9 +41,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
       token,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration Error:', error);
-    res.status(500).json({ success: false, message: 'Server error during registration' });
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Server error during registration' 
+    });
   }
 };
 
