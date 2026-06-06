@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import ProblemProgress from '../models/ProblemProgress.ts';
+import { getLeetCodeTitle } from '../lib/leetcodeScraperUtil.ts';
 
 /**
  * Extracts the titleSlug from a LeetCode problem URL.
@@ -49,6 +50,7 @@ export const listProblems = async (req: Request, res: Response) => {
  * POST /api/problems
  * Adds a new solved problem to the tracker for the authenticated user.
  * Body: { url: string }
+ * Fetches the exact title from LeetCode using GraphQL API.
  * Sets attemptCount=1 and lastAttemptedDate=now.
  */
 export const addProblem = async (req: Request, res: Response) => {
@@ -75,8 +77,21 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.', problem: existing });
     }
 
-    // Generate title from slug (e.g. "two-sum" → "Two Sum")
-    const title = titleSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    // Fetch the exact title from LeetCode
+    let title: string;
+    try {
+      const fetchedTitle = await getLeetCodeTitle(url.trim());
+      if (!fetchedTitle) {
+        return res.status(400).json({ success: false, error: 'Could not fetch problem details from LeetCode. Please verify the URL.' });
+      }
+      title = fetchedTitle;
+    } catch (scraperError: any) {
+      console.error('[addProblem] Error fetching title from LeetCode:', scraperError.message);
+      return res.status(502).json({ 
+        success: false, 
+        error: 'Failed to fetch problem details from LeetCode. Please try again later.' 
+      });
+    }
 
     const problem = await ProblemProgress.create({
       userId,
