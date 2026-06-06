@@ -11,6 +11,41 @@ function extractTitleSlug(url: string): string | null {
 }
 
 /**
+ * POST /api/problems/scrape-title
+ * Public endpoint to scrape a LeetCode problem title (no auth required).
+ * Used by frontend for real-time title fetching as user enters URL.
+ * Body: { url: string }
+ */
+export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
+  try {
+    const { url } = req.body;
+
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ success: false, error: 'A valid LeetCode URL is required.' });
+    }
+
+    const titleSlug = extractTitleSlug(url.trim());
+    if (!titleSlug) {
+      return res.status(400).json({ success: false, error: 'Invalid LeetCode URL format.' });
+    }
+
+    // Fetch the exact title from LeetCode
+    const title = await getLeetCodeTitle(url.trim());
+    if (!title) {
+      return res.status(404).json({ success: false, error: 'Problem not found on LeetCode.' });
+    }
+
+    res.json({ success: true, title, titleSlug });
+  } catch (error: any) {
+    console.error('[scrapeLeetCodeTitle] Error:', error.message);
+    res.status(502).json({ 
+      success: false, 
+      error: 'Failed to fetch problem details from LeetCode. Please try again.' 
+    });
+  }
+};
+
+/**
  * GET /api/problems
  * Lists all tracked problems for the authenticated user, with optional search filtering.
  * Query params: ?search=<text>&sort=title|attempts|date
