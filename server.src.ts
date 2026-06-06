@@ -9,6 +9,7 @@ import userRoutes from "./src/routes/userRoutes.ts";
 import syncRoutes from "./src/routes/syncRoutes.ts";
 import authRoutes from "./src/routes/authRoutes.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
+import { scrapeLeetCodeTitle } from "./src/controllers/problemController.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -88,7 +89,7 @@ function parseFrontmatter(content: string, filename: string, type: 'theory' | 'p
 
 // ──────────────────────────────────────────────────────────
 //  PUBLIC ENDPOINTS (no auth required)
-// ──────────────────────────────────────────────────────────
+// ���─────────────────────────────────────────────────────────
 
 // API endpoint to retrieve all listed documents
 app.get("/api/documents", (req, res) => {
@@ -166,6 +167,9 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// PUBLIC UTILITY: LeetCode title scraper (no auth required, used by frontend in real-time)
+app.post("/api/problems/scrape-title", scrapeLeetCodeTitle);
+
 // Native Auth routes
 app.use('/api/auth', authRoutes);
 
@@ -182,7 +186,7 @@ app.use('/api/user', requireAuth, userRoutes);
 // Mount Sync API routes (requires authentication)
 app.use('/api/sync', requireAuth, syncRoutes);
 
-// ───────��──────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
 // ──────────────────────────────────────────────────────────
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
