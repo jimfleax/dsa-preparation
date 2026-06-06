@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { listProblems, addProblem, revisitProblem, deleteProblem } from '../controllers/problemController.ts';
+import { listProblems, addProblem, revisitProblem, deleteProblem, scrapeLeetCodeTitle } from '../controllers/problemController.ts';
 
 const router = Router();
 
 // GET /api/problems — List all tracked problems
 router.get('/', listProblems);
+
+// POST /api/problems/scrape-title — Scrape a LeetCode problem title (no auth required for utility)
+router.post('/scrape-title', scrapeLeetCodeTitle);
 
 // POST /api/problems — Add a new solved problem
 router.post('/', addProblem);
