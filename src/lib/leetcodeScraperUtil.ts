@@ -1,0 +1,79 @@
+/**
+ * Utility function to scrape the title from a LeetCode problem using GraphQL API.
+ * Accepts a LeetCode problem URL and returns the exact title from LeetCode.
+ */
+
+/**
+ * Extracts the titleSlug from a LeetCode URL.
+ * @param url - The LeetCode problem URL (e.g., https://leetcode.com/problems/two-sum/)
+ * @returns The titleSlug or null if not found
+ */
+function extractTitleSlug(url: string): string | null {
+  const match = url.match(/problems\/([^\/]+)/);
+  if (!match) {
+    return null;
+  }
+  return match[1];
+}
+
+/**
+ * Fetches the exact title from LeetCode using their GraphQL API.
+ * @param url - The LeetCode problem URL
+ * @returns The problem title, or null if not found
+ * @throws An error if the network request fails
+ */
+export async function getLeetCodeTitle(url: string): Promise<string | null> {
+  try {
+    // 1. Extract the problem "slug" from the URL
+    // e.g., from "https://leetcode.com/problems/two-sum/" we extract "two-sum"
+    const titleSlug = extractTitleSlug(url);
+    if (!titleSlug) {
+      throw new Error("Invalid LeetCode URL. Must contain '/problems/problem-slug/'");
+    }
+
+    // 2. Prepare the GraphQL query
+    const graphqlQuery = {
+      operationName: "questionTitle",
+      variables: { titleSlug: titleSlug },
+      query: `query questionTitle($titleSlug: String!) {
+        question(titleSlug: $titleSlug) {
+          title
+        }
+      }`
+    };
+
+    // 3. Make a POST request to LeetCode's GraphQL endpoint
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // A generic User-Agent helps prevent basic blocks
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      body: JSON.stringify(graphqlQuery)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // 4. Extract and return the title
+    if (data.data && data.data.question) {
+      const title = data.data.question.title;
+      console.log(`[LeetCode Scraper] Title found: ${title}`);
+      return title;
+    } else if (data.errors) {
+      console.error("[LeetCode Scraper] GraphQL error:", data.errors);
+      return null;
+    } else {
+      console.log("[LeetCode Scraper] Problem not found.");
+      return null;
+    }
+
+  } catch (error) {
+    console.error("[LeetCode Scraper] Error fetching title:", error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
