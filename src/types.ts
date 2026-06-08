@@ -20,6 +20,7 @@ export interface ProblemProgress {
   titleSlug: string;
   title: string;
   url: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
   attemptCount: number;
   lastAttemptedDate: string;
   createdAt: string;

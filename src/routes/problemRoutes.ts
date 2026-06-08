@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listProblems, addProblem, revisitProblem, deleteProblem } from '../controllers/problemController.ts';
+import { listProblems, addProblem, revisitProblem, deleteProblem, updateProblem } from '../controllers/problemController.ts';
 
 const router = Router();
 
@@ -11,6 +11,9 @@ router.post('/', addProblem);
 
 // PATCH /api/problems/:id/revisit — Record a revisit (increment count + update date)
 router.patch('/:id/revisit', revisitProblem);
+
+// PUT /api/problems/:id — Update a problem (URL, attempts)
+router.put('/:id', updateProblem);
 
 // DELETE /api/problems/:id — Remove a problem
 router.delete('/:id', deleteProblem);

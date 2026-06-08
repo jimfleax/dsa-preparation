@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import ProblemProgress from '../models/ProblemProgress.ts';
-import { getLeetCodeTitle } from '../lib/leetcodeScraperUtil.ts';
+import { getLeetCodeTitle, getLeetCodeProblemInfo } from '../lib/leetcodeScraperUtil.ts';
 
 /**
  * Extracts the titleSlug from a LeetCode problem URL.
@@ -29,13 +29,13 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Invalid LeetCode URL format.' });
     }
 
-    // Fetch the exact title from LeetCode
-    const title = await getLeetCodeTitle(url.trim());
-    if (!title) {
+    // Fetch the exact info from LeetCode
+    const info = await getLeetCodeProblemInfo(url.trim());
+    if (!info) {
       return res.status(404).json({ success: false, error: 'Problem not found on LeetCode.' });
     }
 
-    res.json({ success: true, title, titleSlug });
+    res.json({ success: true, title: info.title, difficulty: info.difficulty, titleSlug });
   } catch (error: any) {
     console.error('[scrapeLeetCodeTitle] Error:', error.message);
     res.status(502).json({ 
@@ -112,14 +112,16 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(409).json({ success: false, error: 'This problem is already being tracked.', problem: existing });
     }
 
-    // Fetch the exact title from LeetCode
+    // Fetch the exact title and difficulty from LeetCode
     let title: string;
+    let difficulty: string | undefined;
     try {
-      const fetchedTitle = await getLeetCodeTitle(url.trim());
-      if (!fetchedTitle) {
+      const fetchedInfo = await getLeetCodeProblemInfo(url.trim());
+      if (!fetchedInfo) {
         return res.status(400).json({ success: false, error: 'Could not fetch problem details from LeetCode. Please verify the URL.' });
       }
-      title = fetchedTitle;
+      title = fetchedInfo.title;
+      difficulty = fetchedInfo.difficulty;
     } catch (scraperError: any) {
       console.error('[addProblem] Error fetching title from LeetCode:', scraperError.message);
       return res.status(502).json({ 
@@ -133,6 +135,7 @@ export const addProblem = async (req: Request, res: Response) => {
       titleSlug,
       title,
       url: url.trim(),
+      difficulty: difficulty as 'Easy' | 'Medium' | 'Hard' | undefined,
       attemptCount: 1,
       lastAttemptedDate: new Date(),
     });
@@ -179,6 +182,74 @@ export const revisitProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: any) {
     console.error('Error recording revisit:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * PUT /api/problems/:id
+ * Updates a problem (url, attempts). Re-fetches LeetCode title/difficulty if URL changes.
+ */
+export const updateProblem = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+    const { url, attemptCount } = req.body;
+
+    const problem = await ProblemProgress.findOne({ _id: id, userId });
+    if (!problem) {
+      return res.status(404).json({ success: false, error: 'Problem not found.' });
+    }
+
+    if (attemptCount !== undefined) {
+      const parsedCount = parseInt(attemptCount, 10);
+      if (isNaN(parsedCount) || parsedCount < 1) {
+        return res.status(400).json({ success: false, error: 'Attempt count must be at least 1.' });
+      }
+      problem.attemptCount = parsedCount;
+    }
+
+    if (url && typeof url === 'string' && url.trim() !== problem.url) {
+      const newUrl = url.trim();
+      const titleSlug = extractTitleSlug(newUrl);
+      
+      if (!titleSlug) {
+        return res.status(400).json({ success: false, error: 'Could not parse a valid problem slug from the new URL.' });
+      }
+
+      // Check for conflicts
+      const existing = await ProblemProgress.findOne({ userId, titleSlug, _id: { $ne: id } });
+      if (existing) {
+        return res.status(409).json({ success: false, error: 'You are already tracking this problem in another entry.' });
+      }
+
+      // Fetch new title and difficulty
+      try {
+        const fetchedInfo = await getLeetCodeProblemInfo(newUrl);
+        if (!fetchedInfo) {
+          return res.status(400).json({ success: false, error: 'Could not fetch problem details from LeetCode. Please verify the new URL.' });
+        }
+        problem.url = newUrl;
+        problem.titleSlug = titleSlug;
+        problem.title = fetchedInfo.title;
+        if (fetchedInfo.difficulty) problem.difficulty = fetchedInfo.difficulty as any;
+      } catch (scraperError: any) {
+        console.error('[updateProblem] Error fetching title from LeetCode:', scraperError.message);
+        return res.status(502).json({ 
+          success: false, 
+          error: 'Failed to fetch problem details from LeetCode. Please try again later.' 
+        });
+      }
+    }
+
+    await problem.save();
+    res.json({ success: true, problem });
+  } catch (error: any) {
+    console.error('Error updating problem:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

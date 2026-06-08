@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock } from "lucide-react";
+import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil } from "lucide-react";
 import { ProblemProgress } from "../types";
+import EditProblemModal from "./EditProblemModal";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -31,6 +32,8 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(null);
 
   const { getToken } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
@@ -237,10 +240,11 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50/50">
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Problem</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Difficulty</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Attempts</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Last Attempted</th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Revisit</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-12"></th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-20">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,6 +265,18 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
                       <p className="text-[11px] text-neutral-400 font-mono mt-0.5">{problem.titleSlug}</p>
+                    </td>
+
+                    {/* Difficulty Badge */}
+                    <td className="px-5 py-3.5 text-center">
+                      <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                        problem.difficulty === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
+                        problem.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
+                        problem.difficulty === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
+                        'bg-neutral-100 text-neutral-600 border-neutral-200'
+                      }`}>
+                        {problem.difficulty || 'N/A'}
+                      </span>
                     </td>
 
                     {/* Attempt Count Badge */}
@@ -301,20 +317,32 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
                       </button>
                     </td>
 
-                    {/* Delete (hover reveal) */}
+                    {/* Actions (hover reveal) */}
                     <td className="px-5 py-3.5 text-center">
-                      <button
-                        onClick={() => handleDelete(problem._id)}
-                        disabled={deletingId === problem._id}
-                        className="p-1.5 rounded-lg text-neutral-300 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer opacity-0 group-hover:opacity-100 disabled:opacity-50"
-                        title="Remove from tracker"
-                      >
-                        {deletingId === problem._id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-3.5 h-3.5" />
-                        )}
-                      </button>
+                      <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => {
+                            setEditingProblem(problem);
+                            setIsEditModalOpen(true);
+                          }}
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"
+                          title="Edit problem"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(problem._id)}
+                          disabled={deletingId === problem._id}
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer disabled:opacity-50"
+                          title="Remove from tracker"
+                        >
+                          {deletingId === problem._id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -328,6 +356,16 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
           </div>
         </div>
       )}
+
+      <EditProblemModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingProblem(null);
+        }}
+        onUpdated={fetchProblems}
+        problem={editingProblem}
+      />
     </div>
   );
 }

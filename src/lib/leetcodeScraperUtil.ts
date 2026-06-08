@@ -17,12 +17,12 @@ function extractTitleSlug(url: string): string | null {
 }
 
 /**
- * Fetches the exact title from LeetCode using their GraphQL API.
+ * Fetches the exact title and difficulty from LeetCode using their GraphQL API.
  * @param url - The LeetCode problem URL
- * @returns The problem title, or null if not found
+ * @returns The problem title and difficulty, or null if not found
  * @throws An error if the network request fails
  */
-export async function getLeetCodeTitle(url: string): Promise<string | null> {
+export async function getLeetCodeProblemInfo(url: string): Promise<{ title: string; difficulty: string } | null> {
   try {
     // 1. Extract the problem "slug" from the URL
     // e.g., from "https://leetcode.com/problems/two-sum/" we extract "two-sum"
@@ -33,11 +33,12 @@ export async function getLeetCodeTitle(url: string): Promise<string | null> {
 
     // 2. Prepare the GraphQL query
     const graphqlQuery = {
-      operationName: "questionTitle",
+      operationName: "questionData",
       variables: { titleSlug: titleSlug },
-      query: `query questionTitle($titleSlug: String!) {
+      query: `query questionData($titleSlug: String!) {
         question(titleSlug: $titleSlug) {
           title
+          difficulty
         }
       }`
     };
@@ -59,11 +60,11 @@ export async function getLeetCodeTitle(url: string): Promise<string | null> {
 
     const data = await response.json();
     
-    // 4. Extract and return the title
+    // 4. Extract and return the info
     if (data.data && data.data.question) {
-      const title = data.data.question.title;
-      console.log(`[LeetCode Scraper] Title found: ${title}`);
-      return title;
+      const { title, difficulty } = data.data.question;
+      console.log(`[LeetCode Scraper] Found - Title: ${title}, Difficulty: ${difficulty}`);
+      return { title, difficulty };
     } else if (data.errors) {
       console.error("[LeetCode Scraper] GraphQL error:", data.errors);
       return null;
@@ -73,7 +74,15 @@ export async function getLeetCodeTitle(url: string): Promise<string | null> {
     }
 
   } catch (error) {
-    console.error("[LeetCode Scraper] Error fetching title:", error instanceof Error ? error.message : String(error));
+    console.error("[LeetCode Scraper] Error fetching info:", error instanceof Error ? error.message : String(error));
     throw error;
   }
+}
+
+/**
+ * Backward-compatible wrapper for fetching just the title.
+ */
+export async function getLeetCodeTitle(url: string): Promise<string | null> {
+  const info = await getLeetCodeProblemInfo(url);
+  return info ? info.title : null;
 }
