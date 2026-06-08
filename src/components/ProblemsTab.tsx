@@ -60,6 +60,7 @@ export default function ProblemsTab({
   const [loading, setLoading] = useState<boolean>(true);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [problemToDelete, setProblemToDelete] = useState<ProblemProgress | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "title" | "attempts">("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -135,6 +136,7 @@ export default function ProblemsTab({
       const data = await response.json();
       if (data.success) {
         setProblems((prev) => prev.filter((p) => p._id !== problemId));
+        setProblemToDelete(null);
       }
     } catch (err) {
       console.error("Error deleting problem:", err);
@@ -593,9 +595,9 @@ export default function ProblemsTab({
                       </button>
                     </td>
 
-                    {/* Actions (hover reveal) */}
+                    {/* Actions */}
                     <td className="px-5 py-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => {
                             setEditingProblem(problem);
@@ -607,7 +609,7 @@ export default function ProblemsTab({
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(problem._id)}
+                          onClick={() => setProblemToDelete(problem)}
                           disabled={deletingId === problem._id}
                           className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 active:scale-90 transition-all duration-200 cursor-pointer disabled:opacity-50"
                           title="Remove from tracker"
@@ -658,6 +660,60 @@ export default function ProblemsTab({
         problem={smartRevisitProblem}
         onRevisited={fetchProblems}
       />
+
+      {/* Delete Confirmation Modal */}
+      {problemToDelete && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setProblemToDelete(null)}
+          />
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.target === e.currentTarget && setProblemToDelete(null)}
+          >
+            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-neutral-100 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center gap-2.5 px-6 py-4 border-b border-neutral-100">
+                <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-neutral-900">Delete Problem</h2>
+                  <p className="text-[11px] text-neutral-400 font-medium">This action cannot be undone.</p>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-sm text-neutral-600 mb-6">
+                  Are you sure you want to remove <strong className="text-neutral-900">{problemToDelete.title}</strong> from your tracker?
+                </p>
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    onClick={() => setProblemToDelete(null)}
+                    disabled={deletingId === problemToDelete._id}
+                    className="px-4 py-2.5 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 text-xs font-bold rounded-xl border border-neutral-200 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDelete(problemToDelete._id)}
+                    disabled={deletingId === problemToDelete._id}
+                    className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {deletingId === problemToDelete._id ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
