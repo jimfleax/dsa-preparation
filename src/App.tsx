@@ -188,7 +188,7 @@ export default function App() {
   };
 
   // Perform dynamic ping health check
-  const checkBackendStatus = async () => {
+  const checkBackendStatus = useCallback(async () => {
     setBackendStatus("connecting");
     const startTime = performance.now();
     try {
@@ -215,12 +215,26 @@ export default function App() {
       setBackendStatus("unreachable");
       setBackendLatency(null);
     }
-  };
+  }, [apiBase]);
 
   useEffect(() => {
     fetchDocumentsList();
     checkBackendStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-ping every 5 seconds when unreachable
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (backendStatus === "unreachable") {
+      intervalId = setInterval(() => {
+        checkBackendStatus();
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [backendStatus, checkBackendStatus]);
 
   // Filter Categories dynamically from currently loaded files
   const availableCategories = useMemo(() => {
@@ -724,18 +738,6 @@ export default function App() {
                 </span>
               )}
             </div>
-
-            <button
-              onClick={checkBackendStatus}
-              disabled={backendStatus === "connecting"}
-              className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg border border-indigo-100/50 hover:border-indigo-200 text-[10px] font-bold active:scale-95 transition-all cursor-pointer flex items-center gap-1 hover:text-indigo-700 disabled:opacity-50"
-              title="Test backend connection strength"
-            >
-              <RefreshCcw
-                className={`w-3 h-3 ${backendStatus === "connecting" ? "animate-spin text-indigo-500" : ""}`}
-              />
-              Test API Ping
-            </button>
           </div>
         </div>
       </footer>
