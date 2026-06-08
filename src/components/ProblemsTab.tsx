@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil, EyeOff } from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ProblemProgress } from "../types";
 import EditProblemModal from "./EditProblemModal";
 import UntrackedProblemsModal from "./UntrackedProblemsModal";
@@ -128,8 +129,17 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   }, [problems, searchQuery, sortBy]);
 
   // Calculate stats
-  const totalAttempts = problems.reduce((sum, p) => sum + p.attemptCount, 0);
-  const multiRevisited = problems.filter(p => p.attemptCount > 1).length;
+  const easyCount = problems.filter(p => p.difficulty === 'Easy').length;
+  const mediumCount = problems.filter(p => p.difficulty === 'Medium').length;
+  const hardCount = problems.filter(p => p.difficulty === 'Hard').length;
+  const unratedCount = problems.length - (easyCount + mediumCount + hardCount);
+
+  const difficultyData = [
+    { name: 'Easy', value: easyCount, color: '#10b981' },
+    { name: 'Medium', value: mediumCount, color: '#f59e0b' },
+    { name: 'Hard', value: hardCount, color: '#ef4444' },
+    ...(unratedCount > 0 ? [{ name: 'Unrated', value: unratedCount, color: '#94a3b8' }] : [])
+  ].filter(d => d.value > 0);
 
   if (loading) {
     return (
@@ -143,34 +153,48 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   return (
     <div id="problems-tab-root" className="space-y-5">
 
-      {/* Stats Strip */}
-      <div id="problems-stats-strip" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-indigo-100 transition-colors">
-          <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600">
-            <Inbox className="w-5 h-5" />
+      {/* Stats Section */}
+      <div id="problems-stats-section" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Total Solved Card */}
+        <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-2xs flex flex-col justify-center items-center gap-4 hover:border-indigo-100 transition-colors">
+          <div className="bg-indigo-50 p-4 rounded-2xl text-indigo-600">
+            <Inbox className="w-8 h-8" />
           </div>
-          <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Problems Solved</p>
-            <p className="text-2xl font-extrabold text-neutral-800">{problems.length}</p>
-          </div>
-        </div>
-        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-emerald-100 transition-colors">
-          <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-600">
-            <Hash className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Total Attempts</p>
-            <p className="text-2xl font-extrabold text-emerald-700">{totalAttempts}</p>
+          <div className="text-center">
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">Problems Solved</p>
+            <p className="text-4xl font-extrabold text-neutral-800">{problems.length}</p>
           </div>
         </div>
-        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex items-center gap-4 hover:border-violet-100 transition-colors">
-          <div className="bg-violet-50 p-2.5 rounded-xl text-violet-600">
-            <RotateCcw className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Revisited</p>
-            <p className="text-2xl font-extrabold text-violet-700">{multiRevisited}</p>
-          </div>
+
+        {/* Difficulty Distribution Chart */}
+        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-2xs flex flex-col justify-center items-center h-48 hover:border-neutral-200 transition-colors">
+          {problems.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={difficultyData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {difficultyData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  itemStyle={{ color: '#1f2937', fontWeight: 600 }}
+                />
+                <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '13px' }}/>
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-sm text-neutral-400 font-medium">No problems tracked yet.</p>
+          )}
         </div>
       </div>
 
