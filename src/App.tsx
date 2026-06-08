@@ -259,7 +259,7 @@ export default function App() {
             <div id="logo-icon-box" className="p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center">
               <GraduationCap className="w-5 h-5" />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <h1 id="navbar-main-heading" className="text-base font-bold text-neutral-905 tracking-tight leading-tight">DSA Preparation</h1>
             </div>
           </div>
@@ -306,7 +306,7 @@ export default function App() {
                   className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
                 >
                   <RefreshCcw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
-                  Sync
+                  <span className="hidden sm:inline">Sync</span>
                 </button>
               )}
 
@@ -315,10 +315,11 @@ export default function App() {
                 <button
                   id="add-problem-btn"
                   onClick={() => setShowAddModal(true)}
-                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
+                  title="Add Problem"
+                  className="px-2 sm:px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Problem
+                  <span className="hidden sm:inline">Add Problem</span>
                 </button>
               )}
 

@@ -177,7 +177,7 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
       <div onClick={handleClose} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity" />
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && handleClose()}>
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
@@ -193,7 +193,7 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
             </button>
           </div>
 
-          <form onSubmit={handleSave} className="p-6 space-y-4">
+          <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-neutral-600">LeetCode URL</label>
               <input
