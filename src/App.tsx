@@ -41,6 +41,7 @@ export default function App() {
   // Sync state
   const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
   const [newSubmissionsCount, setNewSubmissionsCount] = useState<number>(0);
+  const [newSubmissions, setNewSubmissions] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
   const { getToken, isSignedIn, logout, user } = useAuth();
@@ -53,8 +54,9 @@ export default function App() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
-      if (data.success && data.newSubmissionsCount > 0) {
-        setNewSubmissionsCount(data.newSubmissionsCount);
+      if (data.success && data.newCount > 0) {
+        setNewSubmissionsCount(data.newCount);
+        setNewSubmissions(data.newSubmissions);
         setShowSyncToast(true);
       }
     } catch (err) {
@@ -72,7 +74,7 @@ export default function App() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ trackAll: true })
+        body: JSON.stringify({ submissions: newSubmissions, notrack: false })
       });
       const data = await response.json();
       if (data.success) {
@@ -96,7 +98,7 @@ export default function App() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ trackAll: false })
+        body: JSON.stringify({ submissions: newSubmissions, notrack: true })
       });
       const data = await response.json();
       if (data.success) {
