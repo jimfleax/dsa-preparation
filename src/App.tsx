@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
 import LoginModal from "./components/LoginModal";
 import RegisterModal from "./components/RegisterModal";
-import { Search, BookOpen, Terminal, Layers, X, GraduationCap, FolderOpen, RefreshCcw, Plus, Code2, LogIn, Settings } from "lucide-react";
+import { Search, BookOpen, Terminal, Layers, X, GraduationCap, FolderOpen, RefreshCcw, Code2, LogIn, Settings } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
@@ -307,19 +307,6 @@ export default function App() {
                 >
                   <RefreshCcw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
                   <span className="hidden sm:inline">Sync</span>
-                </button>
-              )}
-
-              {/* Show Add Problem button only in Problems tab */}
-              {activeMainTab === 'problems' && (
-                <button
-                  id="add-problem-btn"
-                  onClick={() => setShowAddModal(true)}
-                  title="Add Problem"
-                  className="px-2 sm:px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Add Problem</span>
                 </button>
               )}
 

@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil, EyeOff } from "lucide-react";
+import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil, EyeOff, Plus, Sparkles } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ProblemProgress } from "../types";
 import EditProblemModal from "./EditProblemModal";
 import UntrackedProblemsModal from "./UntrackedProblemsModal";
+import SmartRevisitModal, { selectSmartRevisitProblem } from "./SmartRevisitModal";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -37,6 +38,8 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(null);
   const [isUntrackedModalOpen, setIsUntrackedModalOpen] = useState<boolean>(false);
+  const [isSmartRevisitOpen, setIsSmartRevisitOpen] = useState<boolean>(false);
+  const [smartRevisitProblem, setSmartRevisitProblem] = useState<ProblemProgress | null>(null);
 
   const { getToken } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
@@ -154,7 +157,7 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
     <div id="problems-tab-root" className="space-y-5">
 
       {/* Stats Section */}
-      <div id="problems-stats-section" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div id="problems-stats-section" className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Solved Card */}
         <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group">
           <div className="bg-indigo-50 p-4 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
@@ -201,6 +204,38 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
           ) : (
             <p className="text-sm text-neutral-400 font-medium">No problems tracked yet.</p>
           )}
+        </div>
+
+        {/* Quick Actions Card */}
+        <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
+          <div className="text-center mb-1">
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">Quick Actions</p>
+          </div>
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              id="smart-revisit-btn"
+              onClick={() => {
+                const selected = selectSmartRevisitProblem(problems);
+                if (selected) {
+                  setSmartRevisitProblem(selected);
+                  setIsSmartRevisitOpen(true);
+                }
+              }}
+              disabled={problems.length === 0}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="w-4 h-4" />
+              Smart Revisit
+            </button>
+            <button
+              id="add-problem-btn"
+              onClick={onOpenAddModal}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
+            >
+              <Plus className="w-4 h-4" />
+              Add Problem
+            </button>
+          </div>
         </div>
       </div>
 
@@ -497,6 +532,16 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
         isOpen={isUntrackedModalOpen}
         onClose={() => setIsUntrackedModalOpen(false)}
         onTracked={fetchProblems}
+      />
+
+      <SmartRevisitModal
+        isOpen={isSmartRevisitOpen}
+        onClose={() => {
+          setIsSmartRevisitOpen(false);
+          setSmartRevisitProblem(null);
+        }}
+        problem={smartRevisitProblem}
+        onRevisited={fetchProblems}
       />
     </div>
   );

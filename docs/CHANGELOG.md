@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-06-08] - Smart Revisit Feature
+- **Added:** `src/components/SmartRevisitModal.tsx` — Two-phase modal + weighted spaced-repetition selection algorithm
+- **Changed:** `src/components/ProblemsTab.tsx` — Stats grid expanded to 3-col with new "Quick Actions" card (Smart Revisit + Add Problem), `src/App.tsx` — Removed Add Problem button from navbar (moved to ProblemsTab)
+- **Why:** Enables intelligent problem revisit selection using a scoring algorithm: `daysSinceLastAttempt^1.3 × difficultyMultiplier × 1/ln(attempts+1)`. Favors stale, hard, low-attempt problems while maintaining variety via weighted-random sampling.
+- **Risk:** LOW — Additive feature. Algorithm runs client-side, reuses existing revisit API. No schema changes.
+- **Verification:** Verified via `tsc --noEmit` and `npm run build`.
+
 ## [2026-06-08] - Automated LeetCode Submissions Sync
 - **Changed:** `src/models/ProblemProgress.ts`, `src/types.ts`, `src/lib/leetcodeScraperUtil.ts`, `src/controllers/syncController.ts`, `src/controllers/problemController.ts`, `src/routes/syncRoutes.ts`, `src/routes/problemRoutes.ts`, `src/App.tsx`, `src/components/ProblemsTab.tsx`
 - **Added:** `src/components/SyncToast.tsx`, `src/components/UntrackedProblemsModal.tsx`
