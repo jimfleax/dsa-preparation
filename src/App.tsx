@@ -10,6 +10,7 @@ import PreviewPanel from "./components/PreviewPanel";
 import ProblemsTab from "./components/ProblemsTab";
 import AddProblemModal from "./components/AddProblemModal";
 import SettingsModal from "./components/SettingsModal";
+import SyncToast from "./components/SyncToast";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -37,8 +38,76 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
 
+  // Sync state
+  const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
+  const [newSubmissionsCount, setNewSubmissionsCount] = useState<number>(0);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
   const { getToken, isSignedIn, logout, user } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+
+  const checkLeetCodeSync = useCallback(async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/sync/check`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success && data.newSubmissionsCount > 0) {
+        setNewSubmissionsCount(data.newSubmissionsCount);
+        setShowSyncToast(true);
+      }
+    } catch (err) {
+      console.error("Failed to check sync:", err);
+    }
+  }, [getToken, apiBase]);
+
+  const handleTrackAll = async () => {
+    setIsSyncing(true);
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/sync/track`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ trackAll: true })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setShowSyncToast(false);
+        setProblemsRefreshKey(k => k + 1);
+      }
+    } catch (err) {
+      console.error("Failed to track submissions:", err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleDismissSync = async () => {
+    setIsSyncing(true);
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/sync/track`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ trackAll: false })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setShowSyncToast(false);
+      }
+    } catch (err) {
+      console.error("Failed to dismiss submissions:", err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   /**
    * Fetches user settings from the backend. Auto-provisions a User document
@@ -57,12 +126,14 @@ export default function App() {
         // Prompt to set LeetCode username if missing
         if (!data.settings.leetcodeUsername) {
           setShowSettingsModal(true);
+        } else {
+          checkLeetCodeSync();
         }
       }
     } catch (err) {
       console.error("Error fetching user settings:", err);
     }
-  }, [isSignedIn, getToken, apiBase]);
+  }, [isSignedIn, getToken, apiBase, checkLeetCodeSync]);
 
   // Fetch user settings when auth state changes
   useEffect(() => {
@@ -551,6 +622,14 @@ export default function App() {
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
+        {showSyncToast && (
+          <SyncToast
+            count={newSubmissionsCount}
+            onTrack={handleTrackAll}
+            onDismiss={handleDismissSync}
+            isProcessing={isSyncing}
+          />
+        )}
         <AddProblemModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
@@ -563,6 +642,9 @@ export default function App() {
           onSaved={(username) => {
             setUserSettings(prev => prev ? { ...prev, leetcodeUsername: username } : prev);
             setShowSettingsModal(false);
+            if (username) {
+              checkLeetCodeSync();
+            }
           }}
         />
       </SignedIn>

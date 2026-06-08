@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-06-08] - Automated LeetCode Submissions Sync
+- **Changed:** `src/models/ProblemProgress.ts`, `src/types.ts`, `src/lib/leetcodeScraperUtil.ts`, `src/controllers/syncController.ts`, `src/controllers/problemController.ts`, `src/routes/syncRoutes.ts`, `src/routes/problemRoutes.ts`, `src/App.tsx`, `src/components/ProblemsTab.tsx`
+- **Added:** `src/components/SyncToast.tsx`, `src/components/UntrackedProblemsModal.tsx`
+- **Why:** Integrated LeetCode API to auto-fetch new accepted submissions on app load. Added `notrack` schema property and management modal to allow users to permanently dismiss submissions from the main tracker without losing the prompt state.
+- **Risk:** LOW — Additive change. Backward-compatible Schema update, protected endpoints, and failure-tolerant API scraping.
+- **Verification:** Verified via `tsc --noEmit` and functional code review.
+
 ## [2026-06-08] - Edit Problem Feature
 - **Changed:** `src/controllers/problemController.ts`, `src/routes/problemRoutes.ts`, `src/components/EditProblemModal.tsx`, `src/components/ProblemsTab.tsx`
 - **Why:** To allow users to modify tracked problems (URL, attempts) and delete them via a modal.

@@ -1,9 +1,12 @@
 import { Router } from 'express';
-import { syncLeetCode } from '../controllers/syncController.ts';
+import { checkSync, trackSubmissions } from '../controllers/syncController.ts';
 
 const router = Router();
 
-// POST /api/sync — Trigger LeetCode data sync for the authenticated user
-router.post('/', syncLeetCode);
+// GET /api/sync/check — Check for new accepted submissions on LeetCode
+router.get('/check', checkSync);
+
+// POST /api/sync/track — Track or dismiss new submissions
+router.post('/track', trackSubmissions);
 
 export default router;

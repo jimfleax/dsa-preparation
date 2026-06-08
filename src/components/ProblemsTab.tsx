@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil } from "lucide-react";
+import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil, EyeOff } from "lucide-react";
 import { ProblemProgress } from "../types";
 import EditProblemModal from "./EditProblemModal";
+import UntrackedProblemsModal from "./UntrackedProblemsModal";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -34,6 +35,7 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(null);
+  const [isUntrackedModalOpen, setIsUntrackedModalOpen] = useState<boolean>(false);
 
   const { getToken } = useAuth();
   const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
@@ -196,8 +198,16 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
             )}
           </div>
 
-          {/* Sort */}
+          {/* Sort & Untracked Modal Button */}
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setIsUntrackedModalOpen(true)}
+              className="px-3 py-1.5 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 transition-all flex items-center gap-1.5 active:scale-95"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+              Untracked
+            </button>
+            <div className="w-px h-6 bg-neutral-200 mx-1"></div>
             <ArrowUpDown className="w-3.5 h-3.5 text-indigo-500" />
             <span className="text-neutral-400 font-medium text-xs">Sort:</span>
             <select
@@ -365,6 +375,12 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
         }}
         onUpdated={fetchProblems}
         problem={editingProblem}
+      />
+
+      <UntrackedProblemsModal
+        isOpen={isUntrackedModalOpen}
+        onClose={() => setIsUntrackedModalOpen(false)}
+        onTracked={fetchProblems}
       />
     </div>
   );

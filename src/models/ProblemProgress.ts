@@ -17,6 +17,7 @@ export interface IProblemProgress extends Document {
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   attemptCount: number;
   lastAttemptedDate: Date;
+  notrack: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +56,10 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
     lastAttemptedDate: {
       type: Date,
       default: Date.now,
+    },
+    notrack: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

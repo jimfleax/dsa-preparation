@@ -86,3 +86,55 @@ export async function getLeetCodeTitle(url: string): Promise<string | null> {
   const info = await getLeetCodeProblemInfo(url);
   return info ? info.title : null;
 }
+
+/**
+ * Fetches the user's recent accepted submissions.
+ * Note: LeetCode API typically limits this to the last ~15-20 submissions.
+ * @param username - The LeetCode username
+ * @param limit - Max number of submissions to fetch (default: 20)
+ */
+export async function fetchRecentAcceptedSubmissions(username: string, limit: number = 20): Promise<{ title: string; titleSlug: string; timestamp: string }[]> {
+  try {
+    const graphqlQuery = {
+      operationName: "recentAcSubmissions",
+      variables: { 
+        username: username, 
+        limit: limit
+      },
+      query: `query recentAcSubmissions($username: String!, $limit: Int!) {
+        recentAcSubmissionList(username: $username, limit: $limit) {
+          title
+          titleSlug
+          timestamp
+        }
+      }`
+    };
+
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      body: JSON.stringify(graphqlQuery)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.data && data.data.recentAcSubmissionList) {
+      return data.data.recentAcSubmissionList;
+    } else if (data.errors) {
+      console.error("[LeetCode Scraper] GraphQL error (recentAcSubmissions):", data.errors);
+      return [];
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("[LeetCode Scraper] Error fetching recent submissions:", error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
