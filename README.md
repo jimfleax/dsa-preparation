@@ -24,8 +24,6 @@ Are you grinding LeetCode but losing track of what you've solved? Do you struggl
 - **🔄 LeetCode Auto-Sync**: Never manually enter a solved problem again. Our automated sync integration pulls your LeetCode submissions directly into your personal dashboard.
 - **🧠 Smart Revisit Algorithm**: Stop guessing what to practice. Our weighted-random selection engine suggests past problems for review, prioritizing stale, high-difficulty, and low-attempt problems to maximize your retention.
 - **📊 Interactive Analytics Dashboard**: Track your progress beautifully. Visualize your solved problem difficulty distribution (Easy, Medium, Hard) and attempt rates with responsive, real-time pie charts.
-- **🔒 Secure & Private**: Fully featured native authentication ensures your data and progress are securely stored and accessible only to you.
-- **📱 Mobile-Optimized**: Practice on the go. Our fully responsive card-based layout means your dashboard looks stunning and works perfectly on any device.
 
 ## 🚀 Getting Started
 
