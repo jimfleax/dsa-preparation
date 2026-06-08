@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { X, Mail, Lock, UserPlus, User } from 'lucide-react';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { X, Mail, Lock, UserPlus, User } from "lucide-react";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -8,26 +8,32 @@ interface RegisterModalProps {
   onSwitchToLogin: () => void;
 }
 
-export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
+export default function RegisterModal({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+}: RegisterModalProps) {
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+      const apiBase =
+        (import.meta as any).env.VITE_API_URL ||
+        "https://dsa-preparation-788547842951.asia-south1.run.app";
       const res = await fetch(`${apiBase}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
 
@@ -37,11 +43,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
         login(data.token, data.user);
         onClose();
       } else {
-        setError(data.message || 'Registration failed');
+        setError(data.message || "Registration failed");
       }
     } catch (err) {
       console.error(err);
-      setError('An error occurred during registration');
+      setError("An error occurred during registration");
     } finally {
       setLoading(false);
     }
@@ -62,8 +68,12 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
               <UserPlus className="w-6 h-6" />
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900">Create Account</h2>
-            <p className="text-neutral-500 text-sm mt-1">Join to track your DSA progress</p>
+            <h2 className="text-2xl font-bold text-neutral-900">
+              Create Account
+            </h2>
+            <p className="text-neutral-500 text-sm mt-1">
+              Join to track your DSA progress
+            </p>
           </div>
 
           {error && (
@@ -74,7 +84,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Username</label>
+              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                Username
+              </label>
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
@@ -89,7 +101,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                Email
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
@@ -104,7 +118,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Password</label>
+              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
@@ -126,14 +142,17 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                'Sign Up'
+                "Sign Up"
               )}
             </button>
           </form>
 
           <p className="text-center text-sm text-neutral-500 mt-6 font-medium">
-            Already have an account?{' '}
-            <button onClick={onSwitchToLogin} className="text-indigo-600 hover:text-indigo-700 font-bold">
+            Already have an account?{" "}
+            <button
+              onClick={onSwitchToLogin}
+              className="text-indigo-600 hover:text-indigo-700 font-bold"
+            >
               Sign in
             </button>
           </p>

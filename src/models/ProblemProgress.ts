@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 /**
  * Represents a tracked DSA problem in the database.
@@ -14,7 +14,7 @@ export interface IProblemProgress extends Document {
   titleSlug: string;
   title: string;
   url: string;
-  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  difficulty?: "Easy" | "Medium" | "Hard";
   attemptCount: number;
   lastAttemptedDate: Date;
   notrack: boolean;
@@ -26,17 +26,17 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
   {
     userId: {
       type: String,
-      required: [true, 'userId is required'],
+      required: [true, "userId is required"],
       index: true,
     },
     titleSlug: {
       type: String,
-      required: [true, 'titleSlug is required'],
+      required: [true, "titleSlug is required"],
       trim: true,
     },
     title: {
       type: String,
-      required: [true, 'Problem title is required'],
+      required: [true, "Problem title is required"],
       trim: true,
     },
     url: {
@@ -45,13 +45,13 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
     },
     difficulty: {
       type: String,
-      enum: ['Easy', 'Medium', 'Hard'],
+      enum: ["Easy", "Medium", "Hard"],
       required: false,
     },
     attemptCount: {
       type: Number,
       default: 1,
-      min: [1, 'attemptCount must be at least 1'],
+      min: [1, "attemptCount must be at least 1"],
     },
     lastAttemptedDate: {
       type: Date,
@@ -62,7 +62,7 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Compound unique index: a user can only have one progress record per problem
@@ -71,4 +71,7 @@ ProblemProgressSchema.index({ userId: 1, titleSlug: 1 }, { unique: true });
 // Index for sorting by last attempted date
 ProblemProgressSchema.index({ lastAttemptedDate: -1 });
 
-export default mongoose.model<IProblemProgress>('ProblemProgress', ProblemProgressSchema);
+export default mongoose.model<IProblemProgress>(
+  "ProblemProgress",
+  ProblemProgressSchema,
+);

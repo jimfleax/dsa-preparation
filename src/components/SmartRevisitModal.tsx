@@ -24,7 +24,7 @@ import { ProblemProgress } from "../types";
  * - Attempt Decay (1/ln(attempts+1)): strongly favors low-attempt, never zeroes
  */
 export function selectSmartRevisitProblem(
-  problems: ProblemProgress[]
+  problems: ProblemProgress[],
 ): ProblemProgress | null {
   if (problems.length === 0) return null;
   if (problems.length === 1) return problems[0];
@@ -111,7 +111,7 @@ export default function SmartRevisitModal({
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       const data = await response.json();
       if (data.success) {

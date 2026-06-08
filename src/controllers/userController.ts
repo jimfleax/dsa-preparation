@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import User from '../models/User.ts';
+import { Request, Response } from "express";
+import User from "../models/User.ts";
 
 /**
  * GET /api/user/settings
@@ -9,12 +9,12 @@ export const getUserSettings = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+      return res.status(404).json({ success: false, error: "User not found" });
     }
 
     res.json({
@@ -25,7 +25,7 @@ export const getUserSettings = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error fetching user settings:', error);
+    console.error("Error fetching user settings:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -39,25 +39,32 @@ export const updateUserSettings = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
     const { leetcodeUsername } = req.body;
 
-    if (leetcodeUsername !== undefined && typeof leetcodeUsername !== 'string') {
-      return res.status(400).json({ success: false, error: 'leetcodeUsername must be a string.' });
+    if (
+      leetcodeUsername !== undefined &&
+      typeof leetcodeUsername !== "string"
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, error: "leetcodeUsername must be a string." });
     }
 
     const user = await User.findByIdAndUpdate(
       userId,
       {
-        ...(leetcodeUsername !== undefined && { leetcodeUsername: leetcodeUsername.trim() }),
+        ...(leetcodeUsername !== undefined && {
+          leetcodeUsername: leetcodeUsername.trim(),
+        }),
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+      return res.status(404).json({ success: false, error: "User not found" });
     }
 
     res.json({
@@ -68,7 +75,7 @@ export const updateUserSettings = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error updating user settings:', error);
+    console.error("Error updating user settings:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

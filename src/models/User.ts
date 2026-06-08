@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Document, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
   username: string;
@@ -15,14 +15,14 @@ const UserSchema = new Schema<IUser>(
   {
     username: {
       type: String,
-      required: [true, 'username is required'],
+      required: [true, "username is required"],
       unique: true,
       trim: true,
       index: true,
     },
     email: {
       type: String,
-      required: [true, 'email is required'],
+      required: [true, "email is required"],
       unique: true,
       lowercase: true,
       trim: true,
@@ -30,7 +30,7 @@ const UserSchema = new Schema<IUser>(
     },
     passwordHash: {
       type: String,
-      required: [true, 'password is required'],
+      required: [true, "password is required"],
     },
     leetcodeUsername: {
       type: String,
@@ -38,19 +38,21 @@ const UserSchema = new Schema<IUser>(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Hash password before saving
-UserSchema.pre<IUser>('save', async function () {
-  if (!this.isModified('passwordHash')) return;
+UserSchema.pre<IUser>("save", async function () {
+  if (!this.isModified("passwordHash")) return;
   const salt = await bcrypt.genSalt(10);
   this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
 });
 
 // Compare password method
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string,
+): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.passwordHash);
 };
 
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUser>("User", UserSchema);

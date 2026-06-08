@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { X, Mail, Lock, LogIn } from 'lucide-react';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { X, Mail, Lock, LogIn } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -8,25 +8,31 @@ interface LoginModalProps {
   onSwitchToRegister: () => void;
 }
 
-export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
+export default function LoginModal({
+  isOpen,
+  onClose,
+  onSwitchToRegister,
+}: LoginModalProps) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+      const apiBase =
+        (import.meta as any).env.VITE_API_URL ||
+        "https://dsa-preparation-788547842951.asia-south1.run.app";
       const res = await fetch(`${apiBase}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -36,11 +42,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
         login(data.token, data.user);
         onClose();
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message || "Login failed");
       }
     } catch (err) {
       console.error(err);
-      setError('An error occurred during login');
+      setError("An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -61,8 +67,12 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
               <LogIn className="w-6 h-6" />
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900">Welcome Back</h2>
-            <p className="text-neutral-500 text-sm mt-1">Sign in to continue your preparation</p>
+            <h2 className="text-2xl font-bold text-neutral-900">
+              Welcome Back
+            </h2>
+            <p className="text-neutral-500 text-sm mt-1">
+              Sign in to continue your preparation
+            </p>
           </div>
 
           {error && (
@@ -73,7 +83,9 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                Email
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
@@ -88,7 +100,9 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Password</label>
+              <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
@@ -110,14 +124,17 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
 
           <p className="text-center text-sm text-neutral-500 mt-6 font-medium">
-            Don't have an account?{' '}
-            <button onClick={onSwitchToRegister} className="text-indigo-600 hover:text-indigo-700 font-bold">
+            Don't have an account?{" "}
+            <button
+              onClick={onSwitchToRegister}
+              className="text-indigo-600 hover:text-indigo-700 font-bold"
+            >
               Sign up
             </button>
           </p>
