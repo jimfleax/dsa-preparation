@@ -248,18 +248,20 @@ export default function ProblemsTab({
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    borderRadius: "12px",
+                    borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    fontSize: "12px",
+                    padding: "6px 10px"
                   }}
-                  itemStyle={{ color: "#1f2937", fontWeight: 600 }}
+                  itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
                 />
                 <Legend
                   verticalAlign="middle"
                   align="right"
                   layout="vertical"
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "13px" }}
+                  wrapperStyle={{ fontSize: "12px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -277,7 +279,7 @@ export default function ProblemsTab({
               Quick Actions
             </p>
           </div>
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-3 w-full max-w-[200px]">
             <button
               id="smart-revisit-btn"
               onClick={() => {
