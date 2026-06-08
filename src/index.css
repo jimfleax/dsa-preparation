@@ -6,6 +6,13 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/* Disable outlines globally */
+*,
+*::before,
+*::after {
+  outline: none !important;
+}
+
 /* Custom fade scrollbar styling for neutral aesthetic */
 ::-webkit-scrollbar {
   width: 6px;
