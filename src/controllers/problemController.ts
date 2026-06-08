@@ -60,7 +60,8 @@ export const listProblems = async (req: Request, res: Response) => {
     const { search, sort } = req.query;
 
     // Always scope to the authenticated user — prevents IDOR
-    const filter: Record<string, any> = { userId };
+    // Exclude problems marked as notrack
+    const filter: Record<string, any> = { userId, notrack: { $ne: true } };
 
     if (search && typeof search === 'string' && search.trim()) {
       filter.title = { $regex: search.trim(), $options: 'i' };
@@ -276,6 +277,54 @@ export const deleteProblem = async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Problem removed from tracker.' });
   } catch (error: any) {
     console.error('Error deleting problem:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * GET /api/problems/untracked
+ * Lists all problems for the authenticated user that have notrack: true.
+ */
+export const listUntrackedProblems = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const problems = await ProblemProgress.find({ userId, notrack: true }).sort({ createdAt: -1 }).lean();
+
+    res.json({ success: true, problems, count: problems.length });
+  } catch (error: any) {
+    console.error('Error listing untracked problems:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * PATCH /api/problems/:id/toggle-track
+ * Toggles the notrack flag for a given problem.
+ */
+export const toggleTrackProblem = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    const problem = await ProblemProgress.findOne({ _id: id, userId });
+    if (!problem) {
+      return res.status(404).json({ success: false, error: 'Problem not found.' });
+    }
+
+    problem.notrack = !problem.notrack;
+    await problem.save();
+
+    res.json({ success: true, problem });
+  } catch (error: any) {
+    console.error('Error toggling track status:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

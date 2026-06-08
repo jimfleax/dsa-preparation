@@ -23,6 +23,7 @@ export interface ProblemProgress {
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   attemptCount: number;
   lastAttemptedDate: string;
+  notrack?: boolean;
   createdAt: string;
   updatedAt: string;
 }
