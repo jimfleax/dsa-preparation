@@ -49,7 +49,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
   return (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md relative flex flex-col max-h-[90dvh]">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-neutral-400 hover:text-neutral-700 bg-neutral-50 hover:bg-neutral-100 p-1.5 rounded-full transition-colors"
@@ -57,7 +57,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-8">
+        <div className="p-8 overflow-y-auto">
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
               <UserPlus className="w-6 h-6" />

@@ -99,7 +99,7 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 flex flex-col max-h-[90dvh]">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
@@ -120,7 +120,7 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
             {/* Info banner when no username is set */}
             {!currentUsername && (
               <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-700 font-medium">

@@ -69,7 +69,7 @@ export default function UntrackedProblemsModal({ isOpen, onClose, onTracked }: U
       <div onClick={onClose} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity" />
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
-        <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[80vh] flex flex-col">
+        <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90dvh] flex flex-col">
           
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 shrink-0">
             <div className="flex items-center gap-2.5">

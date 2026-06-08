@@ -146,7 +146,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
@@ -167,7 +167,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
             {/* URL Input */}
             <div className="space-y-1.5">
               <label htmlFor="problem-url-input" className="text-xs font-semibold text-neutral-600">
