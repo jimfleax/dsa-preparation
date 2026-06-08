@@ -9,14 +9,21 @@ interface SettingsModalProps {
   onSaved: (username: string) => void;
 }
 
-export default function SettingsModal({ isOpen, onClose, currentUsername, onSaved }: SettingsModalProps) {
+export default function SettingsModal({
+  isOpen,
+  onClose,
+  currentUsername,
+  onSaved,
+}: SettingsModalProps) {
   const [username, setUsername] = useState<string>(currentUsername);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+  const apiBase =
+    (import.meta as any).env.VITE_API_URL ||
+    "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   // Sync local state when the modal opens with a new value
   useEffect(() => {
@@ -40,7 +47,9 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
 
     // Basic format validation — LeetCode usernames are alphanumeric + hyphens/underscores
     if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-      setError("LeetCode username can only contain letters, numbers, hyphens, and underscores.");
+      setError(
+        "LeetCode username can only contain letters, numbers, hyphens, and underscores.",
+      );
       return;
     }
 
@@ -108,7 +117,9 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
               </div>
               <div>
                 <h2 className="text-sm font-bold text-neutral-900">Settings</h2>
-                <p className="text-[11px] text-neutral-400 font-medium">Configure your LeetCode integration</p>
+                <p className="text-[11px] text-neutral-400 font-medium">
+                  Configure your LeetCode integration
+                </p>
               </div>
             </div>
             <button
@@ -120,18 +131,26 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 overflow-y-auto"
+          >
             {/* Info banner when no username is set */}
             {!currentUsername && (
               <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-700 font-medium">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
-                <span>Please link your LeetCode username to enable progress syncing.</span>
+                <span>
+                  Please link your LeetCode username to enable progress syncing.
+                </span>
               </div>
             )}
 
             {/* Username Input */}
             <div className="space-y-1.5">
-              <label htmlFor="leetcode-username-input" className="text-xs font-semibold text-neutral-600">
+              <label
+                htmlFor="leetcode-username-input"
+                className="text-xs font-semibold text-neutral-600"
+              >
                 LeetCode Username
               </label>
               <input
@@ -139,7 +158,11 @@ export default function SettingsModal({ isOpen, onClose, currentUsername, onSave
                 type="text"
                 placeholder="e.g. jimfleax"
                 value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(null); setSuccess(false); }}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setError(null);
+                  setSuccess(false);
+                }}
                 disabled={saving}
                 autoFocus
                 className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium disabled:opacity-50"

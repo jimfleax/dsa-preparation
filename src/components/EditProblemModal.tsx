@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { X, Link2, Loader2, AlertCircle, CheckCircle2, Hash, Trash2 } from "lucide-react";
+import {
+  X,
+  Link2,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Hash,
+  Trash2,
+} from "lucide-react";
 import { ProblemProgress } from "../types";
 
 interface EditProblemModalProps {
@@ -10,7 +18,12 @@ interface EditProblemModalProps {
   problem: ProblemProgress | null;
 }
 
-export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }: EditProblemModalProps) {
+export default function EditProblemModal({
+  isOpen,
+  onClose,
+  onUpdated,
+  problem,
+}: EditProblemModalProps) {
   const [url, setUrl] = useState<string>("");
   const [attemptCount, setAttemptCount] = useState<number>(1);
   const [titlePreview, setTitlePreview] = useState<string>("");
@@ -23,7 +36,9 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+  const apiBase =
+    (import.meta as any).env.VITE_API_URL ||
+    "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   useEffect(() => {
     if (problem && isOpen) {
@@ -69,10 +84,14 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
           setTitlePreview(data.title);
           if (data.difficulty) setDifficultyPreview(data.difficulty);
         } else {
-          setTitlePreview(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+          setTitlePreview(
+            slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+          );
         }
       } catch (err) {
-        setTitlePreview(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+        setTitlePreview(
+          slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        );
       } finally {
         setFetchingTitle(false);
       }
@@ -174,9 +193,15 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
 
   return (
     <>
-      <div onClick={handleClose} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity" />
+      <div
+        onClick={handleClose}
+        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity"
+      />
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        onClick={(e) => e.target === e.currentTarget && handleClose()}
+      >
         <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-100 flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
             <div className="flex items-center gap-2.5">
@@ -184,18 +209,27 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
                 <Link2 className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-neutral-900">Edit Problem</h2>
-                <p className="text-[11px] text-neutral-400 font-medium">Update problem URL and attempts</p>
+                <h2 className="text-sm font-bold text-neutral-900">
+                  Edit Problem
+                </h2>
+                <p className="text-[11px] text-neutral-400 font-medium">
+                  Update problem URL and attempts
+                </p>
               </div>
             </div>
-            <button onClick={handleClose} className="p-2 hover:bg-neutral-50 rounded-lg text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer">
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-neutral-50 rounded-lg text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-600">LeetCode URL</label>
+              <label className="text-xs font-semibold text-neutral-600">
+                LeetCode URL
+              </label>
               <input
                 type="url"
                 value={url}
@@ -206,34 +240,49 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-600">Problem Title</label>
-              <div className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center justify-between ${titlePreview ? "text-neutral-800" : "text-neutral-400 italic"}`}>
+              <label className="text-xs font-semibold text-neutral-600">
+                Problem Title
+              </label>
+              <div
+                className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center justify-between ${titlePreview ? "text-neutral-800" : "text-neutral-400 italic"}`}
+              >
                 <div className="flex items-center gap-3">
                   <span>{titlePreview || "Enter URL to fetch title..."}</span>
                   {difficultyPreview && (
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                      difficultyPreview === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
-                      difficultyPreview === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
-                      difficultyPreview === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
-                      'bg-neutral-100 text-neutral-600 border-neutral-200'
-                    }`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                        difficultyPreview === "Easy"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
+                          : difficultyPreview === "Medium"
+                            ? "bg-amber-50 text-amber-700 border-amber-100/50"
+                            : difficultyPreview === "Hard"
+                              ? "bg-rose-50 text-rose-700 border-rose-100/50"
+                              : "bg-neutral-100 text-neutral-600 border-neutral-200"
+                      }`}
+                    >
                       {difficultyPreview}
                     </span>
                   )}
                 </div>
-                {fetchingTitle && <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />}
+                {fetchingTitle && (
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                )}
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-600">Attempt Count</label>
+              <label className="text-xs font-semibold text-neutral-600">
+                Attempt Count
+              </label>
               <div className="relative">
                 <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                 <input
                   type="number"
                   min="1"
                   value={attemptCount}
-                  onChange={(e) => setAttemptCount(parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    setAttemptCount(parseInt(e.target.value) || 1)
+                  }
                   disabled={saving || deleting}
                   className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
@@ -260,12 +309,16 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
                 onClick={handleDelete}
                 disabled={saving || deleting}
                 className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
-                  confirmDelete 
-                    ? "bg-rose-600 hover:bg-rose-700 text-white border-rose-600" 
+                  confirmDelete
+                    ? "bg-rose-600 hover:bg-rose-700 text-white border-rose-600"
                     : "bg-white hover:bg-rose-50 text-rose-600 border-rose-200"
                 } disabled:opacity-50`}
               >
-                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                {deleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
                 {confirmDelete ? "Confirm Delete" : "Delete"}
               </button>
 
@@ -280,10 +333,19 @@ export default function EditProblemModal({ isOpen, onClose, onUpdated, problem }
                 </button>
                 <button
                   type="submit"
-                  disabled={saving || deleting || !titlePreview || fetchingTitle}
+                  disabled={
+                    saving || deleting || !titlePreview || fetchingTitle
+                  }
                   className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                 >
-                  {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Saving...</> : "Save Changes"}
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </button>
               </div>
             </div>

@@ -1,11 +1,35 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Search, X, ExternalLink, ArrowUpDown, Inbox, Trash2, Loader2, RotateCcw, Hash, CalendarClock, Pencil, EyeOff, Plus, Sparkles } from "lucide-react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import {
+  Search,
+  X,
+  ExternalLink,
+  ArrowUpDown,
+  Inbox,
+  Trash2,
+  Loader2,
+  RotateCcw,
+  Hash,
+  CalendarClock,
+  Pencil,
+  EyeOff,
+  Plus,
+  Sparkles,
+} from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import { ProblemProgress } from "../types";
 import EditProblemModal from "./EditProblemModal";
 import UntrackedProblemsModal from "./UntrackedProblemsModal";
-import SmartRevisitModal, { selectSmartRevisitProblem } from "./SmartRevisitModal";
+import SmartRevisitModal, {
+  selectSmartRevisitProblem,
+} from "./SmartRevisitModal";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -28,21 +52,30 @@ function timeAgo(dateString: string): string {
   return `${Math.floor(diffDays / 365)} years ago`;
 }
 
-export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabProps) {
+export default function ProblemsTab({
+  onOpenAddModal,
+  refreshKey,
+}: ProblemsTabProps) {
   const [problems, setProblems] = useState<ProblemProgress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<'date' | 'title' | 'attempts'>("date");
+  const [sortBy, setSortBy] = useState<"date" | "title" | "attempts">("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(null);
-  const [isUntrackedModalOpen, setIsUntrackedModalOpen] = useState<boolean>(false);
+  const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(
+    null,
+  );
+  const [isUntrackedModalOpen, setIsUntrackedModalOpen] =
+    useState<boolean>(false);
   const [isSmartRevisitOpen, setIsSmartRevisitOpen] = useState<boolean>(false);
-  const [smartRevisitProblem, setSmartRevisitProblem] = useState<ProblemProgress | null>(null);
+  const [smartRevisitProblem, setSmartRevisitProblem] =
+    useState<ProblemProgress | null>(null);
 
   const { getToken } = useAuth();
-  const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+  const apiBase =
+    (import.meta as any).env.VITE_API_URL ||
+    "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   const fetchProblems = async () => {
     try {
@@ -68,14 +101,17 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
     setRevisitingId(problemId);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems/${problemId}/revisit`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${apiBase}/api/problems/${problemId}/revisit`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await response.json();
       if (data.success) {
-        setProblems(prev =>
-          prev.map(p => p._id === problemId ? data.problem : p)
+        setProblems((prev) =>
+          prev.map((p) => (p._id === problemId ? data.problem : p)),
         );
       }
     } catch (err) {
@@ -98,7 +134,7 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
       });
       const data = await response.json();
       if (data.success) {
-        setProblems(prev => prev.filter(p => p._id !== problemId));
+        setProblems((prev) => prev.filter((p) => p._id !== problemId));
       }
     } catch (err) {
       console.error("Error deleting problem:", err);
@@ -117,55 +153,71 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = result.filter(p =>
-        p.title.toLowerCase().includes(q) || p.titleSlug.includes(q)
+      result = result.filter(
+        (p) => p.title.toLowerCase().includes(q) || p.titleSlug.includes(q),
       );
     }
 
     result.sort((a, b) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "attempts") return b.attemptCount - a.attemptCount;
-      return new Date(b.lastAttemptedDate).getTime() - new Date(a.lastAttemptedDate).getTime();
+      return (
+        new Date(b.lastAttemptedDate).getTime() -
+        new Date(a.lastAttemptedDate).getTime()
+      );
     });
 
     return result;
   }, [problems, searchQuery, sortBy]);
 
   // Calculate stats
-  const easyCount = problems.filter(p => p.difficulty === 'Easy').length;
-  const mediumCount = problems.filter(p => p.difficulty === 'Medium').length;
-  const hardCount = problems.filter(p => p.difficulty === 'Hard').length;
+  const easyCount = problems.filter((p) => p.difficulty === "Easy").length;
+  const mediumCount = problems.filter((p) => p.difficulty === "Medium").length;
+  const hardCount = problems.filter((p) => p.difficulty === "Hard").length;
   const unratedCount = problems.length - (easyCount + mediumCount + hardCount);
 
   const difficultyData = [
-    { name: 'Easy', value: easyCount, color: '#10b981' },
-    { name: 'Medium', value: mediumCount, color: '#f59e0b' },
-    { name: 'Hard', value: hardCount, color: '#ef4444' },
-    ...(unratedCount > 0 ? [{ name: 'Unrated', value: unratedCount, color: '#94a3b8' }] : [])
-  ].filter(d => d.value > 0);
+    { name: "Easy", value: easyCount, color: "#10b981" },
+    { name: "Medium", value: mediumCount, color: "#f59e0b" },
+    { name: "Hard", value: hardCount, color: "#ef4444" },
+    ...(unratedCount > 0
+      ? [{ name: "Unrated", value: unratedCount, color: "#94a3b8" }]
+      : []),
+  ].filter((d) => d.value > 0);
 
   if (loading) {
     return (
-      <div id="problems-loading" className="h-64 flex flex-col items-center justify-center text-center">
+      <div
+        id="problems-loading"
+        className="h-64 flex flex-col items-center justify-center text-center"
+      >
         <div className="w-8 h-8 border-3 border-neutral-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
-        <p className="text-xs text-neutral-500 font-medium">Loading problem tracker...</p>
+        <p className="text-xs text-neutral-500 font-medium">
+          Loading problem tracker...
+        </p>
       </div>
     );
   }
 
   return (
     <div id="problems-tab-root" className="space-y-5">
-
       {/* Stats Section */}
-      <div id="problems-stats-section" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+        id="problems-stats-section"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
         {/* Total Solved Card */}
         <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group">
           <div className="bg-indigo-50 p-4 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
             <Inbox className="w-8 h-8" />
           </div>
           <div className="text-center">
-            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">Problems Solved</p>
-            <p className="text-4xl font-extrabold text-neutral-800">{problems.length}</p>
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">
+              Problems Solved
+            </p>
+            <p className="text-4xl font-extrabold text-neutral-800">
+              {problems.length}
+            </p>
           </div>
         </div>
 
@@ -183,33 +235,47 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
-                  style={{ outline: 'none' }}
+                  style={{ outline: "none" }}
                 >
                   {difficultyData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color} 
-                      style={{ outline: 'none' }}
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      style={{ outline: "none" }}
                       className="hover:opacity-80 transition-opacity duration-200 cursor-pointer"
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ color: '#1f2937', fontWeight: 600 }}
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                  }}
+                  itemStyle={{ color: "#1f2937", fontWeight: 600 }}
                 />
-                <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '13px' }}/>
+                <Legend
+                  verticalAlign="middle"
+                  align="right"
+                  layout="vertical"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: "13px" }}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-sm text-neutral-400 font-medium">No problems tracked yet.</p>
+            <p className="text-sm text-neutral-400 font-medium">
+              No problems tracked yet.
+            </p>
           )}
         </div>
 
         {/* Quick Actions Card */}
         <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
           <div className="text-center mb-1">
-            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">Quick Actions</p>
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">
+              Quick Actions
+            </p>
           </div>
           <div className="flex flex-col gap-3 w-full">
             <button
@@ -240,7 +306,10 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
       </div>
 
       {/* Controls Panel */}
-      <div id="problems-controls-panel" className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4">
+      <div
+        id="problems-controls-panel"
+        className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
+      >
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           {/* Search */}
           <div className="relative flex-1">
@@ -291,9 +360,14 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
 
       {/* Problems Table */}
       {filteredProblems.length === 0 ? (
-        <div id="problems-empty-state" className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto">
+        <div
+          id="problems-empty-state"
+          className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto"
+        >
           <Inbox className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-neutral-800">No Problems Tracked Yet</h3>
+          <h3 className="text-base font-bold text-neutral-800">
+            No Problems Tracked Yet
+          </h3>
           <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed">
             {problems.length === 0
               ? "Start tracking your DSA journey! Add a problem you've solved."
@@ -309,12 +383,17 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
           )}
         </div>
       ) : (
-        <div id="problems-table-container" className="bg-white border border-neutral-100 rounded-2xl shadow-2xs overflow-hidden">
-          
+        <div
+          id="problems-table-container"
+          className="bg-white border border-neutral-100 rounded-2xl shadow-2xs overflow-hidden"
+        >
           {/* Mobile Cards View */}
           <div className="md:hidden flex flex-col divide-y divide-neutral-100">
             {filteredProblems.map((problem) => (
-              <div key={problem._id} className="p-4 bg-white hover:bg-indigo-50/20 transition-colors flex flex-col gap-3">
+              <div
+                key={problem._id}
+                className="p-4 bg-white hover:bg-indigo-50/20 transition-colors flex flex-col gap-3"
+              >
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex-1">
                     <a
@@ -326,26 +405,37 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
                       <span className="line-clamp-2">{problem.title}</span>
                       <ExternalLink className="w-3 h-3 text-neutral-400 shrink-0" />
                     </a>
-                    <p className="text-[11px] text-neutral-400 font-mono mt-1">{problem.titleSlug}</p>
+                    <p className="text-[11px] text-neutral-400 font-mono mt-1">
+                      {problem.titleSlug}
+                    </p>
                   </div>
-                  <span className={`shrink-0 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                    problem.difficulty === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
-                    problem.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
-                    problem.difficulty === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
-                    'bg-neutral-100 text-neutral-600 border-neutral-200'
-                  }`}>
-                    {problem.difficulty || 'N/A'}
+                  <span
+                    className={`shrink-0 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                      problem.difficulty === "Easy"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
+                        : problem.difficulty === "Medium"
+                          ? "bg-amber-50 text-amber-700 border-amber-100/50"
+                          : problem.difficulty === "Hard"
+                            ? "bg-rose-50 text-rose-700 border-rose-100/50"
+                            : "bg-neutral-100 text-neutral-600 border-neutral-200"
+                    }`}
+                  >
+                    {problem.difficulty || "N/A"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs mt-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-neutral-500 font-medium">Attempts:</span>
-                    <span className={`inline-flex items-center justify-center min-w-[24px] px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      problem.attemptCount > 1
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-indigo-50 text-indigo-700"
-                    }`}>
+                    <span className="text-neutral-500 font-medium">
+                      Attempts:
+                    </span>
+                    <span
+                      className={`inline-flex items-center justify-center min-w-[24px] px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        problem.attemptCount > 1
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-indigo-50 text-indigo-700"
+                      }`}
+                    >
                       {problem.attemptCount}
                     </span>
                   </div>
@@ -400,12 +490,24 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50/50">
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Problem</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Difficulty</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Attempts</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Last Attempted</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">Revisit</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-20">Actions</th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                    Problem
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">
+                    Difficulty
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">
+                    Attempts
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                    Last Attempted
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">
+                    Revisit
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center w-20">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -422,31 +524,42 @@ export default function ProblemsTab({ onOpenAddModal, refreshKey }: ProblemsTabP
                         rel="noopener noreferrer"
                         className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group/link"
                       >
-                        <span className="truncate max-w-[300px]">{problem.title}</span>
+                        <span className="truncate max-w-[300px]">
+                          {problem.title}
+                        </span>
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
-                      <p className="text-[11px] text-neutral-400 font-mono mt-0.5">{problem.titleSlug}</p>
+                      <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
+                        {problem.titleSlug}
+                      </p>
                     </td>
 
                     {/* Difficulty Badge */}
                     <td className="px-5 py-3.5 text-center">
-                      <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                        problem.difficulty === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
-                        problem.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
-                        problem.difficulty === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
-                        'bg-neutral-100 text-neutral-600 border-neutral-200'
-                      }`}>
-                        {problem.difficulty || 'N/A'}
+                      <span
+                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                          problem.difficulty === "Easy"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
+                            : problem.difficulty === "Medium"
+                              ? "bg-amber-50 text-amber-700 border-amber-100/50"
+                              : problem.difficulty === "Hard"
+                                ? "bg-rose-50 text-rose-700 border-rose-100/50"
+                                : "bg-neutral-100 text-neutral-600 border-neutral-200"
+                        }`}
+                      >
+                        {problem.difficulty || "N/A"}
                       </span>
                     </td>
 
                     {/* Attempt Count Badge */}
                     <td className="px-5 py-3.5 text-center">
-                      <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
-                        problem.attemptCount > 1
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-indigo-50 text-indigo-700"
-                      }`}>
+                      <span
+                        className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
+                          problem.attemptCount > 1
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-indigo-50 text-indigo-700"
+                        }`}
+                      >
                         {problem.attemptCount}
                       </span>
                     </td>

@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -13,11 +13,11 @@ import { scrapeLeetCodeTitle } from "./src/controllers/problemController.ts";
 
 interface DocumentMetadata {
   id: string;
-  type: 'theory' | 'problemsheets';
+  type: "theory" | "problemsheets";
   filename: string;
   title: string;
   category: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
 }
 
@@ -28,8 +28,14 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting (e.g. Vercel)
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type,Authorization");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type,Authorization",
+  );
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -52,7 +58,11 @@ function ensureDirs() {
 ensureDirs();
 
 // Helper to parse frontmatter from markdown files
-function parseFrontmatter(content: string, filename: string, type: 'theory' | 'problemsheets'): DocumentMetadata {
+function parseFrontmatter(
+  content: string,
+  filename: string,
+  type: "theory" | "problemsheets",
+): DocumentMetadata {
   const meta: DocumentMetadata = {
     id: `${type}-${filename.replace(/\.md$/, "")}`,
     type,
@@ -60,7 +70,7 @@ function parseFrontmatter(content: string, filename: string, type: 'theory' | 'p
     title: filename.replace(/\.md$/, "").replace(/-/g, " "),
     category: type === "theory" ? "Theory Reference" : "Problem Sheet",
     difficulty: "Medium",
-    tags: []
+    tags: [],
   };
 
   const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -72,13 +82,16 @@ function parseFrontmatter(content: string, filename: string, type: 'theory' | 'p
         const key = line.slice(0, idx).trim().toLowerCase();
         const value = line.slice(idx + 1).trim();
         if (key === "title") {
-          meta.title = value.replace(/^['"]|['"]$/g, ''); // strip optional quotes
+          meta.title = value.replace(/^['"]|['"]$/g, ""); // strip optional quotes
         } else if (key === "category") {
-          meta.category = value.replace(/^['"]|['"]$/g, '');
+          meta.category = value.replace(/^['"]|['"]$/g, "");
         } else if (key === "difficulty") {
-          meta.difficulty = value.replace(/^['"]|['"]$/g, '') as any;
+          meta.difficulty = value.replace(/^['"]|['"]$/g, "") as any;
         } else if (key === "tags") {
-          meta.tags = value.split(",").map(t => t.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+          meta.tags = value
+            .split(",")
+            .map((t) => t.trim().replace(/^['"]|['"]$/g, ""))
+            .filter(Boolean);
         }
       }
     }
@@ -99,7 +112,9 @@ app.get("/api/documents", (req, res) => {
 
     // Read Theory Directory
     if (fs.existsSync(THEORY_DIR)) {
-      const theoryFiles = fs.readdirSync(THEORY_DIR).filter(file => file.endsWith(".md"));
+      const theoryFiles = fs
+        .readdirSync(THEORY_DIR)
+        .filter((file) => file.endsWith(".md"));
       for (const file of theoryFiles) {
         const filePath = path.join(THEORY_DIR, file);
         const content = fs.readFileSync(filePath, "utf-8");
@@ -109,7 +124,9 @@ app.get("/api/documents", (req, res) => {
 
     // Read Problemsheets Directory
     if (fs.existsSync(PROBLEMSHEETS_DIR)) {
-      const sheetFiles = fs.readdirSync(PROBLEMSHEETS_DIR).filter(file => file.endsWith(".md"));
+      const sheetFiles = fs
+        .readdirSync(PROBLEMSHEETS_DIR)
+        .filter((file) => file.endsWith(".md"));
       for (const file of sheetFiles) {
         const filePath = path.join(PROBLEMSHEETS_DIR, file);
         const content = fs.readFileSync(filePath, "utf-8");
@@ -128,7 +145,9 @@ app.get("/api/documents", (req, res) => {
 app.get("/api/document", (req, res) => {
   const { type, filename } = req.query;
   if (!type || !filename || (type !== "theory" && type !== "problemsheets")) {
-    return res.status(400).json({ success: false, error: "Invalid type or filename parameters." });
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid type or filename parameters." });
   }
 
   try {
@@ -138,18 +157,25 @@ app.get("/api/document", (req, res) => {
     const filePath = path.join(targetDir, safeFilename);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, error: `Document ${safeFilename} does not exist.` });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: `Document ${safeFilename} does not exist.`,
+        });
     }
 
     const rawContent = fs.readFileSync(filePath, "utf-8");
-    
+
     // Strip the YAML frontmatter for rendering pure markdown
-    const clientContent = rawContent.replace(/^---\r?\n[\s\S]*?\r?\n---/, "").trim();
+    const clientContent = rawContent
+      .replace(/^---\r?\n[\s\S]*?\r?\n---/, "")
+      .trim();
 
     res.json({
       success: true,
       metadata: parseFrontmatter(rawContent, safeFilename, type),
-      content: clientContent
+      content: clientContent,
     });
   } catch (error: any) {
     console.error("Error loading document:", error);
@@ -163,7 +189,7 @@ app.get("/api/health", (req, res) => {
     success: true,
     status: "healthy",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -171,50 +197,63 @@ app.get("/api/health", (req, res) => {
 app.post("/api/problems/scrape-title", scrapeLeetCodeTitle);
 
 // Native Auth routes
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 
 // ──────────────────────────────────────────────────────────
 //  PROTECTED ENDPOINTS (JWT auth required)
 // ──────────────────────────────────────────────────────────
 
 // Mount Problem Tracking API routes (requires authentication)
-app.use('/api/problems', requireAuth, problemRoutes);
+app.use("/api/problems", requireAuth, problemRoutes);
 
 // Mount User Settings API routes (requires authentication)
-app.use('/api/user', requireAuth, userRoutes);
+app.use("/api/user", requireAuth, userRoutes);
 
 // Mount Sync API routes (requires authentication)
-app.use('/api/sync', requireAuth, syncRoutes);
+app.use("/api/sync", requireAuth, syncRoutes);
 
 // ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
 // ──────────────────────────────────────────────────────────
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('[SERVER ERROR] ✗ Unhandled Exception in Middleware/Route');
-  console.error(`[SERVER ERROR]   Path: ${req.method} ${req.path}`);
-  console.error(`[SERVER ERROR]   Message: ${err.message}`);
-  
-  if (err.stack) {
-    console.error(err.stack);
-  }
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    console.error("[SERVER ERROR] ✗ Unhandled Exception in Middleware/Route");
+    console.error(`[SERVER ERROR]   Path: ${req.method} ${req.path}`);
+    console.error(`[SERVER ERROR]   Message: ${err.message}`);
 
-  // Re-apply CORS headers for error responses
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type,Authorization");
+    if (err.stack) {
+      console.error(err.stack);
+    }
 
-  // Ensure JSON response for API routes
-  if (req.path.startsWith('/api/')) {
-    res.status(err.status || 500).json({
-      success: false,
-      error: 'Internal Server Error',
-      message: err.message
-    });
-  } else {
-    // For non-API routes, fall back to default express handler or custom HTML
-    next(err);
-  }
-});
+    // Re-apply CORS headers for error responses
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-Requested-With,content-type,Authorization",
+    );
+
+    // Ensure JSON response for API routes
+    if (req.path.startsWith("/api/")) {
+      res.status(err.status || 500).json({
+        success: false,
+        error: "Internal Server Error",
+        message: err.message,
+      });
+    } else {
+      // For non-API routes, fall back to default express handler or custom HTML
+      next(err);
+    }
+  },
+);
 
 // Vite server middleware setup for development, or static serving for production
 async function startServer() {
@@ -238,31 +277,37 @@ async function startServer() {
 
     app.listen(PORT, "0.0.0.0", () => {
       // Startup diagnostic banner — summarizes which services are active
-      const mongoStatus = process.env.MONGODB_URI ? '✓ Connected' : '✗ Not configured';
-      const jwtStatus = process.env.JWT_SECRET ? '✓ Active' : '✗ Not configured';
-      const env = process.env.NODE_ENV || 'development';
+      const mongoStatus = process.env.MONGODB_URI
+        ? "✓ Connected"
+        : "✗ Not configured";
+      const jwtStatus = process.env.JWT_SECRET
+        ? "✓ Active"
+        : "✗ Not configured";
+      const env = process.env.NODE_ENV || "development";
 
-      console.log('');
-      console.log('╔══════════════════════════════════════════════════════╗');
-      console.log('║           DSA Preparation — Server Started           ║');
-      console.log('╠══════════════════════════════════════════════════════╣');
-      console.log(`║  URL:        http://localhost:${String(PORT).padEnd(25)}║`);
+      console.log("");
+      console.log("╔══════════════════════════════════════════════════════╗");
+      console.log("║           DSA Preparation — Server Started           ║");
+      console.log("╠══════════════════════════════════════════════════════╣");
+      console.log(
+        `║  URL:        http://localhost:${String(PORT).padEnd(25)}║`,
+      );
       console.log(`║  Env:        ${env.padEnd(39)}║`);
       console.log(`║  MongoDB:    ${mongoStatus.padEnd(39)}║`);
       console.log(`║  JWT Auth:   ${jwtStatus.padEnd(39)}║`);
-      console.log('╚══════════════════════════════════════════════════════╝');
-      console.log('');
+      console.log("╚══════════════════════════════════════════════════════╝");
+      console.log("");
     });
   } catch (error) {
     const err = error as Error;
-    console.error('');
-    console.error('╔══════════════════════════════════════════════════════╗');
-    console.error('║        ✗ FATAL: Server failed to start               ║');
-    console.error('╠══════════════════════════════════════════════════════╣');
+    console.error("");
+    console.error("╔══════════════════════════════════════════════════════╗");
+    console.error("║        ✗ FATAL: Server failed to start               ║");
+    console.error("╠══════════════════════════════════════════════════════╣");
     console.error(`║  Error: ${err.message.substring(0, 44).padEnd(44)}║`);
-    console.error('╚══════════════════════════════════════════════════════╝');
-    console.error('');
-    console.error('Full stack trace:');
+    console.error("╚══════════════════════════════════════════════════════╝");
+    console.error("");
+    console.error("Full stack trace:");
     console.error(err.stack || err);
     process.exit(1);
   }

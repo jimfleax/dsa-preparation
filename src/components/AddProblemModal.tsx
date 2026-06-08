@@ -8,7 +8,11 @@ interface AddProblemModalProps {
   onAdded: () => void; // Callback to refresh the problems list
 }
 
-export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblemModalProps) {
+export default function AddProblemModal({
+  isOpen,
+  onClose,
+  onAdded,
+}: AddProblemModalProps) {
   const [url, setUrl] = useState<string>("");
   const [titlePreview, setTitlePreview] = useState<string>("");
   const [difficultyPreview, setDifficultyPreview] = useState<string>("");
@@ -18,7 +22,9 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase = (import.meta as any).env.VITE_API_URL || "https://dsa-preparation-788547842951.asia-south1.run.app";
+  const apiBase =
+    (import.meta as any).env.VITE_API_URL ||
+    "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   /**
    * Extracts titleSlug from URL and fetches the real title from LeetCode via backend.
@@ -53,13 +59,22 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
           if (data.difficulty) setDifficultyPreview(data.difficulty);
         } else {
           // Fallback: Generate preview from slug if API fails
-          console.warn("[AddProblemModal] Could not fetch title, using slug preview");
-          setTitlePreview(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+          console.warn(
+            "[AddProblemModal] Could not fetch title, using slug preview",
+          );
+          setTitlePreview(
+            slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+          );
         }
       } catch (err) {
         // Fallback: Generate preview from slug on network error
-        console.warn("[AddProblemModal] Network error fetching title, using slug preview:", err);
-        setTitlePreview(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+        console.warn(
+          "[AddProblemModal] Network error fetching title, using slug preview:",
+          err,
+        );
+        setTitlePreview(
+          slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        );
       } finally {
         setFetchingTitle(false);
       }
@@ -154,8 +169,12 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
                 <Link2 className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-neutral-900">Add Problem</h2>
-                <p className="text-[11px] text-neutral-400 font-medium">Track a new LeetCode problem</p>
+                <h2 className="text-sm font-bold text-neutral-900">
+                  Add Problem
+                </h2>
+                <p className="text-[11px] text-neutral-400 font-medium">
+                  Track a new LeetCode problem
+                </p>
               </div>
             </div>
             <button
@@ -167,10 +186,16 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 overflow-y-auto"
+          >
             {/* URL Input */}
             <div className="space-y-1.5">
-              <label htmlFor="problem-url-input" className="text-xs font-semibold text-neutral-600">
+              <label
+                htmlFor="problem-url-input"
+                className="text-xs font-semibold text-neutral-600"
+              >
                 LeetCode URL
               </label>
               <input
@@ -190,26 +215,36 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
               <label className="text-xs font-semibold text-neutral-600">
                 Problem Title
               </label>
-              <div className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center justify-between ${
-                titlePreview ? "text-neutral-800" : "text-neutral-400 italic"
-              }`}>
+              <div
+                className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center justify-between ${
+                  titlePreview ? "text-neutral-800" : "text-neutral-400 italic"
+                }`}
+              >
                 <div className="flex items-center gap-3">
                   <span>{titlePreview || "Enter URL to fetch title..."}</span>
                   {difficultyPreview && (
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                      difficultyPreview === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
-                      difficultyPreview === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
-                      difficultyPreview === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
-                      'bg-neutral-100 text-neutral-600 border-neutral-200'
-                    }`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                        difficultyPreview === "Easy"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
+                          : difficultyPreview === "Medium"
+                            ? "bg-amber-50 text-amber-700 border-amber-100/50"
+                            : difficultyPreview === "Hard"
+                              ? "bg-rose-50 text-rose-700 border-rose-100/50"
+                              : "bg-neutral-100 text-neutral-600 border-neutral-200"
+                      }`}
+                    >
                       {difficultyPreview}
                     </span>
                   )}
                 </div>
-                {fetchingTitle && <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />}
+                {fetchingTitle && (
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                )}
               </div>
               <p className="text-[10px] text-neutral-400">
-                Title is fetched from LeetCode in real-time as you enter the URL.
+                Title is fetched from LeetCode in real-time as you enter the
+                URL.
               </p>
             </div>
 

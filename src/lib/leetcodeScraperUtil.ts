@@ -22,13 +22,17 @@ function extractTitleSlug(url: string): string | null {
  * @returns The problem title and difficulty, or null if not found
  * @throws An error if the network request fails
  */
-export async function getLeetCodeProblemInfo(url: string): Promise<{ title: string; difficulty: string } | null> {
+export async function getLeetCodeProblemInfo(
+  url: string,
+): Promise<{ title: string; difficulty: string } | null> {
   try {
     // 1. Extract the problem "slug" from the URL
     // e.g., from "https://leetcode.com/problems/two-sum/" we extract "two-sum"
     const titleSlug = extractTitleSlug(url);
     if (!titleSlug) {
-      throw new Error("Invalid LeetCode URL. Must contain '/problems/problem-slug/'");
+      throw new Error(
+        "Invalid LeetCode URL. Must contain '/problems/problem-slug/'",
+      );
     }
 
     // 2. Prepare the GraphQL query
@@ -40,7 +44,7 @@ export async function getLeetCodeProblemInfo(url: string): Promise<{ title: stri
           title
           difficulty
         }
-      }`
+      }`,
     };
 
     // 3. Make a POST request to LeetCode's GraphQL endpoint
@@ -49,9 +53,10 @@ export async function getLeetCodeProblemInfo(url: string): Promise<{ title: stri
       headers: {
         "Content-Type": "application/json",
         // A generic User-Agent helps prevent basic blocks
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
-      body: JSON.stringify(graphqlQuery)
+      body: JSON.stringify(graphqlQuery),
     });
 
     if (!response.ok) {
@@ -59,11 +64,13 @@ export async function getLeetCodeProblemInfo(url: string): Promise<{ title: stri
     }
 
     const data = await response.json();
-    
+
     // 4. Extract and return the info
     if (data.data && data.data.question) {
       const { title, difficulty } = data.data.question;
-      console.log(`[LeetCode Scraper] Found - Title: ${title}, Difficulty: ${difficulty}`);
+      console.log(
+        `[LeetCode Scraper] Found - Title: ${title}, Difficulty: ${difficulty}`,
+      );
       return { title, difficulty };
     } else if (data.errors) {
       console.error("[LeetCode Scraper] GraphQL error:", data.errors);
@@ -72,9 +79,11 @@ export async function getLeetCodeProblemInfo(url: string): Promise<{ title: stri
       console.log("[LeetCode Scraper] Problem not found.");
       return null;
     }
-
   } catch (error) {
-    console.error("[LeetCode Scraper] Error fetching info:", error instanceof Error ? error.message : String(error));
+    console.error(
+      "[LeetCode Scraper] Error fetching info:",
+      error instanceof Error ? error.message : String(error),
+    );
     throw error;
   }
 }
@@ -93,13 +102,16 @@ export async function getLeetCodeTitle(url: string): Promise<string | null> {
  * @param username - The LeetCode username
  * @param limit - Max number of submissions to fetch (default: 20)
  */
-export async function fetchRecentAcceptedSubmissions(username: string, limit: number = 20): Promise<{ title: string; titleSlug: string; timestamp: string }[]> {
+export async function fetchRecentAcceptedSubmissions(
+  username: string,
+  limit: number = 20,
+): Promise<{ title: string; titleSlug: string; timestamp: string }[]> {
   try {
     const graphqlQuery = {
       operationName: "recentAcSubmissions",
-      variables: { 
-        username: username, 
-        limit: limit
+      variables: {
+        username: username,
+        limit: limit,
       },
       query: `query recentAcSubmissions($username: String!, $limit: Int!) {
         recentAcSubmissionList(username: $username, limit: $limit) {
@@ -107,16 +119,17 @@ export async function fetchRecentAcceptedSubmissions(username: string, limit: nu
           titleSlug
           timestamp
         }
-      }`
+      }`,
     };
 
     const response = await fetch("https://leetcode.com/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
-      body: JSON.stringify(graphqlQuery)
+      body: JSON.stringify(graphqlQuery),
     });
 
     if (!response.ok) {
@@ -124,17 +137,23 @@ export async function fetchRecentAcceptedSubmissions(username: string, limit: nu
     }
 
     const data = await response.json();
-    
+
     if (data.data && data.data.recentAcSubmissionList) {
       return data.data.recentAcSubmissionList;
     } else if (data.errors) {
-      console.error("[LeetCode Scraper] GraphQL error (recentAcSubmissions):", data.errors);
+      console.error(
+        "[LeetCode Scraper] GraphQL error (recentAcSubmissions):",
+        data.errors,
+      );
       return [];
     } else {
       return [];
     }
   } catch (error) {
-    console.error("[LeetCode Scraper] Error fetching recent submissions:", error instanceof Error ? error.message : String(error));
+    console.error(
+      "[LeetCode Scraper] Error fetching recent submissions:",
+      error instanceof Error ? error.message : String(error),
+    );
     throw error;
   }
 }

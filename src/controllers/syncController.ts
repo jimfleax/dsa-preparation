@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
-import User from '../models/User.ts';
-import ProblemProgress from '../models/ProblemProgress.ts';
-import { fetchRecentAcceptedSubmissions, getLeetCodeProblemInfo } from '../lib/leetcodeScraperUtil.ts';
+import { Request, Response } from "express";
+import User from "../models/User.ts";
+import ProblemProgress from "../models/ProblemProgress.ts";
+import {
+  fetchRecentAcceptedSubmissions,
+  getLeetCodeProblemInfo,
+} from "../lib/leetcodeScraperUtil.ts";
 
 /**
  * GET /api/sync/check
@@ -11,20 +14,30 @@ export const checkSync = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
     const user = await User.findById(userId);
     if (!user || !user.leetcodeUsername) {
-      return res.status(200).json({ success: false, error: 'LeetCode username not configured', noUsername: true });
+      return res
+        .status(200)
+        .json({
+          success: false,
+          error: "LeetCode username not configured",
+          noUsername: true,
+        });
     }
 
     let recentSubmissions;
     try {
-      recentSubmissions = await fetchRecentAcceptedSubmissions(user.leetcodeUsername);
+      recentSubmissions = await fetchRecentAcceptedSubmissions(
+        user.leetcodeUsername,
+      );
     } catch (err) {
       // Gracefully handle rate limits or API errors
-      return res.status(200).json({ success: false, error: 'Failed to fetch from LeetCode API' });
+      return res
+        .status(200)
+        .json({ success: false, error: "Failed to fetch from LeetCode API" });
     }
 
     // Deduplicate fetched submissions by titleSlug (in case of multiple recent attempts)
@@ -37,19 +50,23 @@ export const checkSync = async (req: Request, res: Response) => {
     const dedupedSubmissions = Array.from(uniqueSlugs.values());
 
     // Fetch existing slugs for this user
-    const existingRecords = await ProblemProgress.find({ userId }).select('titleSlug');
-    const existingSlugs = new Set(existingRecords.map(r => r.titleSlug));
+    const existingRecords = await ProblemProgress.find({ userId }).select(
+      "titleSlug",
+    );
+    const existingSlugs = new Set(existingRecords.map((r) => r.titleSlug));
 
     // Filter out submissions that are already tracked/notracked
-    const newSubmissions = dedupedSubmissions.filter(sub => !existingSlugs.has(sub.titleSlug));
+    const newSubmissions = dedupedSubmissions.filter(
+      (sub) => !existingSlugs.has(sub.titleSlug),
+    );
 
     res.json({
       success: true,
       newCount: newSubmissions.length,
-      newSubmissions
+      newSubmissions,
     });
   } catch (error: any) {
-    console.error('Error checking sync:', error);
+    console.error("Error checking sync:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -62,24 +79,29 @@ export const trackSubmissions = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
     const { submissions, notrack } = req.body;
     if (!Array.isArray(submissions)) {
-      return res.status(400).json({ success: false, error: 'Invalid submissions payload' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid submissions payload" });
     }
 
     const results = [];
 
     for (const sub of submissions) {
       // Ensure we don't insert duplicates
-      const existing = await ProblemProgress.findOne({ userId, titleSlug: sub.titleSlug });
+      const existing = await ProblemProgress.findOne({
+        userId,
+        titleSlug: sub.titleSlug,
+      });
       if (existing) continue;
 
       // Create a problem URL to fetch info
       const url = `https://leetcode.com/problems/${sub.titleSlug}/`;
-      
+
       // Attempt to fetch difficulty
       let difficulty = undefined;
       try {
@@ -88,7 +110,9 @@ export const trackSubmissions = async (req: Request, res: Response) => {
           difficulty = info.difficulty;
         }
       } catch (err) {
-        console.warn(`Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`);
+        console.warn(
+          `Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`,
+        );
       }
 
       // Create new record
@@ -100,12 +124,12 @@ export const trackSubmissions = async (req: Request, res: Response) => {
         difficulty,
         attemptCount: 1,
         notrack: !!notrack,
-        lastAttemptedDate: new Date(Number(sub.timestamp) * 1000) // Convert from epoch seconds if applicable
+        lastAttemptedDate: new Date(Number(sub.timestamp) * 1000), // Convert from epoch seconds if applicable
       });
 
       // Handle potentially invalid timestamps safely
       if (isNaN(progress.lastAttemptedDate.getTime())) {
-         progress.lastAttemptedDate = new Date();
+        progress.lastAttemptedDate = new Date();
       }
 
       await progress.save();
@@ -115,10 +139,10 @@ export const trackSubmissions = async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: `Processed ${results.length} submissions.`,
-      added: results.length
+      added: results.length,
     });
   } catch (error: any) {
-    console.error('Error tracking submissions:', error);
+    console.error("Error tracking submissions:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

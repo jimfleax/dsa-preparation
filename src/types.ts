@@ -1,10 +1,10 @@
 export interface DocumentMetadata {
   id: string;
-  type: 'theory' | 'problemsheets';
+  type: "theory" | "problemsheets";
   filename: string;
   title: string;
   category: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
 }
 
@@ -20,7 +20,7 @@ export interface ProblemProgress {
   titleSlug: string;
   title: string;
   url: string;
-  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  difficulty?: "Easy" | "Medium" | "Hard";
   attemptCount: number;
   lastAttemptedDate: string;
   notrack?: boolean;
