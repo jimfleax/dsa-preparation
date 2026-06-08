@@ -11,6 +11,7 @@ interface AddProblemModalProps {
 export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblemModalProps) {
   const [url, setUrl] = useState<string>("");
   const [titlePreview, setTitlePreview] = useState<string>("");
+  const [difficultyPreview, setDifficultyPreview] = useState<string>("");
   const [fetchingTitle, setFetchingTitle] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
       // Show loading state while fetching
       setFetchingTitle(true);
       setTitlePreview(""); // Clear old preview
+      setDifficultyPreview(""); // Clear old difficulty
 
       try {
         // Fetch real title from LeetCode via a utility endpoint
@@ -48,6 +50,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
 
         if (response.ok && data.success && data.title) {
           setTitlePreview(data.title);
+          if (data.difficulty) setDifficultyPreview(data.difficulty);
         } else {
           // Fallback: Generate preview from slug if API fails
           console.warn("[AddProblemModal] Could not fetch title, using slug preview");
@@ -102,6 +105,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
       setSuccess(true);
       setUrl("");
       setTitlePreview("");
+      setDifficultyPreview("");
       onAdded();
 
       // Auto-close after short delay to show success state
@@ -119,6 +123,7 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
   const handleClose = () => {
     setUrl("");
     setTitlePreview("");
+    setDifficultyPreview("");
     setError(null);
     setSuccess(false);
     onClose();
@@ -188,7 +193,19 @@ export default function AddProblemModal({ isOpen, onClose, onAdded }: AddProblem
               <div className={`w-full px-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm font-medium min-h-[42px] flex items-center justify-between ${
                 titlePreview ? "text-neutral-800" : "text-neutral-400 italic"
               }`}>
-                <span>{titlePreview || "Enter URL to fetch title..."}</span>
+                <div className="flex items-center gap-3">
+                  <span>{titlePreview || "Enter URL to fetch title..."}</span>
+                  {difficultyPreview && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                      difficultyPreview === 'Easy' ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50' :
+                      difficultyPreview === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-100/50' :
+                      difficultyPreview === 'Hard' ? 'bg-rose-50 text-rose-700 border-rose-100/50' :
+                      'bg-neutral-100 text-neutral-600 border-neutral-200'
+                    }`}>
+                      {difficultyPreview}
+                    </span>
+                  )}
+                </div>
                 {fetchingTitle && <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />}
               </div>
               <p className="text-[10px] text-neutral-400">

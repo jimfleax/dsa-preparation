@@ -14,6 +14,7 @@ export interface IProblemProgress extends Document {
   titleSlug: string;
   title: string;
   url: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
   attemptCount: number;
   lastAttemptedDate: Date;
   createdAt: Date;
@@ -40,6 +41,11 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
     url: {
       type: String,
       trim: true,
+    },
+    difficulty: {
+      type: String,
+      enum: ['Easy', 'Medium', 'Hard'],
+      required: false,
     },
     attemptCount: {
       type: Number,

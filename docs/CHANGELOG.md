@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-06-08] - Edit Problem Feature
+- **Changed:** `src/controllers/problemController.ts`, `src/routes/problemRoutes.ts`, `src/components/EditProblemModal.tsx`, `src/components/ProblemsTab.tsx`
+- **Why:** To allow users to modify tracked problems (URL, attempts) and delete them via a modal.
+- **Risk:** Low. Uses existing auth and data structures. Update fetches real data before overriding.
+- **Verification:** Verified via TypeScript compiler check and component review.
+
+## [2026-06-08] - Add LeetCode Difficulty Tracking
+- **Changed:** `src/lib/leetcodeScraperUtil.ts`, `src/controllers/problemController.ts`, `src/models/ProblemProgress.ts`, `src/types.ts`, `src/components/AddProblemModal.tsx`, `src/components/ProblemsTab.tsx`
+- **Why:** Integrated LeetCode problem difficulty ratings to provide more context to tracked problems. Implemented scraping the difficulty from the LeetCode GraphQL API, saving it to MongoDB, and displaying it with consistent styling (badges) in the frontend components.
+- **Risk:** LOW — Additive change. Backward-compatible Schema update allowing existing records to have empty or fallback values (N/A).
+- **Verification:** Verified via `_test_feature.ts` script for scraper utility and `tsc --noEmit` for typing across the full stack.
+
 ## [2026-06-05] - Native Authentication Migration (Clerk Removal)
 - **Changed:** `src/main.tsx`, `src/App.tsx`, `src/models/User.ts`, `server.src.ts`, `src/components/SettingsModal.tsx`, `src/components/AddProblemModal.tsx`, `src/components/ProblemsTab.tsx`
 - **Why:** Migrated authentication from Clerk to a native JWT-based system to ensure data ownership and decouple from third-party vendor limits. Replaced all Clerk UI components with native `LoginModal` and `RegisterModal`, backed by `AuthContext`.
