@@ -9,7 +9,7 @@ const verifySeeding = async () => {
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB for verification...");
 
-    const tracks = await Track.find({}).sort({ order: 1 });
+    const tracks = await Track.find().sort({ order: 1 });
     console.log(`Found ${tracks.length} tracks in database.`);
 
     const expectedTitles = [

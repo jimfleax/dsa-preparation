@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import TrackCard from "./TrackCard";
 import { TrackedProblem } from "../types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
+import { extractTitleSlug } from "../lib/slugUtils";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<any[]>([]);
@@ -37,7 +38,9 @@ export default function TracksTab() {
       if (progressData.success) {
         const progressMap: Record<string, TrackedProblem> = {};
         progressData.problems.forEach((p: TrackedProblem) => {
-          progressMap[p.url] = p;
+          if (p.titleSlug) {
+            progressMap[p.titleSlug] = p;
+          }
         });
         setTrackedProblems(progressMap);
       }
@@ -59,7 +62,8 @@ export default function TracksTab() {
   tracks.forEach(track => {
     track.problems.forEach((problem: any) => {
       totalProblems++;
-      if (trackedProblems[problem.url]) {
+      const slug = extractTitleSlug(problem.url);
+      if (slug && trackedProblems[slug]) {
         totalSolved++;
       }
     });

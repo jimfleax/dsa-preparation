@@ -3,18 +3,7 @@
  * Accepts a LeetCode problem URL and returns the exact title from LeetCode.
  */
 
-/**
- * Extracts the titleSlug from a LeetCode URL.
- * @param url - The LeetCode problem URL (e.g., https://leetcode.com/problems/two-sum/)
- * @returns The titleSlug or null if not found
- */
-function extractTitleSlug(url: string): string | null {
-  const match = url.match(/problems\/([^\/]+)/);
-  if (!match) {
-    return null;
-  }
-  return match[1];
-}
+import { extractTitleSlug } from "./slugUtils.ts";
 
 /**
  * Fetches the exact title and difficulty from LeetCode using their GraphQL API.
