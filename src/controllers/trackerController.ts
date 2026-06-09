@@ -5,6 +5,17 @@ import {
   getLeetCodeProblemInfo,
 } from "../lib/leetcodeScraperUtil.ts";
 import { extractTitleSlug } from "../lib/slugUtils.ts";
+import mongoose from "mongoose";
+import { z } from "zod";
+
+const addProblemSchema = z.object({
+  url: z.string().url("A valid LeetCode URL is required."),
+});
+
+const updateProblemSchema = z.object({
+  url: z.string().url("A valid URL is required.").optional(),
+  attemptCount: z.coerce.number().int().min(1, "Attempt count must be at least 1.").optional(),
+});
 
 /**
  * POST /api/problems/scrape-title
@@ -43,8 +54,9 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
       difficulty: info.difficulty,
       titleSlug,
     });
-  } catch (error: any) {
-    console.error("[scrapeLeetCodeTitle] Error:", error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("[scrapeLeetCodeTitle] Error:", message);
     res.status(502).json({
       success: false,
       error: "Failed to fetch problem details from LeetCode. Please try again.",
@@ -54,8 +66,8 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
 
 /**
  * GET /api/problems
- * Lists all tracked problems for the authenticated user, with optional search filtering.
- * Query params: ?search=<text>&sort=title|attempts|date
+ * Lists all tracked problems for the authenticated user, with optional search filtering and pagination.
+ * Query params: ?search=<text>&sort=title|attempts|date&page=<number>&limit=<number>
  */
 export const listProblems = async (req: Request, res: Response) => {
   try {
@@ -65,6 +77,11 @@ export const listProblems = async (req: Request, res: Response) => {
     }
 
     const { search, sort } = req.query;
+    
+    // Pagination parameters
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
+    const skip = (page - 1) * limit;
 
     // Always scope to the authenticated user — prevents IDOR
     // Exclude problems marked as notrack
@@ -80,14 +97,31 @@ export const listProblems = async (req: Request, res: Response) => {
     else if (sort === "attempts") sortCriteria = { attemptCount: -1 };
     else if (sort === "date") sortCriteria = { lastAttemptedDate: -1 };
 
-    const problems = await TrackedProblem.find(filter)
-      .sort(sortCriteria)
-      .lean();
+    // Execute queries in parallel for performance
+    const [problems, totalCount] = await Promise.all([
+      TrackedProblem.find(filter)
+        .sort(sortCriteria)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      TrackedProblem.countDocuments(filter)
+    ]);
 
-    res.json({ success: true, problems, count: problems.length });
-  } catch (error: any) {
+    res.json({ 
+      success: true, 
+      problems, 
+      count: problems.length,
+      pagination: {
+        total: totalCount,
+        page,
+        limit,
+        pages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error: unknown) {
     console.error("Error listing problems:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -105,13 +139,11 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const { url } = req.body;
-
-    if (!url || typeof url !== "string") {
-      return res
-        .status(400)
-        .json({ success: false, error: "A valid LeetCode URL is required." });
+    const parseResult = addProblemSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
     }
+    const { url } = parseResult.data;
 
     const titleSlug = extractTitleSlug(url.trim());
     if (!titleSlug) {
@@ -168,22 +200,24 @@ export const addProblem = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ success: true, problem });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding problem:", error);
-    if (error.code === 11000) {
+    if (error && typeof error === "object" && "code" in error && error.code === 11000) {
+      const mongoError = error as any;
       console.error(
         "[addProblem] E11000 keyPattern:",
-        JSON.stringify(error.keyPattern),
+        JSON.stringify(mongoError.keyPattern),
         "keyValue:",
-        JSON.stringify(error.keyValue),
+        JSON.stringify(mongoError.keyValue),
       );
       return res.status(409).json({
         success: false,
         error: "This problem is already being tracked.",
-        debug: { keyPattern: error.keyPattern, keyValue: error.keyValue },
+        debug: { keyPattern: mongoError.keyPattern, keyValue: mongoError.keyValue },
       });
     }
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -200,6 +234,9 @@ export const revisitProblem = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Invalid ID format." });
+    }
 
     // Compound query prevents accessing another user's problem (IDOR prevention)
     const problem = await TrackedProblem.findOne({ _id: id, userId });
@@ -214,9 +251,10 @@ export const revisitProblem = async (req: Request, res: Response) => {
     await problem.save();
 
     res.json({ success: true, problem });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error recording revisit:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -232,7 +270,15 @@ export const updateProblem = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
-    const { url, attemptCount } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Invalid ID format." });
+    }
+
+    const parseResult = updateProblemSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
+    }
+    const { url, attemptCount } = parseResult.data;
 
     const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
@@ -242,13 +288,7 @@ export const updateProblem = async (req: Request, res: Response) => {
     }
 
     if (attemptCount !== undefined) {
-      const parsedCount = parseInt(attemptCount, 10);
-      if (isNaN(parsedCount) || parsedCount < 1) {
-        return res
-          .status(400)
-          .json({ success: false, error: "Attempt count must be at least 1." });
-      }
-      problem.attemptCount = parsedCount;
+      problem.attemptCount = attemptCount;
     }
 
     if (url && typeof url === "string" && url.trim() !== problem.url) {
@@ -305,9 +345,10 @@ export const updateProblem = async (req: Request, res: Response) => {
 
     await problem.save();
     res.json({ success: true, problem });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating problem:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -323,6 +364,9 @@ export const deleteProblem = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Invalid ID format." });
+    }
 
     // Compound query prevents deleting another user's problem (IDOR prevention)
     const problem = await TrackedProblem.findOneAndDelete({ _id: id, userId });
@@ -333,9 +377,10 @@ export const deleteProblem = async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, message: "Problem removed from tracker." });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting problem:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -355,9 +400,10 @@ export const listUntrackedProblems = async (req: Request, res: Response) => {
       .lean();
 
     res.json({ success: true, problems, count: problems.length });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error listing untracked problems:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -373,6 +419,9 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Invalid ID format." });
+    }
 
     const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
@@ -385,8 +434,9 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     await problem.save();
 
     res.json({ success: true, problem });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error toggling track status:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };

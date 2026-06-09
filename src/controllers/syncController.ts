@@ -63,9 +63,10 @@ export const checkSync = async (req: Request, res: Response) => {
       newCount: newSubmissions.length,
       newSubmissions,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error checking sync:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -139,8 +140,9 @@ export const trackSubmissions = async (req: Request, res: Response) => {
       message: `Processed ${results.length} submissions.`,
       added: results.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error tracking submissions:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };

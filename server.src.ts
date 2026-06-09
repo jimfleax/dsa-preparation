@@ -25,23 +25,17 @@ interface DocumentMetadata {
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+
 // ─── CORS MIDDLEWARE (MUST BE FIRST) ───
-// Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting (e.g. Vercel)
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type,Authorization",
-  );
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
+// Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(",") 
+    : "http://localhost:5173",
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -152,12 +146,16 @@ app.get("/api/document", (req, res) => {
   }
 
   try {
-    const targetDir = type === "theory" ? THEORY_DIR : PROBLEMSHEETS_DIR;
-    // Security check to prevent Directory Traversal attacks (strictly allow alpha-numeric, dashes, and .md)
+    const targetDir = path.resolve(type === "theory" ? THEORY_DIR : PROBLEMSHEETS_DIR);
+    // Security check to prevent Directory Traversal attacks
     const safeFilename = String(filename).replace(/[^a-zA-Z0-9.\-_]/g, "");
-    const filePath = path.join(targetDir, safeFilename);
+    const filePath = path.resolve(targetDir, safeFilename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!filePath.startsWith(targetDir)) {
+      return res.status(403).json({ success: false, error: "Access denied." });
+    }
+
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
       return res.status(404).json({
         success: false,
         error: `Document ${safeFilename} does not exist.`,
@@ -193,7 +191,14 @@ app.get("/api/health", (req, res) => {
 });
 
 // PUBLIC UTILITY: LeetCode title scraper (no auth required, used by frontend in real-time)
-app.post("/api/problems/scrape-title", scrapeLeetCodeTitle);
+const scrapeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // Limit each IP to 10 requests per `window`
+  message: { success: false, error: "Too many scrape requests. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.post("/api/problems/scrape-title", scrapeLimiter, scrapeLeetCodeTitle);
 
 // Native Auth routes
 app.use("/api/auth", authRoutes);
@@ -232,23 +237,12 @@ app.use(
       console.error(err.stack);
     }
 
-    // Re-apply CORS headers for error responses
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-Requested-With,content-type,Authorization",
-    );
-
     // Ensure JSON response for API routes
     if (req.path.startsWith("/api/")) {
       res.status(err.status || 500).json({
         success: false,
         error: "Internal Server Error",
-        message: err.message,
+        message: process.env.NODE_ENV === "production" ? "An unexpected error occurred" : err.message,
       });
     } else {
       // For non-API routes, fall back to default express handler or custom HTML

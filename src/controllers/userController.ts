@@ -24,9 +24,10 @@ export const getUserSettings = async (req: Request, res: Response) => {
         leetcodeUsername: user.leetcodeUsername || null,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching user settings:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
 
@@ -74,8 +75,9 @@ export const updateUserSettings = async (req: Request, res: Response) => {
         leetcodeUsername: user.leetcodeUsername || null,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating user settings:", error);
-    res.status(500).json({ success: false, error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
   }
 };
