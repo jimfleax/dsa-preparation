@@ -15,6 +15,7 @@ import {
   LogIn,
   Settings,
   Map,
+  Home,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
@@ -25,6 +26,7 @@ import TracksTab from "./components/TracksTab";
 import AddProblemModal from "./components/AddProblemModal";
 import SettingsModal from "./components/SettingsModal";
 import SyncToast from "./components/SyncToast";
+import HomeTab from "./components/HomeTab";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -40,8 +42,8 @@ export default function App() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Top-level tab state: controls which main view is active
-  const [activeMainTab, setActiveMainTab] = useState<"learn" | "tracker" | "tracks">(
-    "learn",
+  const [activeMainTab, setActiveMainTab] = useState<"home" | "learn" | "tracker" | "tracks">(
+    "home",
   );
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [problemsRefreshKey, setProblemsRefreshKey] = useState<number>(0);
@@ -225,6 +227,27 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Global "Home" key listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input or textarea
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement).isContentEditable
+      ) {
+        return;
+      }
+      
+      if (e.key === "Home") {
+        e.preventDefault(); // Prevents default scrolling behavior
+        setActiveMainTab("home");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Auto-ping every 5 seconds when unreachable
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -324,6 +347,18 @@ export default function App() {
               id="main-tab-selector"
               className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1"
             >
+              <button
+                id="tab-home"
+                onClick={() => setActiveMainTab("home")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  activeMainTab === "home"
+                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+              >
+                <Home className="w-3.5 h-3.5" />
+                Home
+              </button>
               <button
                 id="tab-learn"
                 onClick={() => setActiveMainTab("learn")}
@@ -472,6 +507,14 @@ export default function App() {
 
         {/* === SIGNED IN: Full App === */}
         <SignedIn>
+          {/* === HOME TAB VIEW === */}
+          {activeMainTab === "home" && (
+            <HomeTab
+              totalDocuments={documents.length}
+              onNavigate={setActiveMainTab}
+            />
+          )}
+
           {/* === TRACKER TAB VIEW === */}
           {activeMainTab === "tracker" && (
             <TrackerTab
