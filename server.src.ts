@@ -28,17 +28,28 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
-// ─── CORS MIDDLEWARE (MUST BE FIRST) ───
 // Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     try {
       const originHostname = new URL(origin).hostname;
-      const allowedDomain = process.env.FRONTEND_URL || "localhost";
+      
+      let allowedDomain = "localhost";
+      if (process.env.FRONTEND_URL) {
+        const rawFrontendUrl = process.env.FRONTEND_URL.trim();
+        if (rawFrontendUrl.startsWith("http")) {
+          allowedDomain = new URL(rawFrontendUrl).hostname;
+        } else {
+          allowedDomain = rawFrontendUrl.split('/')[0]; // Strip trailing paths if any
+        }
+      }
+
       if (originHostname === allowedDomain || originHostname === "localhost") {
         return callback(null, true);
       }
+      
+      console.warn(`[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`);
       return callback(new Error("Not allowed by CORS"));
     } catch (err) {
       return callback(new Error("Invalid origin"));
