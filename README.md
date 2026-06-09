@@ -15,7 +15,7 @@
 
 ## 🎯 Elevate Your Interview Preparation
 
-Are you grinding LeetCode but losing track of what you've solved? Do you struggle to remember which problems you need to revise before the big interview? 
+Are you grinding LeetCode but losing track of what you've solved? Do you struggle to remember which problems you need to revise before the big interview?
 
 **Ultimate DSA Tracker** is here to solve that. Built for developers by developers, our platform is designed to take the chaos out of your interview preparation. It seamlessly integrates into your workflow, providing intelligent insights, automated tracking, and a smart revision strategy that ensures you never forget a concept.
 
@@ -30,12 +30,14 @@ Are you grinding LeetCode but losing track of what you've solved? Do you struggl
 It's effortless to run your own instance of the Ultimate DSA Tracker locally.
 
 ### Prerequisites
+
 - Node.js (v18 or higher recommended)
 - A MongoDB Database URI
 
 ### Installation
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
@@ -44,6 +46,7 @@ It's effortless to run your own instance of the Ultimate DSA Tracker locally.
    Rename `.env.example` to `.env` and fill in your connection strings and API keys.
 
 3. **Launch the platform:**
+
    ```bash
    npm run dev
    ```
@@ -58,6 +61,7 @@ It's effortless to run your own instance of the Ultimate DSA Tracker locally.
 - **Database:** MongoDB
 
 ---
+
 <div align="center">
   <p>Built with ❤️ for everyone who want to master DSA.</p>
 </div>

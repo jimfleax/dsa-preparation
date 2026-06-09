@@ -17,7 +17,7 @@ export default function AttemptProblemModal({
   onClose,
   problem,
   trackedProblem,
-  onUpdated
+  onUpdated,
 }: AttemptProblemModalProps) {
   const { getToken } = useAuth();
   const [phase, setPhase] = useState<"reveal" | "confirm">("reveal");
@@ -37,16 +37,19 @@ export default function AttemptProblemModal({
     setError(null);
     try {
       const token = await getToken();
-      
+
       if (trackedProblem) {
         // PATCH existing
-        const res = await fetch(`${apiBase}/api/tracker/${trackedProblem._id}/revisit`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const res = await fetch(
+          `${apiBase}/api/tracker/${trackedProblem._id}/revisit`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
       } else {
@@ -55,11 +58,11 @@ export default function AttemptProblemModal({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            url: problem.url
-          })
+            url: problem.url,
+          }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
@@ -91,17 +94,27 @@ export default function AttemptProblemModal({
 
         <div className="p-5 flex-1 overflow-y-auto">
           <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-neutral-800">{problem.title}</h3>
-            <span className={`inline-block mt-2 text-xs px-2 py-1 rounded font-bold ${
-              problem.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-700' :
-              problem.difficulty === 'Medium' ? 'bg-amber-100 text-amber-700' :
-              'bg-rose-100 text-rose-700'
-            }`}>
+            <h3 className="text-xl font-bold text-neutral-800">
+              {problem.title}
+            </h3>
+            <span
+              className={`inline-block mt-2 text-xs px-2 py-1 rounded font-bold ${
+                problem.difficulty === "Easy"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : problem.difficulty === "Medium"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-rose-100 text-rose-700"
+              }`}
+            >
               {problem.difficulty}
             </span>
             {trackedProblem && (
               <p className="text-sm text-neutral-500 mt-3 font-medium bg-neutral-50 p-3 rounded-xl border border-neutral-100">
-                You've attempted this <strong className="text-indigo-600">{trackedProblem.attemptCount}</strong> times.
+                You've attempted this{" "}
+                <strong className="text-indigo-600">
+                  {trackedProblem.attemptCount}
+                </strong>{" "}
+                times.
               </p>
             )}
           </div>
@@ -114,7 +127,7 @@ export default function AttemptProblemModal({
 
           {phase === "reveal" ? (
             <div className="flex flex-col gap-4">
-              <a 
+              <a
                 href={problem.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -125,18 +138,27 @@ export default function AttemptProblemModal({
                 <ExternalLink className="w-4 h-4" />
               </a>
               <p className="text-xs text-center text-neutral-400 font-medium px-4">
-                Clicking this will open LeetCode in a new tab. Come back here to log your result!
+                Clicking this will open LeetCode in a new tab. Come back here to
+                log your result!
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2">
-              <p className="text-sm font-bold text-neutral-700 text-center mb-2">Did you solve it?</p>
-              <button 
+              <p className="text-sm font-bold text-neutral-700 text-center mb-2">
+                Did you solve it?
+              </p>
+              <button
                 disabled={loading}
                 onClick={() => handleAttempt()}
                 className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (trackedProblem ? "Log Revisit" : "Mark as Solved")}
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : trackedProblem ? (
+                  "Log Revisit"
+                ) : (
+                  "Mark as Solved"
+                )}
               </button>
             </div>
           )}

@@ -158,12 +158,10 @@ app.get("/api/document", (req, res) => {
     const filePath = path.join(targetDir, safeFilename);
 
     if (!fs.existsSync(filePath)) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: `Document ${safeFilename} does not exist.`,
-        });
+      return res.status(404).json({
+        success: false,
+        error: `Document ${safeFilename} does not exist.`,
+      });
     }
 
     const rawContent = fs.readFileSync(filePath, "utf-8");

@@ -1,7 +1,7 @@
 /**
  * Extracts the titleSlug from a LeetCode problem URL.
  * Falls back to returning the full URL or null if parsing fails.
- * 
+ *
  * @param url The LeetCode problem URL
  * @returns The titleSlug string or null
  */
