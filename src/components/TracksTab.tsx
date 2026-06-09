@@ -109,7 +109,7 @@ export default function TracksTab() {
 
       {totalProblems > 0 && (
         <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-8">
-          <div className="h-48 w-full max-w-[200px]">
+          <div className="h-48 w-full md:w-[280px] shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
