@@ -25,6 +25,7 @@ import {
   Legend,
 } from "recharts";
 import { TrackedProblem } from "../types";
+import { AnimatedNumber } from "./AnimatedNumber";
 import EditProblemModal from "./EditProblemModal";
 import UntrackedProblemsModal from "./UntrackedProblemsModal";
 import SmartRevisitModal, {
@@ -225,7 +226,7 @@ export default function ProblemsTab({
               Problems Solved
             </p>
             <p className="text-4xl font-extrabold text-neutral-800">
-              {problems.length}
+              <AnimatedNumber value={problems.length} />
             </p>
           </div>
         </div>

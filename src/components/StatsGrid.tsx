@@ -1,5 +1,6 @@
 import { BookOpen, Layers, Terminal } from "lucide-react";
 import { DocumentMetadata } from "../types";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 interface StatsGridProps {
   documents: DocumentMetadata[];
@@ -34,7 +35,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
             id="val-theory"
             className="text-2xl font-extrabold text-neutral-850"
           >
-            {theoryCount}
+            <AnimatedNumber value={theoryCount} />
           </p>
         </div>
       </div>
@@ -60,7 +61,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
             id="val-problemsheets"
             className="text-2xl font-extrabold text-neutral-850"
           >
-            {problemsheetsCount}
+            <AnimatedNumber value={problemsheetsCount} />
           </p>
         </div>
       </div>
@@ -86,7 +87,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
             id="val-categories"
             className="text-2xl font-extrabold text-neutral-850"
           >
-            {new Set(documents.map((d) => d.category)).size}
+            <AnimatedNumber value={new Set(documents.map((d) => d.category)).size} />
           </p>
         </div>
       </div>

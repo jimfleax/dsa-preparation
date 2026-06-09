@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { ChevronDown, ChevronUp, CheckCircle, Loader2 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<any[]>([]);
@@ -176,8 +177,8 @@ export default function TracksTab() {
             </h3>
             <p className="text-neutral-500 text-sm mt-1">
               You have completed{" "}
-              <strong className="text-emerald-600">{totalSolved}</strong> out of{" "}
-              <strong className="text-neutral-800">{totalProblems}</strong>{" "}
+              <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
+              <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
               track problems.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
@@ -186,7 +187,7 @@ export default function TracksTab() {
                   Solved
                 </p>
                 <p className="text-xl font-extrabold text-emerald-700">
-                  {totalSolved}
+                  <AnimatedNumber value={totalSolved} />
                 </p>
               </div>
               <div className="bg-neutral-50 border border-neutral-200 px-4 py-2 rounded-xl">
@@ -194,7 +195,7 @@ export default function TracksTab() {
                   Remaining
                 </p>
                 <p className="text-xl font-extrabold text-neutral-700">
-                  {totalProblems - totalSolved}
+                  <AnimatedNumber value={totalProblems - totalSolved} />
                 </p>
               </div>
             </div>
@@ -233,7 +234,7 @@ export default function TracksTab() {
                   Completed Tracks
                 </h3>
                 <p className="text-sm text-emerald-600/80 mt-0.5 font-medium">
-                  {completedTracks.length}{" "}
+                  <AnimatedNumber value={completedTracks.length} />{" "}
                   {completedTracks.length === 1 ? "track" : "tracks"} fully
                   mastered
                 </p>
