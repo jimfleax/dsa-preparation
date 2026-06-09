@@ -10,6 +10,38 @@ import {
 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 
+function AnimatedNumber({ value, duration = 1000 }: { value: number | null; duration?: number }) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (value === null) return;
+    
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+      const percentage = Math.min(progress / duration, 1);
+      
+      const easeOutExpo = percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
+      setDisplayValue(Math.floor(easeOutExpo * value));
+
+      if (percentage < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setDisplayValue(value);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value, duration]);
+
+  return <>{displayValue}</>;
+}
+
 interface HomeTabProps {
   totalDocuments: number;
   onNavigate: (tab: "learn" | "tracker" | "tracks") => void;
@@ -111,25 +143,25 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
           <p>
             we have a total of{" "}
             <span className="font-semibold text-indigo-500 not-italic mx-1">
-              {totalDocuments}
+              <AnimatedNumber value={totalDocuments} />
             </span>{" "}
             learning resources
           </p>
           <p>
             you have solved{" "}
             <span className="font-semibold text-emerald-500 not-italic mx-1">
-              {totalSolved !== null ? totalSolved : "..."}
+              <AnimatedNumber value={totalSolved} />
             </span>{" "}
             problems so far
           </p>
           <p>
             progressed through{" "}
             <span className="font-semibold text-purple-500 not-italic mx-1">
-              {trackProgress ? trackProgress.completed : "..."}
+              <AnimatedNumber value={trackProgress ? trackProgress.completed : null} />
             </span>{" "}
             out of{" "}
             <span className="font-semibold text-rose-500 not-italic mx-1">
-              {trackProgress ? trackProgress.total : "..."}
+              <AnimatedNumber value={trackProgress ? trackProgress.total : null} />
             </span>{" "}
             tracks
           </p>
