@@ -9,7 +9,7 @@ import {
   Hash,
   Sparkles,
 } from "lucide-react";
-import { ProblemProgress } from "../types";
+import { TrackedProblem } from "../types";
 
 /**
  * Weighted Spaced-Repetition Algorithm
@@ -24,8 +24,8 @@ import { ProblemProgress } from "../types";
  * - Attempt Decay (1/ln(attempts+1)): strongly favors low-attempt, never zeroes
  */
 export function selectSmartRevisitProblem(
-  problems: ProblemProgress[],
-): ProblemProgress | null {
+  problems: TrackedProblem[],
+): TrackedProblem | null {
   if (problems.length === 0) return null;
   if (problems.length === 1) return problems[0];
 
@@ -70,7 +70,7 @@ export function selectSmartRevisitProblem(
 interface SmartRevisitModalProps {
   isOpen: boolean;
   onClose: () => void;
-  problem: ProblemProgress | null;
+  problem: TrackedProblem | null;
   onRevisited: () => void;
 }
 
@@ -107,7 +107,7 @@ export default function SmartRevisitModal({
     try {
       const token = await getToken();
       const response = await fetch(
-        `${apiBase}/api/problems/${problem._id}/revisit`,
+        `${apiBase}/api/tracker/${problem._id}/revisit`,
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },

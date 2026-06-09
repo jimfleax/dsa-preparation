@@ -24,7 +24,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { ProblemProgress } from "../types";
+import { TrackedProblem } from "../types";
 import EditProblemModal from "./EditProblemModal";
 import UntrackedProblemsModal from "./UntrackedProblemsModal";
 import SmartRevisitModal, {
@@ -56,22 +56,22 @@ export default function ProblemsTab({
   onOpenAddModal,
   refreshKey,
 }: ProblemsTabProps) {
-  const [problems, setProblems] = useState<ProblemProgress[]>([]);
+  const [problems, setProblems] = useState<TrackedProblem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [problemToDelete, setProblemToDelete] = useState<ProblemProgress | null>(null);
+  const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "title" | "attempts">("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [editingProblem, setEditingProblem] = useState<ProblemProgress | null>(
+  const [editingProblem, setEditingProblem] = useState<TrackedProblem | null>(
     null,
   );
   const [isUntrackedModalOpen, setIsUntrackedModalOpen] =
     useState<boolean>(false);
   const [isSmartRevisitOpen, setIsSmartRevisitOpen] = useState<boolean>(false);
   const [smartRevisitProblem, setSmartRevisitProblem] =
-    useState<ProblemProgress | null>(null);
+    useState<TrackedProblem | null>(null);
 
   const { getToken } = useAuth();
   const apiBase =
@@ -81,7 +81,7 @@ export default function ProblemsTab({
   const fetchProblems = async () => {
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems`, {
+      const response = await fetch(`${apiBase}/api/tracker`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -103,7 +103,7 @@ export default function ProblemsTab({
     try {
       const token = await getToken();
       const response = await fetch(
-        `${apiBase}/api/problems/${problemId}/revisit`,
+        `${apiBase}/api/tracker/${problemId}/revisit`,
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },
@@ -129,7 +129,7 @@ export default function ProblemsTab({
     setDeletingId(problemId);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems/${problemId}`, {
+      const response = await fetch(`${apiBase}/api/tracker/${problemId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

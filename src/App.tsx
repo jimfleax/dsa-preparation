@@ -14,12 +14,14 @@ import {
   Code2,
   LogIn,
   Settings,
+  Map,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
 import PreviewPanel from "./components/PreviewPanel";
-import ProblemsTab from "./components/ProblemsTab";
+import TrackerTab from "./components/TrackerTab";
+import TracksTab from "./components/TracksTab";
 import AddProblemModal from "./components/AddProblemModal";
 import SettingsModal from "./components/SettingsModal";
 import SyncToast from "./components/SyncToast";
@@ -38,7 +40,7 @@ export default function App() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Top-level tab state: controls which main view is active
-  const [activeMainTab, setActiveMainTab] = useState<"learn" | "problems">(
+  const [activeMainTab, setActiveMainTab] = useState<"learn" | "tracker" | "tracks">(
     "learn",
   );
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -335,16 +337,28 @@ export default function App() {
                 Learn
               </button>
               <button
-                id="tab-problems"
-                onClick={() => setActiveMainTab("problems")}
+                id="tab-tracker"
+                onClick={() => setActiveMainTab("tracker")}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  activeMainTab === "problems"
+                  activeMainTab === "tracker"
                     ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
                     : "text-neutral-500 hover:text-neutral-900"
                 }`}
               >
                 <Code2 className="w-3.5 h-3.5" />
-                Problems
+                Tracker
+              </button>
+              <button
+                id="tab-tracks"
+                onClick={() => setActiveMainTab("tracks")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  activeMainTab === "tracks"
+                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+              >
+                <Map className="w-3.5 h-3.5" />
+                Tracks
               </button>
             </div>
           </SignedIn>
@@ -458,12 +472,17 @@ export default function App() {
 
         {/* === SIGNED IN: Full App === */}
         <SignedIn>
-          {/* === PROBLEMS TAB VIEW === */}
-          {activeMainTab === "problems" && (
-            <ProblemsTab
+          {/* === TRACKER TAB VIEW === */}
+          {activeMainTab === "tracker" && (
+            <TrackerTab
               onOpenAddModal={() => setShowAddModal(true)}
               refreshKey={problemsRefreshKey}
             />
+          )}
+
+          {/* === TRACKS TAB VIEW === */}
+          {activeMainTab === "tracks" && (
+            <TracksTab />
           )}
 
           {/* === LEARN TAB VIEW (existing content) === */}

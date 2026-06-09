@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User.ts";
-import ProblemProgress from "../models/ProblemProgress.ts";
+import TrackedProblem from "../models/TrackedProblem.ts";
 import {
   fetchRecentAcceptedSubmissions,
   getLeetCodeProblemInfo,
@@ -50,7 +50,7 @@ export const checkSync = async (req: Request, res: Response) => {
     const dedupedSubmissions = Array.from(uniqueSlugs.values());
 
     // Fetch existing slugs for this user
-    const existingRecords = await ProblemProgress.find({ userId }).select(
+    const existingRecords = await TrackedProblem.find({ userId }).select(
       "titleSlug",
     );
     const existingSlugs = new Set(existingRecords.map((r) => r.titleSlug));
@@ -93,7 +93,7 @@ export const trackSubmissions = async (req: Request, res: Response) => {
 
     for (const sub of submissions) {
       // Ensure we don't insert duplicates
-      const existing = await ProblemProgress.findOne({
+      const existing = await TrackedProblem.findOne({
         userId,
         titleSlug: sub.titleSlug,
       });
@@ -116,7 +116,7 @@ export const trackSubmissions = async (req: Request, res: Response) => {
       }
 
       // Create new record
-      const progress = new ProblemProgress({
+      const progress = new TrackedProblem({
         userId,
         titleSlug: sub.titleSlug,
         title: sub.title,

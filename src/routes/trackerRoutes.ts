@@ -7,29 +7,29 @@ import {
   deleteProblem,
   updateProblem,
   toggleTrackProblem,
-} from "../controllers/problemController.ts";
+} from "../controllers/trackerController.ts";
 
 const router = Router();
 
-// GET /api/problems — List all tracked problems
+// GET /api/tracker — List all tracked problems
 router.get("/", listProblems);
 
-// GET /api/problems/untracked — List all untracked problems
+// GET /api/tracker/untracked — List all untracked problems
 router.get("/untracked", listUntrackedProblems);
 
-// POST /api/problems — Add a new solved problem
+// POST /api/tracker — Add a new solved problem
 router.post("/", addProblem);
 
-// PATCH /api/problems/:id/revisit — Record a revisit (increment count + update date)
+// PATCH /api/tracker/:id/revisit — Record a revisit (increment count + update date)
 router.patch("/:id/revisit", revisitProblem);
 
-// PATCH /api/problems/:id/toggle-track — Toggle notrack status
+// PATCH /api/tracker/:id/toggle-track — Toggle notrack status
 router.patch("/:id/toggle-track", toggleTrackProblem);
 
-// PUT /api/problems/:id — Update a problem (URL, attempts)
+// PUT /api/tracker/:id — Update a problem (URL, attempts)
 router.put("/:id", updateProblem);
 
-// DELETE /api/problems/:id — Remove a problem
+// DELETE /api/tracker/:id — Remove a problem
 router.delete("/:id", deleteProblem);
 
 export default router;

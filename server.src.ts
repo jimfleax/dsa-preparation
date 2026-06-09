@@ -4,12 +4,13 @@ import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { connectDB } from "./src/lib/db.ts";
-import problemRoutes from "./src/routes/problemRoutes.ts";
+import trackerRoutes from "./src/routes/trackerRoutes.ts";
 import userRoutes from "./src/routes/userRoutes.ts";
 import syncRoutes from "./src/routes/syncRoutes.ts";
+import trackRoutes from "./src/routes/trackRoutes.ts";
 import authRoutes from "./src/routes/authRoutes.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
-import { scrapeLeetCodeTitle } from "./src/controllers/problemController.ts";
+import { scrapeLeetCodeTitle } from "./src/controllers/trackerController.ts";
 
 interface DocumentMetadata {
   id: string;
@@ -204,13 +205,16 @@ app.use("/api/auth", authRoutes);
 // ──────────────────────────────────────────────────────────
 
 // Mount Problem Tracking API routes (requires authentication)
-app.use("/api/problems", requireAuth, problemRoutes);
+app.use("/api/tracker", requireAuth, trackerRoutes);
 
 // Mount User Settings API routes (requires authentication)
 app.use("/api/user", requireAuth, userRoutes);
 
 // Mount Sync API routes (requires authentication)
 app.use("/api/sync", requireAuth, syncRoutes);
+
+// Mount Tracks API routes (requires authentication)
+app.use("/api/tracks", requireAuth, trackRoutes);
 
 // ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
