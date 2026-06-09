@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ProblemProgress from "../models/ProblemProgress.ts";
+import TrackedProblem from "../models/TrackedProblem.ts";
 import {
   getLeetCodeTitle,
   getLeetCodeProblemInfo,
@@ -87,7 +87,7 @@ export const listProblems = async (req: Request, res: Response) => {
     else if (sort === "attempts") sortCriteria = { attemptCount: -1 };
     else if (sort === "date") sortCriteria = { lastAttemptedDate: -1 };
 
-    const problems = await ProblemProgress.find(filter)
+    const problems = await TrackedProblem.find(filter)
       .sort(sortCriteria)
       .lean();
 
@@ -131,7 +131,7 @@ export const addProblem = async (req: Request, res: Response) => {
     }
 
     // Check for existing record scoped to this user
-    const existing = await ProblemProgress.findOne({ userId, titleSlug });
+    const existing = await TrackedProblem.findOne({ userId, titleSlug });
     if (existing) {
       return res
         .status(409)
@@ -170,7 +170,7 @@ export const addProblem = async (req: Request, res: Response) => {
       });
     }
 
-    const problem = await ProblemProgress.create({
+    const problem = await TrackedProblem.create({
       userId,
       titleSlug,
       title,
@@ -215,7 +215,7 @@ export const revisitProblem = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     // Compound query prevents accessing another user's problem (IDOR prevention)
-    const problem = await ProblemProgress.findOne({ _id: id, userId });
+    const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
       return res
         .status(404)
@@ -247,7 +247,7 @@ export const updateProblem = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { url, attemptCount } = req.body;
 
-    const problem = await ProblemProgress.findOne({ _id: id, userId });
+    const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
       return res
         .status(404)
@@ -278,7 +278,7 @@ export const updateProblem = async (req: Request, res: Response) => {
       }
 
       // Check for conflicts
-      const existing = await ProblemProgress.findOne({
+      const existing = await TrackedProblem.findOne({
         userId,
         titleSlug,
         _id: { $ne: id },
@@ -344,7 +344,7 @@ export const deleteProblem = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     // Compound query prevents deleting another user's problem (IDOR prevention)
-    const problem = await ProblemProgress.findOneAndDelete({ _id: id, userId });
+    const problem = await TrackedProblem.findOneAndDelete({ _id: id, userId });
     if (!problem) {
       return res
         .status(404)
@@ -369,7 +369,7 @@ export const listUntrackedProblems = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const problems = await ProblemProgress.find({ userId, notrack: true })
+    const problems = await TrackedProblem.find({ userId, notrack: true })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -393,7 +393,7 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
 
     const { id } = req.params;
 
-    const problem = await ProblemProgress.findOne({ _id: id, userId });
+    const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
       return res
         .status(404)

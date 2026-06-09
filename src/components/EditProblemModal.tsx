@@ -9,13 +9,13 @@ import {
   Hash,
   Trash2,
 } from "lucide-react";
-import { ProblemProgress } from "../types";
+import { TrackedProblem } from "../types";
 
 interface EditProblemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdated: () => void;
-  problem: ProblemProgress | null;
+  problem: TrackedProblem | null;
 }
 
 export default function EditProblemModal({
@@ -121,7 +121,7 @@ export default function EditProblemModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems/${problem._id}`, {
+      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -160,7 +160,7 @@ export default function EditProblemModal({
     setError(null);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems/${problem._id}`, {
+      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

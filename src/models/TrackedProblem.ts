@@ -9,7 +9,7 @@ import mongoose, { Document, Schema } from "mongoose";
  * The compound index {userId, titleSlug} ensures a user can only have
  * one progress record per problem, while different users can track the same problem.
  */
-export interface IProblemProgress extends Document {
+export interface ITrackedProblem extends Document {
   userId: string;
   titleSlug: string;
   title: string;
@@ -22,7 +22,7 @@ export interface IProblemProgress extends Document {
   updatedAt: Date;
 }
 
-const ProblemProgressSchema = new Schema<IProblemProgress>(
+const TrackedProblemSchema = new Schema<ITrackedProblem>(
   {
     userId: {
       type: String,
@@ -66,12 +66,13 @@ const ProblemProgressSchema = new Schema<IProblemProgress>(
 );
 
 // Compound unique index: a user can only have one progress record per problem
-ProblemProgressSchema.index({ userId: 1, titleSlug: 1 }, { unique: true });
+TrackedProblemSchema.index({ userId: 1, titleSlug: 1 }, { unique: true });
 
 // Index for sorting by last attempted date
-ProblemProgressSchema.index({ lastAttemptedDate: -1 });
+TrackedProblemSchema.index({ lastAttemptedDate: -1 });
 
-export default mongoose.model<IProblemProgress>(
-  "ProblemProgress",
-  ProblemProgressSchema,
+export default mongoose.model<ITrackedProblem>(
+  "TrackedProblem",
+  TrackedProblemSchema,
+  "problemprogresses",
 );

@@ -14,7 +14,7 @@ export interface DocumentDetail {
   content: string;
 }
 
-export interface ProblemProgress {
+export interface TrackedProblem {
   _id: string;
   userId: string;
   titleSlug: string;

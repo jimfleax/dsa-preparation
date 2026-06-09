@@ -102,7 +102,7 @@ export default function AddProblemModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems`, {
+      const response = await fetch(`${apiBase}/api/tracker`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

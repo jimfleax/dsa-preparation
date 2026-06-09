@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, EyeOff, Loader2, RefreshCcw } from "lucide-react";
-import { ProblemProgress } from "../types";
+import { TrackedProblem } from "../types";
 
 interface UntrackedProblemsModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ export default function UntrackedProblemsModal({
   onClose,
   onTracked,
 }: UntrackedProblemsModalProps) {
-  const [problems, setProblems] = useState<ProblemProgress[]>([]);
+  const [problems, setProblems] = useState<TrackedProblem[]>([]);
   const [loading, setLoading] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ export default function UntrackedProblemsModal({
     setLoading(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/problems/untracked`, {
+      const response = await fetch(`${apiBase}/api/tracker/untracked`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -52,7 +52,7 @@ export default function UntrackedProblemsModal({
     try {
       const token = await getToken();
       const response = await fetch(
-        `${apiBase}/api/problems/${id}/toggle-track`,
+        `${apiBase}/api/tracker/${id}/toggle-track`,
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },
