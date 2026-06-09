@@ -9,3 +9,6 @@ coverage/
 _dev/
 backups/
 downloads/
+docs/
+scripts/
+feature_plans/

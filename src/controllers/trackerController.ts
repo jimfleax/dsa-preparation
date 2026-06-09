@@ -6,8 +6,6 @@ import {
 } from "../lib/leetcodeScraperUtil.ts";
 import { extractTitleSlug } from "../lib/slugUtils.ts";
 
-
-
 /**
  * POST /api/problems/scrape-title
  * Public endpoint to scrape a LeetCode problem title (no auth required).
@@ -117,24 +115,20 @@ export const addProblem = async (req: Request, res: Response) => {
 
     const titleSlug = extractTitleSlug(url.trim());
     if (!titleSlug) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Could not parse a valid problem slug from the URL.",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Could not parse a valid problem slug from the URL.",
+      });
     }
 
     // Check for existing record scoped to this user
     const existing = await TrackedProblem.findOne({ userId, titleSlug });
     if (existing) {
-      return res
-        .status(409)
-        .json({
-          success: false,
-          error: "This problem is already being tracked.",
-          problem: existing,
-        });
+      return res.status(409).json({
+        success: false,
+        error: "This problem is already being tracked.",
+        problem: existing,
+      });
     }
 
     // Fetch the exact title and difficulty from LeetCode
@@ -143,13 +137,11 @@ export const addProblem = async (req: Request, res: Response) => {
     try {
       const fetchedInfo = await getLeetCodeProblemInfo(url.trim());
       if (!fetchedInfo) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error:
-              "Could not fetch problem details from LeetCode. Please verify the URL.",
-          });
+        return res.status(400).json({
+          success: false,
+          error:
+            "Could not fetch problem details from LeetCode. Please verify the URL.",
+        });
       }
       title = fetchedInfo.title;
       difficulty = fetchedInfo.difficulty;
@@ -264,12 +256,10 @@ export const updateProblem = async (req: Request, res: Response) => {
       const titleSlug = extractTitleSlug(newUrl);
 
       if (!titleSlug) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error: "Could not parse a valid problem slug from the new URL.",
-          });
+        return res.status(400).json({
+          success: false,
+          error: "Could not parse a valid problem slug from the new URL.",
+        });
       }
 
       // Check for conflicts
@@ -279,25 +269,21 @@ export const updateProblem = async (req: Request, res: Response) => {
         _id: { $ne: id },
       });
       if (existing) {
-        return res
-          .status(409)
-          .json({
-            success: false,
-            error: "You are already tracking this problem in another entry.",
-          });
+        return res.status(409).json({
+          success: false,
+          error: "You are already tracking this problem in another entry.",
+        });
       }
 
       // Fetch new title and difficulty
       try {
         const fetchedInfo = await getLeetCodeProblemInfo(newUrl);
         if (!fetchedInfo) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              error:
-                "Could not fetch problem details from LeetCode. Please verify the new URL.",
-            });
+          return res.status(400).json({
+            success: false,
+            error:
+              "Could not fetch problem details from LeetCode. Please verify the new URL.",
+          });
         }
         problem.url = newUrl;
         problem.titleSlug = titleSlug;

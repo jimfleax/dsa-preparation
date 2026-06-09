@@ -25,7 +25,11 @@ function handleKeyDown(event: KeyboardEvent) {
   }
 }
 
-export function registerOverlay(id: string, onClose: () => void, zIndex: number) {
+export function registerOverlay(
+  id: string,
+  onClose: () => void,
+  zIndex: number,
+) {
   // Prevent duplicate registration
   stack = stack.filter((item) => item.id !== id);
   stack.push({

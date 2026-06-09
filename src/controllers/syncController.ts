@@ -19,13 +19,11 @@ export const checkSync = async (req: Request, res: Response) => {
 
     const user = await User.findById(userId);
     if (!user || !user.leetcodeUsername) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          error: "LeetCode username not configured",
-          noUsername: true,
-        });
+      return res.status(200).json({
+        success: false,
+        error: "LeetCode username not configured",
+        noUsername: true,
+      });
     }
 
     let recentSubmissions;

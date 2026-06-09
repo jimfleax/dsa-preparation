@@ -43,9 +43,9 @@ export default function App() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Top-level tab state: controls which main view is active
-  const [activeMainTab, setActiveMainTab] = useState<"home" | "learn" | "tracker" | "tracks">(
-    "home",
-  );
+  const [activeMainTab, setActiveMainTab] = useState<
+    "home" | "learn" | "tracker" | "tracks"
+  >("home");
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [problemsRefreshKey, setProblemsRefreshKey] = useState<number>(0);
 
@@ -239,7 +239,7 @@ export default function App() {
       ) {
         return;
       }
-      
+
       if (e.key === "Home") {
         e.preventDefault(); // Prevents default scrolling behavior
         setActiveMainTab("home");
@@ -525,9 +525,7 @@ export default function App() {
           )}
 
           {/* === TRACKS TAB VIEW === */}
-          {activeMainTab === "tracks" && (
-            <TracksTab />
-          )}
+          {activeMainTab === "tracks" && <TracksTab />}
 
           {/* === LEARN TAB VIEW (existing content) === */}
           {activeMainTab === "learn" && (

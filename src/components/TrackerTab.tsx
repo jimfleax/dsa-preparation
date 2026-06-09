@@ -61,7 +61,9 @@ export default function ProblemsTab({
   const [loading, setLoading] = useState<boolean>(true);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(null);
+  const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(
+    null,
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "title" | "attempts">("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -83,7 +85,7 @@ export default function ProblemsTab({
     !!problemToDelete,
     () => setProblemToDelete(null),
     50,
-    "delete-problem-confirm"
+    "delete-problem-confirm",
   );
 
   const fetchProblems = async () => {
@@ -259,7 +261,7 @@ export default function ProblemsTab({
                     border: "none",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                     fontSize: "12px",
-                    padding: "6px 10px"
+                    padding: "6px 10px",
                   }}
                   itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
                 />
@@ -675,7 +677,9 @@ export default function ProblemsTab({
           />
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={(e) => e.target === e.currentTarget && setProblemToDelete(null)}
+            onClick={(e) =>
+              e.target === e.currentTarget && setProblemToDelete(null)
+            }
           >
             <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-neutral-100 flex flex-col animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center gap-2.5 px-6 py-4 border-b border-neutral-100">
@@ -683,13 +687,21 @@ export default function ProblemsTab({
                   <Trash2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-neutral-900">Delete Problem</h2>
-                  <p className="text-[11px] text-neutral-400 font-medium">This action cannot be undone.</p>
+                  <h2 className="text-sm font-bold text-neutral-900">
+                    Delete Problem
+                  </h2>
+                  <p className="text-[11px] text-neutral-400 font-medium">
+                    This action cannot be undone.
+                  </p>
                 </div>
               </div>
               <div className="p-6">
                 <p className="text-sm text-neutral-600 mb-6">
-                  Are you sure you want to remove <strong className="text-neutral-900">{problemToDelete.title}</strong> from your tracker?
+                  Are you sure you want to remove{" "}
+                  <strong className="text-neutral-900">
+                    {problemToDelete.title}
+                  </strong>{" "}
+                  from your tracker?
                 </p>
                 <div className="flex items-center justify-end gap-3">
                   <button
