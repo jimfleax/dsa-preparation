@@ -3,6 +3,7 @@ import { ExternalLink, X, Play, Loader2 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useAuth } from "../context/AuthContext";
 import { useEscapeKey } from "../hooks/useEscapeKey";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 interface AttemptProblemModalProps {
   isOpen: boolean;
@@ -112,7 +113,7 @@ export default function AttemptProblemModal({
               <p className="text-sm text-neutral-500 mt-3 font-medium bg-neutral-50 p-3 rounded-xl border border-neutral-100">
                 You've attempted this{" "}
                 <strong className="text-indigo-600">
-                  {trackedProblem.attemptCount}
+                  <AnimatedNumber value={trackedProblem.attemptCount} />
                 </strong>{" "}
                 times.
               </p>

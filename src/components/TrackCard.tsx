@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, CheckCircle2, Circle } from "lucide-react";
 import { TrackedProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
 import { extractTitleSlug } from "../lib/slugUtils";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 interface TrackCardProps {
   track: any;
@@ -64,7 +65,7 @@ export default function TrackCard({
             <span
               className={`text-xs font-bold ${isCompleted ? "text-emerald-600" : "text-neutral-600"}`}
             >
-              {completedCount} / {track.problems.length} ({progressPercent}%)
+              <AnimatedNumber value={completedCount} /> / <AnimatedNumber value={track.problems.length} /> (<AnimatedNumber value={progressPercent} />%)
             </span>
           </div>
         </div>
