@@ -342,10 +342,7 @@ export default function EditProblemModal({
                   className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                 >
                   {saving ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Saving...
-                    </>
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     "Save Changes"
                   )}

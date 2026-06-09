@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, X, Play } from "lucide-react";
+import { ExternalLink, X, Play, Loader2 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useAuth } from "../context/AuthContext";
 import { useEscapeKey } from "../hooks/useEscapeKey";
@@ -134,9 +134,9 @@ export default function AttemptProblemModal({
               <button 
                 disabled={loading}
                 onClick={() => handleAttempt()}
-                className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl font-bold transition-colors cursor-pointer disabled:opacity-50"
+                className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {trackedProblem ? "Log Revisit" : "Mark as Solved"}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (trackedProblem ? "Log Revisit" : "Mark as Solved")}
               </button>
             </div>
           )}

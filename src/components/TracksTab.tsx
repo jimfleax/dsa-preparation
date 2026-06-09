@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import TrackCard from "./TrackCard";
 import { TrackedProblem } from "../types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
-import { ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle, Loader2 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 
 export default function TracksTab() {
@@ -54,7 +54,11 @@ export default function TracksTab() {
   };
 
   if (loading) {
-    return <div className="text-center p-8 text-neutral-500 font-medium">Loading tracks...</div>;
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+      </div>
+    );
   }
 
   // Calculate overall metrics
