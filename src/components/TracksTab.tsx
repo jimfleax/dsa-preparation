@@ -3,12 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import TrackCard from "./TrackCard";
 import { TrackedProblem } from "../types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
+import { ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<any[]>([]);
   const [trackedProblems, setTrackedProblems] = useState<Record<string, TrackedProblem>>({});
   const [loading, setLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
   const { getToken } = useAuth();
   
   const apiBase =
@@ -70,22 +72,36 @@ export default function TracksTab() {
   });
 
   const chartData = [
-    { name: "Solved", value: totalSolved },
-    { name: "Remaining", value: Math.max(0, totalProblems - totalSolved) }
-  ];
+    { name: "Solved", value: totalSolved, color: "#10b981" },
+    { name: "Remaining", value: Math.max(0, totalProblems - totalSolved), color: "#e5e7eb" }
+  ].filter((d) => d.value > 0);
 
-  const COLORS = ["#10b981", "#e5e7eb"];
+  // Categorize tracks into incomplete and completed
+  const categorizedTracks = tracks.reduce(
+    (acc, track) => {
+      let completedCount = 0;
+      track.problems.forEach((problem: any) => {
+        const slug = extractTitleSlug(problem.url);
+        if (slug && trackedProblems[slug]) {
+          completedCount++;
+        }
+      });
+      const isCompleted = track.problems.length > 0 && completedCount === track.problems.length;
+      if (isCompleted) {
+        acc.completed.push(track);
+      } else {
+        acc.incomplete.push(track);
+      }
+      return acc;
+    },
+    { incomplete: [] as any[], completed: [] as any[] }
+  );
+
+  const { incomplete: incompleteTracks, completed: completedTracks } = categorizedTracks;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-neutral-900">Roadmap Tracks</h2>
-          <p className="text-sm text-neutral-500 mt-1 font-medium">
-            Follow curated paths to master data structures and algorithms.
-          </p>
-        </div>
-      </div>
+
 
       {totalProblems > 0 && (
         <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-8">
@@ -96,19 +112,39 @@ export default function TracksTab() {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={2}
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={5}
                   dataKey="value"
                   stroke="none"
+                  style={{ outline: "none" }}
                 >
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.color} 
+                      style={{ outline: "none" }}
+                      className="hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+                    />
                   ))}
                 </Pie>
                 <RechartsTooltip 
                   formatter={(value: number) => [`${value} problems`, "Count"]}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "none",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    fontSize: "12px",
+                    padding: "6px 10px"
+                  }}
+                  itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
+                />
+                <Legend
+                  verticalAlign="middle"
+                  align="right"
+                  layout="vertical"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: "12px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -133,7 +169,7 @@ export default function TracksTab() {
       )}
       
       <div className="grid gap-6">
-        {tracks.map((track) => (
+        {incompleteTracks.map((track) => (
           <TrackCard 
             key={track._id} 
             track={track} 
@@ -141,12 +177,49 @@ export default function TracksTab() {
             onUpdate={fetchTracksAndProgress} 
           />
         ))}
-        {tracks.length === 0 && (
+        {incompleteTracks.length === 0 && completedTracks.length === 0 && (
           <div className="text-center py-12 bg-white border border-neutral-200 rounded-2xl">
             <p className="text-neutral-500 font-medium">No roadmap tracks available.</p>
           </div>
         )}
       </div>
+
+      {completedTracks.length > 0 && (
+        <div className="mt-12 bg-emerald-50/50 border border-emerald-100 rounded-2xl overflow-hidden shadow-sm">
+          <div 
+            className="p-5 cursor-pointer hover:bg-emerald-50 transition-colors flex justify-between items-center"
+            onClick={() => setShowCompleted(!showCompleted)}
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-6 h-6 text-emerald-500" />
+              <div>
+                <h3 className="text-lg font-bold text-emerald-900">Completed Tracks</h3>
+                <p className="text-sm text-emerald-600/80 mt-0.5 font-medium">
+                  {completedTracks.length} {completedTracks.length === 1 ? 'track' : 'tracks'} fully mastered
+                </p>
+              </div>
+            </div>
+            <div className="text-emerald-500 bg-emerald-100 p-2 rounded-xl">
+              {showCompleted ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </div>
+          </div>
+          
+          {showCompleted && (
+            <div className="border-t border-emerald-100 p-6 pt-2">
+              <div className="grid gap-6 mt-4 opacity-80 hover:opacity-100 transition-opacity duration-300">
+                {completedTracks.map((track) => (
+                  <TrackCard 
+                    key={track._id} 
+                    track={track} 
+                    trackedProblems={trackedProblems}
+                    onUpdate={fetchTracksAndProgress} 
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

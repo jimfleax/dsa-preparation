@@ -20,6 +20,7 @@ export default function TrackCard({ track, trackedProblems, onUpdate }: TrackCar
     return slug && !!trackedProblems[slug];
   }).length;
   const progressPercent = Math.round((completedCount / track.problems.length) * 100) || 0;
+  const isCompleted = track.problems.length > 0 && completedCount === track.problems.length;
 
   const handleProblemClick = (problem: any) => {
     setSelectedProblem(problem);
@@ -29,25 +30,33 @@ export default function TrackCard({ track, trackedProblems, onUpdate }: TrackCar
   return (
     <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden">
       <div 
-        className="p-5 cursor-pointer hover:bg-neutral-50 transition-colors flex justify-between items-center"
+        className={`p-5 cursor-pointer transition-colors flex justify-between items-center ${isCompleted ? 'hover:bg-emerald-50/50' : 'hover:bg-neutral-50'}`}
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex-1 pr-6">
-          <h3 className="text-lg font-bold text-neutral-900">{track.title}</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-bold text-neutral-900">{track.title}</h3>
+            {isCompleted && (
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                <CheckCircle2 className="w-3 h-3" />
+                Completed
+              </span>
+            )}
+          </div>
           <p className="text-sm text-neutral-500 mt-1 font-medium">{track.description}</p>
           <div className="mt-4 flex items-center gap-4">
             <div className="flex-1 max-w-sm h-2 bg-neutral-100 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-indigo-500'}`}
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
-            <span className="text-xs font-bold text-neutral-600">
+            <span className={`text-xs font-bold ${isCompleted ? 'text-emerald-600' : 'text-neutral-600'}`}>
               {completedCount} / {track.problems.length} ({progressPercent}%)
             </span>
           </div>
         </div>
-        <div className="text-neutral-400 bg-neutral-100 p-2 rounded-xl">
+        <div className={`p-2 rounded-xl ${isCompleted ? 'text-emerald-500 bg-emerald-100' : 'text-neutral-400 bg-neutral-100'}`}>
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </div>
