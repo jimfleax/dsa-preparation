@@ -92,11 +92,11 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         <div className="mt-8 md:mt-12 w-full flex justify-end">
           <div 
             className="text-right text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
-            style={{ fontFamily: "'Gluten', cursive" }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
-            <p>we have a total of <span className="font-semibold text-indigo-500 not-italic mx-1" style={{ fontFamily: "'SN Pro', sans-serif" }}>{totalDocuments}</span> learning resources</p>
-            <p>you have solved <span className="font-semibold text-emerald-500 not-italic mx-1" style={{ fontFamily: "'SN Pro', sans-serif" }}>{totalSolved !== null ? totalSolved : "..."}</span> problems so far</p>
-            <p>progressed through <span className="font-semibold text-purple-500 not-italic mx-1" style={{ fontFamily: "'SN Pro', sans-serif" }}>{trackProgress ? trackProgress.completed : "..."}</span> out of <span className="font-semibold text-rose-500 not-italic mx-1" style={{ fontFamily: "'SN Pro', sans-serif" }}>{trackProgress ? trackProgress.total : "..."}</span> tracks</p>
+            <p>we have a total of <span className="font-semibold text-indigo-500 not-italic mx-1">{totalDocuments}</span> learning resources</p>
+            <p>you have solved <span className="font-semibold text-emerald-500 not-italic mx-1">{totalSolved !== null ? totalSolved : "..."}</span> problems so far</p>
+            <p>progressed through <span className="font-semibold text-purple-500 not-italic mx-1">{trackProgress ? trackProgress.completed : "..."}</span> out of <span className="font-semibold text-rose-500 not-italic mx-1">{trackProgress ? trackProgress.total : "..."}</span> tracks</p>
           </div>
         </div>
 
