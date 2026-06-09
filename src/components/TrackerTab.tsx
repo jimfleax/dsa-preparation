@@ -201,10 +201,7 @@ export default function ProblemsTab({
         id="problems-loading"
         className="h-64 flex flex-col items-center justify-center text-center"
       >
-        <div className="w-8 h-8 border-3 border-neutral-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
-        <p className="text-xs text-neutral-500 font-medium">
-          Loading problem tracker...
-        </p>
+        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
       </div>
     );
   }

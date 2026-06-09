@@ -10,6 +10,7 @@ import {
   Code,
   Maximize2,
   Minimize2,
+  Loader2,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -246,13 +247,7 @@ export default function PreviewPanel({
               id="preview-loading-state"
               className="h-full flex flex-col items-center justify-center text-center p-6 text-neutral-400"
             >
-              <div className="w-6 h-6 border-2 border-neutral-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
-              <p
-                id="preview-loading-desc"
-                className="text-xs font-semibold text-neutral-500"
-              >
-                Loading "{activeDoc.title}" ...
-              </p>
+              <Loader2 className="w-8 h-8 animate-spin" />
             </div>
           ) : error ? (
             <div

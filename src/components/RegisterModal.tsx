@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { X, Mail, Lock, UserPlus, User } from "lucide-react";
+import { X, Mail, Lock, UserPlus, User, Loader2 } from "lucide-react";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface RegisterModalProps {
@@ -143,7 +143,7 @@ export default function RegisterModal({
               className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold rounded-xl shadow-md shadow-indigo-100 transition-all active:scale-[0.98] mt-2 flex items-center justify-center"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 "Sign Up"
               )}

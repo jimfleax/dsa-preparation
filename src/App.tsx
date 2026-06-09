@@ -16,6 +16,7 @@ import {
   Settings,
   Map,
   Home,
+  Loader2,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
@@ -678,13 +679,7 @@ export default function App() {
                       id="main-grid-loading"
                       className="h-64 flex flex-col items-center justify-center text-center"
                     >
-                      <div className="w-8 h-8 border-3 border-neutral-200 border-t-neutral-800 rounded-full animate-spin mb-3"></div>
-                      <p
-                        id="main-grid-loading-lbl"
-                        className="text-xs text-neutral-500 font-medium"
-                      >
-                        Scanning listed study collections...
-                      </p>
+                      <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
                     </div>
                   ) : filteredDocuments.length === 0 ? (
                     <div

@@ -113,10 +113,7 @@ export default function UntrackedProblemsModal({
           <div className="flex-1 overflow-y-auto p-2">
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center text-neutral-400">
-                <Loader2 className="w-6 h-6 animate-spin mb-2" />
-                <span className="text-xs font-medium">
-                  Loading untracked problems...
-                </span>
+                <Loader2 className="w-8 h-8 animate-spin" />
               </div>
             ) : problems.length === 0 ? (
               <div className="py-12 flex flex-col items-center justify-center text-center">
