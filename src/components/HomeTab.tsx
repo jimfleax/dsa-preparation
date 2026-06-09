@@ -77,12 +77,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
   }, [getToken, apiBase]);
 
   return (
-    <div className="relative overflow-hidden min-h-[500px] flex flex-col p-8 md:p-12">
-      {/* Glassy, soft colorful backdrops */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-indigo-100/50 via-purple-100/40 to-emerald-50/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-70 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-sky-100/40 via-fuchsia-50/30 to-rose-50/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 opacity-60 pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-[500px] pt-8">
         {/* Header Section */}
         <div className="max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-[0_5px_15px_rgba(139,92,246,0.4)]">
@@ -158,7 +153,6 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
             </div>
           </button>
         </div>
-      </div>
     </div>
   );
 }
