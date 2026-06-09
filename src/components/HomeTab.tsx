@@ -82,7 +82,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         <div className="max-w-2xl">
           <h1 
             className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-[0_5px_15px_rgba(139,92,246,0.4)]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            style={{ fontFamily: "'Madimi One', sans-serif" }}
           >
             {greeting}
           </h1>
@@ -92,7 +92,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         <div className="mt-8 md:mt-12 w-full flex justify-end">
           <div 
             className="text-right text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            style={{ fontFamily: "'Platypi', serif" }}
           >
             <p>we have a total of <span className="font-semibold text-indigo-500 not-italic mx-1">{totalDocuments}</span> learning resources</p>
             <p>you have solved <span className="font-semibold text-emerald-500 not-italic mx-1">{totalSolved !== null ? totalSolved : "..."}</span> problems so far</p>
