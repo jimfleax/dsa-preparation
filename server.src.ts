@@ -31,9 +31,19 @@ import rateLimit from "express-rate-limit";
 // ─── CORS MIDDLEWARE (MUST BE FIRST) ───
 // Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(",") 
-    : "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    try {
+      const originHostname = new URL(origin).hostname;
+      const allowedDomain = process.env.FRONTEND_URL || "localhost";
+      if (originHostname === allowedDomain || originHostname === "localhost") {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    } catch (err) {
+      return callback(new Error("Invalid origin"));
+    }
+  },
   credentials: true
 }));
 
