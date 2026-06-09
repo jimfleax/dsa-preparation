@@ -1,3 +1,9 @@
+## 2026-06-09 - Homepage Tab Integration
+- **Changed:** src/components/HomeTab.tsx, src/App.tsx
+- **Why:** Added a sophisticated default landing view featuring time-based greetings and text-based metrics, along with a global "Home" keyboard shortcut to enhance navigation and aesthetics.
+- **Risk:** Low
+- **Verification:** Verified via `npx tsc --noEmit`
+
 ## 2026-06-09 - Escape Key Accessibility Overlay Close
 - **Changed:** src/lib/overlayStack.ts, src/hooks/useEscapeKey.ts, src/components/PreviewPanel.tsx, src/components/AddProblemModal.tsx, src/components/AttemptProblemModal.tsx, src/components/EditProblemModal.tsx, src/components/LoginModal.tsx, src/components/RegisterModal.tsx, src/components/SettingsModal.tsx, src/components/SmartRevisitModal.tsx, src/components/UntrackedProblemsModal.tsx, src/components/TrackerTab.tsx
 - **Why:** Introduced a global event-driven Escape key overlay registration stack manager to close visual overlays (modals and preview panels) sequentially from top to bottom (descending z-index, descending recency timestamp) upon pressing Escape.
