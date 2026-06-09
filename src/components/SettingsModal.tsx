@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, Settings, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -90,6 +91,8 @@ export default function SettingsModal({
     setSuccess(false);
     onClose();
   };
+
+  useEscapeKey(isOpen, handleClose, 50, "settings-modal");
 
   if (!isOpen) return null;
 

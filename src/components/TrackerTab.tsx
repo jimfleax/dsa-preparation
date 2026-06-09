@@ -30,6 +30,7 @@ import UntrackedProblemsModal from "./UntrackedProblemsModal";
 import SmartRevisitModal, {
   selectSmartRevisitProblem,
 } from "./SmartRevisitModal";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -77,6 +78,13 @@ export default function ProblemsTab({
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
+
+  useEscapeKey(
+    !!problemToDelete,
+    () => setProblemToDelete(null),
+    50,
+    "delete-problem-confirm"
+  );
 
   const fetchProblems = async () => {
     try {

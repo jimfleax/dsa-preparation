@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, Link2, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface AddProblemModalProps {
   isOpen: boolean;
@@ -143,6 +144,8 @@ export default function AddProblemModal({
     setSuccess(false);
     onClose();
   };
+
+  useEscapeKey(isOpen, handleClose, 50, "add-problem");
 
   if (!isOpen) return null;
 

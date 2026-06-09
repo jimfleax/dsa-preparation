@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ExternalLink, X, Play } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useAuth } from "../context/AuthContext";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface AttemptProblemModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export default function AttemptProblemModal({
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
+
+  useEscapeKey(isOpen, onClose, 100, "attempt-problem");
 
   if (!isOpen) return null;
 

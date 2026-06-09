@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { TrackedProblem } from "../types";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface EditProblemModalProps {
   isOpen: boolean;
@@ -188,6 +189,8 @@ export default function EditProblemModal({
     setConfirmDelete(false);
     onClose();
   };
+
+  useEscapeKey(isOpen, handleClose, 50, "edit-problem");
 
   if (!isOpen || !problem) return null;
 

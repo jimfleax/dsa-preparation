@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { TrackedProblem } from "../types";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 /**
  * Weighted Spaced-Repetition Algorithm
@@ -95,6 +96,14 @@ export default function SmartRevisitModal({
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
 
+  const handleClose = () => {
+    setPhase("reveal");
+    setIsMarking(false);
+    onClose();
+  };
+
+  useEscapeKey(isOpen, handleClose, 50, "smart-revisit-modal");
+
   if (!isOpen || !problem) return null;
 
   const handleOpenInLeetCode = () => {
@@ -123,12 +132,6 @@ export default function SmartRevisitModal({
     } finally {
       setIsMarking(false);
     }
-  };
-
-  const handleClose = () => {
-    setPhase("reveal");
-    setIsMarking(false);
-    onClose();
   };
 
   // Difficulty badge styling — matches ProblemsTab
