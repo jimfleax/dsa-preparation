@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, Mail, Lock, UserPlus, User } from "lucide-react";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export default function RegisterModal({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEscapeKey(isOpen, onClose, 50, "register-modal");
 
   if (!isOpen) return null;
 

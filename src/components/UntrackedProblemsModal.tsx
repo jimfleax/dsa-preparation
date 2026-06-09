@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, EyeOff, Loader2, RefreshCcw } from "lucide-react";
 import { TrackedProblem } from "../types";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface UntrackedProblemsModalProps {
   isOpen: boolean;
@@ -70,6 +71,8 @@ export default function UntrackedProblemsModal({
       setTogglingId(null);
     }
   };
+
+  useEscapeKey(isOpen, onClose, 50, "untracked-problems-modal");
 
   if (!isOpen) return null;
 

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import "dotenv/config";
+import fs from "fs";
+import path from "path";
 import Track from "../src/models/Track";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/dsa-tracker";
@@ -74,6 +76,12 @@ const neetcode150 = {
   ],
 };
 
+const striverDataPath = path.join(process.cwd(), "scripts", "data", "striver_track.json");
+const striverA2Z = JSON.parse(fs.readFileSync(striverDataPath, "utf-8"));
+
+const twoPointersPath = path.join(process.cwd(), "scripts", "data", "two_pointers_sliding_window_track.json");
+const twoPointersSlidingWindow = JSON.parse(fs.readFileSync(twoPointersPath, "utf-8"));
+
 const seedTracks = async () => {
   try {
     await mongoose.connect(MONGODB_URI);
@@ -84,6 +92,8 @@ const seedTracks = async () => {
 
     await Track.create(blind75);
     await Track.create(neetcode150);
+    await Track.create(striverA2Z);
+    await Track.create(twoPointersSlidingWindow);
 
     console.log("Tracks seeded successfully!");
   } catch (error) {

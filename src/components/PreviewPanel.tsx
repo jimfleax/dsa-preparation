@@ -15,6 +15,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "github-markdown-css/github-markdown-light.css";
 import { DocumentMetadata, DocumentDetail } from "../types";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface PreviewPanelProps {
   activeDoc: DocumentMetadata | null;
@@ -35,6 +36,8 @@ export default function PreviewPanel({
   const [data, setData] = useState<DocumentDetail | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEscapeKey(isOpen, onClose, 35, "preview-panel");
 
   useEffect(() => {
     if (!activeDoc) {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, Mail, Lock, LogIn } from "lucide-react";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ export default function LoginModal({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEscapeKey(isOpen, onClose, 50, "login-modal");
 
   if (!isOpen) return null;
 
