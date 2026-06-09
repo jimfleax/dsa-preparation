@@ -57,15 +57,19 @@ export async function getLeetCodeProblemInfo(
     // 4. Extract and return the info
     if (data.data && data.data.question) {
       const { title, difficulty } = data.data.question;
-      console.log(
-        `[LeetCode Scraper] Found - Title: ${title}, Difficulty: ${difficulty}`,
-      );
+      if (process.env.NODE_ENV !== "production") {
+        console.log(
+          `[LeetCode Scraper] Found - Title: ${title}, Difficulty: ${difficulty}`,
+        );
+      }
       return { title, difficulty };
     } else if (data.errors) {
       console.error("[LeetCode Scraper] GraphQL error:", data.errors);
       return null;
     } else {
-      console.log("[LeetCode Scraper] Problem not found.");
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[LeetCode Scraper] Problem not found.");
+      }
       return null;
     }
   } catch (error) {

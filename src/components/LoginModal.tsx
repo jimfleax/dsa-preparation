@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { X, Mail, Lock, LogIn, Loader2 } from "lucide-react";
+import { X, User, Lock, LogIn, Loader2 } from "lucide-react";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
 interface LoginModalProps {
@@ -15,7 +15,7 @@ export default function LoginModal({
   onSwitchToRegister,
 }: LoginModalProps) {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function LoginModal({
       const res = await fetch(`${apiBase}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -87,17 +87,17 @@ export default function LoginModal({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-                Email
+                Username
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
                 <input
-                  type="email"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all"
-                  placeholder="you@example.com"
+                  placeholder="your username"
                 />
               </div>
             </div>

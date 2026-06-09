@@ -1,6 +1,23 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User from "../models/User.ts";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email format"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+});
+
+const loginSchema = z.object({
+  username: z.string().min(3, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
 const generateToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET;
@@ -16,15 +33,17 @@ const generateToken = (userId: string): string => {
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
+    const parseResult = registerSchema.safeParse(req.body);
+    if (!parseResult.success) {
       res.status(400).json({
         success: false,
-        message: "Please provide username, email, and password",
+        message: parseResult.error.issues[0].message,
+        errors: parseResult.error.issues,
       });
       return;
     }
+
+    const { username, email, password } = parseResult.data;
 
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
@@ -53,27 +72,31 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
       token,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Registration Error:", error);
+    const message = error instanceof Error ? error.message : "Server error during registration";
     res.status(500).json({
       success: false,
-      message: error.message || "Server error during registration",
+      message,
     });
   }
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      res
-        .status(400)
-        .json({ success: false, message: "Please provide email and password" });
+    const parseResult = loginSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      res.status(400).json({
+        success: false,
+        message: parseResult.error.issues[0].message,
+        errors: parseResult.error.issues,
+      });
       return;
     }
 
-    const user = await User.findOne({ email });
+    const { username, password } = parseResult.data;
+
+    const user = await User.findOne({ username });
     if (!user) {
       res.status(401).json({ success: false, message: "Invalid credentials" });
       return;

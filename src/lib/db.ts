@@ -66,9 +66,11 @@ export const connectDB = async (): Promise<void> => {
         for (const idx of userIndexes) {
           if (staleUserIndexes.includes(idx.name)) {
             await usersCollection.dropIndex(idx.name);
-            console.log(
-              `[DB] ✓ Migration: dropped stale index "${idx.name}" from users collection.`,
-            );
+            if (process.env.NODE_ENV !== "production") {
+              console.log(
+                `[DB] ✓ Migration: dropped stale index "${idx.name}" from users collection.`,
+              );
+            }
           }
         }
 
@@ -76,15 +78,17 @@ export const connectDB = async (): Promise<void> => {
         const problemsCollection = db.collection("problemprogresses");
         try {
           const problemIndexes = await problemsCollection.indexes();
-          console.log(
-            "[DB] Current problemprogresses indexes:",
-            problemIndexes
-              .map(
-                (i) =>
-                  `${i.name} (${JSON.stringify(i.key)}${i.unique ? ", unique" : ""})`,
-              )
-              .join(", "),
-          );
+          if (process.env.NODE_ENV !== "production") {
+            console.log(
+              "[DB] Current problemprogresses indexes:",
+              problemIndexes
+                .map(
+                  (i) =>
+                    `${i.name} (${JSON.stringify(i.key)}${i.unique ? ", unique" : ""})`,
+                )
+                .join(", "),
+            );
+          }
 
           // Drop any unique index on titleSlug alone — it should only be unique
           // as part of the compound {userId, titleSlug} index for multi-tenancy.
@@ -92,22 +96,26 @@ export const connectDB = async (): Promise<void> => {
           for (const idx of problemIndexes) {
             if (staleProblemIndexes.includes(idx.name) && idx.unique) {
               await problemsCollection.dropIndex(idx.name);
-              console.log(
-                `[DB] ✓ Migration: dropped stale index "${idx.name}" from problemprogresses collection.`,
-              );
+              if (process.env.NODE_ENV !== "production") {
+                console.log(
+                  `[DB] ✓ Migration: dropped stale index "${idx.name}" from problemprogresses collection.`,
+                );
+              }
             }
           }
-        } catch (e: any) {
+        } catch (e: unknown) {
           // Collection may not exist yet — that's fine
-          if (!e.message?.includes("ns not found")) {
-            console.warn(`[DB] ⚠ problemprogresses migration: ${e.message}`);
+          const message = e instanceof Error ? e.message : String(e);
+          if (!message.includes("ns not found")) {
+            console.warn(`[DB] ⚠ problemprogresses migration: ${message}`);
           }
         }
       }
-    } catch (migrationErr: any) {
+    } catch (migrationErr: unknown) {
       // Non-fatal: log and continue — index may already be gone
-      if (!migrationErr.message?.includes("index not found")) {
-        console.warn(`[DB] ⚠ Migration warning: ${migrationErr.message}`);
+      const message = migrationErr instanceof Error ? migrationErr.message : String(migrationErr);
+      if (!message.includes("index not found")) {
+        console.warn(`[DB] ⚠ Migration warning: ${message}`);
       }
     }
   } catch (error) {
