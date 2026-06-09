@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { BookOpen, Code2, Map, Sparkles, MoveRight, Layers } from "lucide-react";
+import { extractTitleSlug } from "../lib/slugUtils";
 
 interface HomeTabProps {
   totalDocuments: number;
@@ -11,7 +12,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
   const [totalSolved, setTotalSolved] = useState<number | null>(null);
   const [trackProgress, setTrackProgress] = useState<{ completed: number; total: number } | null>(null);
   const [greeting, setGreeting] = useState<string>("Hello");
-  const { getToken, user } = useAuth();
+  const { getToken } = useAuth();
 
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
@@ -37,13 +38,15 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         const trackerData = await trackerRes.json();
         const tracksData = await tracksRes.json();
 
-        let solvedUrls = new Set<string>();
+        let solvedSlugs = new Set<string>();
         let solvedCount = 0;
 
         if (trackerData.success) {
           solvedCount = trackerData.problems.length;
           setTotalSolved(solvedCount);
-          trackerData.problems.forEach((p: any) => solvedUrls.add(p.url));
+          trackerData.problems.forEach((p: any) => {
+            if (p.titleSlug) solvedSlugs.add(p.titleSlug);
+          });
         }
 
         if (tracksData.success) {
@@ -53,7 +56,8 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
           tracksData.tracks.forEach((track: any) => {
             track.problems.forEach((problem: any) => {
               totalTrackProblems++;
-              if (solvedUrls.has(problem.url)) {
+              const slug = extractTitleSlug(problem.url);
+              if (slug && solvedSlugs.has(slug)) {
                 completedTrackProblems++;
               }
             });
@@ -81,29 +85,18 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
       <div className="relative z-10 flex flex-col flex-1">
         {/* Header Section */}
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50/80 border border-indigo-100 backdrop-blur-md mb-6 shadow-sm">
-            <Sparkles className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-bold text-indigo-700 uppercase tracking-wide">
-              Dashboard Overview
-            </span>
-          </div>
-          
-          <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-900 tracking-tight leading-tight mb-4">
-            {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{user?.username || "Learner"}</span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4">
+            {greeting}
           </h1>
-          
-          <p className="text-lg text-neutral-500 font-medium leading-relaxed max-w-xl">
-            Welcome back to your central hub. Let's pick up where you left off and conquer your next algorithmic challenge today.
-          </p>
         </div>
 
         {/* Sleek Metrics Section */}
-        <div className="mt-12 md:mt-16 bg-white/40 backdrop-blur-xl border border-white/60 p-6 md:p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] max-w-3xl">
-          <p className="text-xl md:text-2xl text-neutral-700 leading-relaxed font-medium">
-            You currently have access to <strong className="text-indigo-600 font-bold">{totalDocuments}</strong> learning resources. 
-            So far, you have mastered <strong className="text-emerald-600 font-bold">{totalSolved !== null ? totalSolved : "..."}</strong> coding problems, 
-            and progressed through <strong className="text-purple-600 font-bold">{trackProgress ? trackProgress.completed : "..."}</strong> out of <strong className="text-neutral-900 font-bold">{trackProgress ? trackProgress.total : "..."}</strong> curated track milestones.
-          </p>
+        <div className="mt-8 md:mt-12 w-full flex justify-end">
+          <div className="text-right text-base md:text-lg font-light text-neutral-500 leading-relaxed tracking-wide">
+            <p>we have a total of <span className="font-semibold text-indigo-500">{totalDocuments}</span> learning resources</p>
+            <p>you have solved <span className="font-semibold text-emerald-500">{totalSolved !== null ? totalSolved : "..."}</span> problems so far</p>
+            <p>progressed through <span className="font-semibold text-purple-500">{trackProgress ? trackProgress.completed : "..."}</span> out of <span className="font-semibold text-rose-500">{trackProgress ? trackProgress.total : "..."}</span> tracks</p>
+          </div>
         </div>
 
         {/* Navigation Quick Links */}

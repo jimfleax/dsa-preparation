@@ -4,14 +4,9 @@ import {
   getLeetCodeTitle,
   getLeetCodeProblemInfo,
 } from "../lib/leetcodeScraperUtil.ts";
+import { extractTitleSlug } from "../lib/slugUtils.ts";
 
-/**
- * Extracts the titleSlug from a LeetCode problem URL.
- */
-function extractTitleSlug(url: string): string | null {
-  const match = url.match(/leetcode\.com\/problems\/([a-z0-9-]+)/i);
-  return match ? match[1].toLowerCase() : null;
-}
+
 
 /**
  * POST /api/problems/scrape-title

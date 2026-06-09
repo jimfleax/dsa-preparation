@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, CheckCircle2, Circle } from "lucide-react";
 import { TrackedProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
+import { extractTitleSlug } from "../lib/slugUtils";
 
 interface TrackCardProps {
   track: any;
@@ -14,7 +15,10 @@ export default function TrackCard({ track, trackedProblems, onUpdate }: TrackCar
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [showAttemptModal, setShowAttemptModal] = useState(false);
 
-  const completedCount = track.problems.filter((p: any) => !!trackedProblems[p.url]).length;
+  const completedCount = track.problems.filter((p: any) => {
+    const slug = extractTitleSlug(p.url);
+    return slug && !!trackedProblems[slug];
+  }).length;
   const progressPercent = Math.round((completedCount / track.problems.length) * 100) || 0;
 
   const handleProblemClick = (problem: any) => {
@@ -52,7 +56,8 @@ export default function TrackCard({ track, trackedProblems, onUpdate }: TrackCar
         <div className="border-t border-neutral-100">
           <div className="divide-y divide-neutral-100 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
             {track.problems.map((problem: any, idx: number) => {
-              const tracked = trackedProblems[problem.url];
+              const slug = extractTitleSlug(problem.url);
+              const tracked = slug ? trackedProblems[slug] : undefined;
               const isSolved = !!tracked;
               
               return (
@@ -102,7 +107,7 @@ export default function TrackCard({ track, trackedProblems, onUpdate }: TrackCar
             setSelectedProblem(null);
           }}
           problem={selectedProblem}
-          trackedProblem={trackedProblems[selectedProblem.url]}
+          trackedProblem={extractTitleSlug(selectedProblem.url) ? trackedProblems[extractTitleSlug(selectedProblem.url)!] : undefined}
           onUpdated={onUpdate}
         />
       )}
