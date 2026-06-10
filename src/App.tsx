@@ -65,6 +65,8 @@ export default function App() {
   const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
   const [newSubmissionsCount, setNewSubmissionsCount] = useState<number>(0);
   const [newSubmissions, setNewSubmissions] = useState<any[]>([]);
+  const [revisitedSubmissionsCount, setRevisitedSubmissionsCount] = useState<number>(0);
+  const [revisitedSubmissions, setRevisitedSubmissions] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
   const { getToken, isSignedIn, logout, user } = useAuth();
@@ -79,9 +81,11 @@ export default function App() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
-      if (data.success && data.newCount > 0) {
-        setNewSubmissionsCount(data.newCount);
-        setNewSubmissions(data.newSubmissions);
+      if (data.success && (data.newCount > 0 || (data.revisitedCount && data.revisitedCount > 0))) {
+        setNewSubmissionsCount(data.newCount || 0);
+        setNewSubmissions(data.newSubmissions || []);
+        setRevisitedSubmissionsCount(data.revisitedCount || 0);
+        setRevisitedSubmissions(data.revisitedSubmissions || []);
         setShowSyncToast(true);
       }
     } catch (err) {
@@ -93,19 +97,39 @@ export default function App() {
     setIsSyncing(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/sync/track`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ submissions: newSubmissions, notrack: false }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setShowSyncToast(false);
-        setProblemsRefreshKey((k) => k + 1);
+      
+      const promises: Promise<any>[] = [];
+
+      // Sync new submissions
+      if (newSubmissions.length > 0) {
+        promises.push(
+          fetch(`${apiBase}/api/sync/track`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ submissions: newSubmissions, notrack: false }),
+          }).then(res => res.json())
+        );
       }
+
+      // Sync revisited submissions
+      if (revisitedSubmissions.length > 0) {
+        revisitedSubmissions.forEach(sub => {
+          promises.push(
+            fetch(`${apiBase}/api/tracker/${sub.problemId}/revisit`, {
+              method: "PATCH",
+              headers: { Authorization: `Bearer ${token}` }
+            }).then(res => res.json())
+          );
+        });
+      }
+
+      await Promise.all(promises);
+      
+      setShowSyncToast(false);
+      setProblemsRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Failed to track submissions:", err);
     } finally {
@@ -117,18 +141,21 @@ export default function App() {
     setIsSyncing(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/sync/track`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ submissions: newSubmissions, notrack: true }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setShowSyncToast(false);
+      
+      // Only dismiss new submissions by tracking them with notrack=true
+      if (newSubmissions.length > 0) {
+        await fetch(`${apiBase}/api/sync/track`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ submissions: newSubmissions, notrack: true }),
+        });
       }
+      
+      // For revisited submissions, dismissing just clears the toast without updating the tracker
+      setShowSyncToast(false);
     } catch (err) {
       console.error("Failed to dismiss submissions:", err);
     } finally {
@@ -802,6 +829,7 @@ export default function App() {
         {showSyncToast && (
           <SyncToast
             count={newSubmissionsCount}
+            revisitCount={revisitedSubmissionsCount}
             onTrack={handleTrackAll}
             onDismiss={handleDismissSync}
             isProcessing={isSyncing}
