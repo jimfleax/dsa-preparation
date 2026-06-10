@@ -2,6 +2,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 
 interface SyncToastProps {
   count: number;
+  revisitCount: number;
   onTrack: () => void;
   onDismiss: () => void;
   isProcessing: boolean;
@@ -9,10 +10,29 @@ interface SyncToastProps {
 
 export default function SyncToast({
   count,
+  revisitCount,
   onTrack,
   onDismiss,
   isProcessing,
 }: SyncToastProps) {
+  let title = "";
+  let subtitle = "";
+  let trackText = "Yes, Track All";
+
+  if (count > 0 && revisitCount === 0) {
+    title = `${count} new LeetCode submissions found`;
+    subtitle = "Track them in your problem list?";
+    trackText = "Yes, Track All";
+  } else if (count === 0 && revisitCount > 0) {
+    title = `${revisitCount} revisited problems found`;
+    subtitle = "Update attempt counts and dates?";
+    trackText = "Yes, Update All";
+  } else {
+    title = `${count} new and ${revisitCount} revisited submissions found`;
+    subtitle = "Sync them to your problem list?";
+    trackText = "Yes, Sync All";
+  }
+
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
       <div className="bg-white border border-neutral-100 rounded-2xl shadow-2xl p-5 w-[340px] flex flex-col gap-4">
@@ -22,10 +42,10 @@ export default function SyncToast({
           </div>
           <div>
             <h3 className="text-sm font-bold text-neutral-900">
-              {count} new LeetCode submissions found
+              {title}
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
-              Track them in your problem list?
+              {subtitle}
             </p>
           </div>
         </div>
@@ -49,7 +69,7 @@ export default function SyncToast({
                 Processing
               </>
             ) : (
-              "Yes, Track All"
+              trackText
             )}
           </button>
         </div>

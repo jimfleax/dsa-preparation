@@ -47,21 +47,41 @@ export const checkSync = async (req: Request, res: Response) => {
     });
     const dedupedSubmissions = Array.from(uniqueSlugs.values());
 
-    // Fetch existing slugs for this user
+    // Fetch existing slugs and dates for this user
     const existingRecords = await TrackedProblem.find({ userId }).select(
-      "titleSlug",
-    );
-    const existingSlugs = new Set(existingRecords.map((r) => r.titleSlug));
+      "titleSlug lastAttemptedDate _id"
+    ).lean();
+    
+    const existingMap = new Map();
+    existingRecords.forEach((r) => existingMap.set(r.titleSlug, r));
 
-    // Filter out submissions that are already tracked/notracked
-    const newSubmissions = dedupedSubmissions.filter(
-      (sub) => !existingSlugs.has(sub.titleSlug),
-    );
+    const newSubmissions: any[] = [];
+    const revisitedSubmissions: any[] = [];
+
+    dedupedSubmissions.forEach((sub) => {
+      const existing = existingMap.get(sub.titleSlug);
+      if (!existing) {
+        newSubmissions.push(sub);
+      } else {
+        const subDate = new Date(Number(sub.timestamp) * 1000);
+        if (!isNaN(subDate.getTime()) && existing.lastAttemptedDate) {
+          // If the submission is strictly newer than the recorded lastAttemptedDate
+          if (subDate.getTime() > new Date(existing.lastAttemptedDate).getTime()) {
+            revisitedSubmissions.push({
+              submission: sub,
+              problemId: existing._id,
+            });
+          }
+        }
+      }
+    });
 
     res.json({
       success: true,
       newCount: newSubmissions.length,
       newSubmissions,
+      revisitedCount: revisitedSubmissions.length,
+      revisitedSubmissions,
     });
   } catch (error: unknown) {
     console.error("Error checking sync:", error);
