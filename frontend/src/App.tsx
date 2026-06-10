@@ -278,7 +278,7 @@ export default function App() {
 
   // Auto-ping every 5 seconds when unreachable
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: ReturnType<typeof setInterval>;
     if (backendStatus === "unreachable") {
       intervalId = setInterval(() => {
         checkBackendStatus();
