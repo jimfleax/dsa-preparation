@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 import LoginModal from "./components/LoginModal";
 import RegisterModal from "./components/RegisterModal";
 import {
@@ -45,9 +46,38 @@ export default function App() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Top-level tab state: controls which main view is active
-  const [activeMainTab, setActiveMainTab] = useState<
-    "home" | "learn" | "tracker" | "tracks"
-  >("home");
+  const tabs = useMemo(() => ["home", "learn", "tracker", "tracks"] as const, []);
+  const [activeMainTab, setActiveMainTab] = useState<typeof tabs[number]>("home");
+  const [direction, setDirection] = useState(0);
+  const prevTabRef = useRef<typeof tabs[number]>(activeMainTab);
+
+  useEffect(() => {
+    const currentIndex = tabs.indexOf(activeMainTab);
+    const prevIndex = tabs.indexOf(prevTabRef.current);
+
+    if (currentIndex !== prevIndex) {
+      setDirection(currentIndex > prevIndex ? 1 : -1);
+      prevTabRef.current = activeMainTab;
+    }
+  }, [activeMainTab, tabs]);
+
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 500 : -500,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 500 : -500,
+      opacity: 0,
+    }),
+  };
+
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [problemsRefreshKey, setProblemsRefreshKey] = useState<number>(0);
 
@@ -278,13 +308,6 @@ export default function App() {
         e.preventDefault(); // Prevents default scrolling behavior
         setActiveMainTab("home");
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        const tabs: ("home" | "learn" | "tracker" | "tracks")[] = [
-          "home",
-          "learn",
-          "tracker",
-          "tracks",
-        ];
-
         setActiveMainTab((current) => {
           const currentIndex = tabs.indexOf(current);
           if (e.key === "ArrowLeft") {
@@ -546,7 +569,7 @@ export default function App() {
       <main
         id="dsa-main-content-layout"
         role="main"
-        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6"
+        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 overflow-x-hidden relative"
       >
         {/* === SIGNED OUT: Landing Prompt === */}
         <SignedOut>
@@ -575,237 +598,297 @@ export default function App() {
 
         {/* === SIGNED IN: Full App === */}
         <SignedIn>
-          {/* === HOME TAB VIEW === */}
-          {activeMainTab === "home" && (
-            <HomeTab
-              totalDocuments={documents.length}
-              onNavigate={setActiveMainTab}
-            />
-          )}
-
-          {/* === TRACKER TAB VIEW === */}
-          {activeMainTab === "tracker" && (
-            <TrackerTab
-              onOpenAddModal={() => setShowAddModal(true)}
-              refreshKey={problemsRefreshKey}
-            />
-          )}
-
-          {/* === TRACKS TAB VIEW === */}
-          {activeMainTab === "tracks" && <TracksTab />}
-
-          {/* === LEARN TAB VIEW (existing content) === */}
-          {activeMainTab === "learn" && (
-            <>
-              {/* Loaded Documents Dynamic Stats Strip */}
-              <StatsGrid documents={documents} />
-
-              {/* Filtration Control Panel Box */}
-              <div
-                id="filter-control-panel-container"
-                className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+            {/* === HOME TAB VIEW === */}
+            {activeMainTab === "home" && (
+              <motion.div
+                key="home"
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="w-full flex-1 flex flex-col gap-6"
               >
-                <div
-                  id="filter-row-primary"
-                  className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between"
-                >
-                  {/* Search Input Box */}
-                  <div id="search-input-wrapper" className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
-                    <Tooltip content="Quick Search" shortcut="/">
-                      <input
-                        id="search-input-field"
-                        type="text"
-                        placeholder="Search by title, category, or tags..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
-                      />
-                    </Tooltip>
-                    {searchQuery && (
-                      <button
-                        id="clear-search-btn"
-                        onClick={() => setSearchQuery("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Collection Type Selector Segment */}
-                  <div
-                    id="collection-tabs-row"
-                    className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 self-stretch sm:self-start lg:self-auto shrink-0 overflow-x-auto scrollbar-none"
-                  >
-                    <button
-                      id="tab-collection-all"
-                      onClick={() => setCollectionFilter("all")}
-                      className={`flex-1 sm:flex-initial text-center px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                        collectionFilter === "all"
-                          ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                          : "text-neutral-500 hover:text-neutral-900"
-                      }`}
-                    >
-                      All Collections
-                    </button>
-                    <button
-                      id="tab-collection-theory"
-                      onClick={() => setCollectionFilter("theory")}
-                      className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                        collectionFilter === "theory"
-                          ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                          : "text-neutral-500 hover:text-neutral-900"
-                      }`}
-                    >
-                      <BookOpen className="w-3.5 h-3.5 text-indigo-650" />
-                      Theory Mode
-                    </button>
-                    <button
-                      id="tab-collection-sheets"
-                      onClick={() => setCollectionFilter("problemsheets")}
-                      className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                        collectionFilter === "problemsheets"
-                          ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                          : "text-neutral-500 hover:text-neutral-900"
-                      }`}
-                    >
-                      <Terminal className="w-3.5 h-3.5" />
-                      Problemsheets
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  id="filter-row-secondary"
-                  className="flex flex-wrap items-center gap-4 pt-3 border-t border-neutral-50 text-xs"
-                >
-                  <div
-                    id="multi-facet-filters-box"
-                    className="flex flex-wrap items-center gap-3 flex-1"
-                  >
-                    {/* Category Filter Pills segment */}
-                    <div
-                      id="filter-category-select-wrapper"
-                      className="flex items-center gap-2"
-                    >
-                      <span
-                        id="lbl-category-select"
-                        className="text-neutral-400 font-medium flex items-center gap-1.5"
-                      >
-                        <Layers className="w-3.5 h-3.5 text-indigo-500" />{" "}
-                        Filter Category:
-                      </span>
-                      <select
-                        id="category-dropdown"
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-755 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                      >
-                        {availableCategories.map((cat, i) => (
-                          <option key={i} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Active filters summary indicator */}
-                  {(searchQuery ||
-                    collectionFilter !== "all" ||
-                    categoryFilter !== "All") && (
-                    <button
-                      id="clear-all-filters-btn"
-                      onClick={handleClearFilters}
-                      className="text-neutral-550 hover:text-indigo-650 font-semibold flex items-center gap-1 py-1 px-2 hover:bg-indigo-50/50 rounded-lg cursor-pointer select-none"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      Clear Active Filters
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Main interactive grid workarea */}
-              <div
-                id="workspace-grid-previewer-parent"
-                className="flex-1 flex gap-6 items-start relative min-h-[400px]"
-              >
-                {/* Grid listing content frame */}
-                <div
-                  id="documents-results-scroller"
-                  className={`flex-1 transition-all duration-300 ${
-                    isPreviewOpen && !isPreviewMaximized
-                      ? "lg:mr-[600px] xl:mr-[650px]"
-                      : "mr-0"
-                  }`}
-                >
-                  {loading ? (
-                    <div
-                      id="main-grid-loading"
-                      className="h-64 flex flex-col items-center justify-center text-center"
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-                    </div>
-                  ) : filteredDocuments.length === 0 ? (
-                    <div
-                      id="no-matching-docs"
-                      className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto mt-8"
-                    >
-                      <FolderOpen className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
-                      <h3
-                        id="no-matching-head"
-                        className="text-base font-bold text-neutral-800"
-                      >
-                        No Match Found
-                      </h3>
-                      <p
-                        id="no-matching-desc"
-                        className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed"
-                      >
-                        We couldn't find any resources matching your parameters:{" "}
-                        <code>{searchQuery || "Multiple Filters"}</code>. Try
-                        resetting filters or creating a new document in the
-                        collection folders.
-                      </p>
-                      <button
-                        id="reset-filters-hero-btn"
-                        onClick={handleClearFilters}
-                        className="mt-4 px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer"
-                      >
-                        Reset Parameters
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      id="documents-grid"
-                      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
-                    >
-                      {filteredDocuments.map((doc) => (
-                        <DocumentCard
-                          key={doc.id}
-                          doc={doc}
-                          isActive={activeDoc?.id === doc.id}
-                          onSelect={() => handleSelectDocument(doc)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Interactive Collapsible previewer component drawer */}
-                <PreviewPanel
-                  activeDoc={activeDoc}
-                  isOpen={isPreviewOpen}
-                  onClose={() => setIsPreviewOpen(false)}
-                  isMaximized={isPreviewMaximized}
-                  setIsMaximized={setIsPreviewMaximized}
+                <HomeTab
+                  totalDocuments={documents.length}
+                  onNavigate={setActiveMainTab}
                 />
-              </div>
-            </>
-          )}
-          {/* End Learn Tab conditional */}
+              </motion.div>
+            )}
+
+            {/* === TRACKER TAB VIEW === */}
+            {activeMainTab === "tracker" && (
+              <motion.div
+                key="tracker"
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="w-full flex-1 flex flex-col gap-6"
+              >
+                <TrackerTab
+                  onOpenAddModal={() => setShowAddModal(true)}
+                  refreshKey={problemsRefreshKey}
+                />
+              </motion.div>
+            )}
+
+            {/* === TRACKS TAB VIEW === */}
+            {activeMainTab === "tracks" && (
+              <motion.div
+                key="tracks"
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="w-full flex-1 flex flex-col gap-6"
+              >
+                <TracksTab />
+              </motion.div>
+            )}
+
+            {/* === LEARN TAB VIEW (existing content) === */}
+            {activeMainTab === "learn" && (
+              <motion.div
+                key="learn"
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="w-full flex-1 flex flex-col gap-6"
+              >
+                <div className="flex flex-col gap-6">
+                  {/* Loaded Documents Dynamic Stats Strip */}
+                  <StatsGrid documents={documents} />
+
+                  {/* Filtration Control Panel Box */}
+                  <div
+                    id="filter-control-panel-container"
+                    className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
+                  >
+                    <div
+                      id="filter-row-primary"
+                      className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between"
+                    >
+                      {/* Search Input Box */}
+                      <div id="search-input-wrapper" className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
+                        <Tooltip content="Quick Search" shortcut="/">
+                          <input
+                            id="search-input-field"
+                            type="text"
+                            placeholder="Search by title, category, or tags..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
+                          />
+                        </Tooltip>
+                        {searchQuery && (
+                          <button
+                            id="clear-search-btn"
+                            onClick={() => setSearchQuery("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Collection Type Selector Segment */}
+                      <div
+                        id="collection-tabs-row"
+                        className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 self-stretch sm:self-start lg:self-auto shrink-0 overflow-x-auto scrollbar-none"
+                      >
+                        <button
+                          id="tab-collection-all"
+                          onClick={() => setCollectionFilter("all")}
+                          className={`flex-1 sm:flex-initial text-center px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                            collectionFilter === "all"
+                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                              : "text-neutral-500 hover:text-neutral-900"
+                          }`}
+                        >
+                          All Collections
+                        </button>
+                        <button
+                          id="tab-collection-theory"
+                          onClick={() => setCollectionFilter("theory")}
+                          className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                            collectionFilter === "theory"
+                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                              : "text-neutral-500 hover:text-neutral-900"
+                          }`}
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-indigo-650" />
+                          Theory Mode
+                        </button>
+                        <button
+                          id="tab-collection-sheets"
+                          onClick={() => setCollectionFilter("problemsheets")}
+                          className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                            collectionFilter === "problemsheets"
+                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                              : "text-neutral-500 hover:text-neutral-900"
+                          }`}
+                        >
+                          <Terminal className="w-3.5 h-3.5" />
+                          Problemsheets
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      id="filter-row-secondary"
+                      className="flex flex-wrap items-center gap-4 pt-3 border-t border-neutral-50 text-xs"
+                    >
+                      <div
+                        id="multi-facet-filters-box"
+                        className="flex flex-wrap items-center gap-3 flex-1"
+                      >
+                        {/* Category Filter Pills segment */}
+                        <div
+                          id="filter-category-select-wrapper"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            id="lbl-category-select"
+                            className="text-neutral-400 font-medium flex items-center gap-1.5"
+                          >
+                            <Layers className="w-3.5 h-3.5 text-indigo-500" />{" "}
+                            Filter Category:
+                          </span>
+                          <select
+                            id="category-dropdown"
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-755 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            {availableCategories.map((cat, i) => (
+                              <option key={i} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Active filters summary indicator */}
+                      {(searchQuery ||
+                        collectionFilter !== "all" ||
+                        categoryFilter !== "All") && (
+                        <button
+                          id="clear-all-filters-btn"
+                          onClick={handleClearFilters}
+                          className="text-neutral-550 hover:text-indigo-650 font-semibold flex items-center gap-1 py-1 px-2 hover:bg-indigo-50/50 rounded-lg cursor-pointer select-none"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          Clear Active Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Main interactive grid workarea */}
+                  <div
+                    id="workspace-grid-previewer-parent"
+                    className="flex-1 flex gap-6 items-start relative min-h-[400px]"
+                  >
+                    {/* Grid listing content frame */}
+                    <div
+                      id="documents-results-scroller"
+                      className={`flex-1 transition-all duration-300 ${
+                        isPreviewOpen && !isPreviewMaximized
+                          ? "lg:mr-[600px] xl:mr-[650px]"
+                          : "mr-0"
+                      }`}
+                    >
+                      {loading ? (
+                        <div
+                          id="main-grid-loading"
+                          className="h-64 flex flex-col items-center justify-center text-center"
+                        >
+                          <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                        </div>
+                      ) : filteredDocuments.length === 0 ? (
+                        <div
+                          id="no-matching-docs"
+                          className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto mt-8"
+                        >
+                          <FolderOpen className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
+                          <h3
+                            id="no-matching-head"
+                            className="text-base font-bold text-neutral-800"
+                          >
+                            No Match Found
+                          </h3>
+                          <p
+                            id="no-matching-desc"
+                            className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed"
+                          >
+                            We couldn't find any resources matching your parameters:{" "}
+                            <code>{searchQuery || "Multiple Filters"}</code>. Try
+                            resetting filters or creating a new document in the
+                            collection folders.
+                          </p>
+                          <button
+                            id="reset-filters-hero-btn"
+                            onClick={handleClearFilters}
+                            className="mt-4 px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer"
+                          >
+                            Reset Parameters
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          id="documents-grid"
+                          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+                        >
+                          {filteredDocuments.map((doc) => (
+                            <DocumentCard
+                              key={doc.id}
+                              doc={doc}
+                              isActive={activeDoc?.id === doc.id}
+                              onSelect={() => handleSelectDocument(doc)}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Interactive Collapsible previewer component drawer */}
+                    <PreviewPanel
+                      activeDoc={activeDoc}
+                      isOpen={isPreviewOpen}
+                      onClose={() => setIsPreviewOpen(false)}
+                      isMaximized={isPreviewMaximized}
+                      setIsMaximized={setIsPreviewMaximized}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            {/* End Learn Tab conditional */}
+          </AnimatePresence>
         </SignedIn>
       </main>
 
