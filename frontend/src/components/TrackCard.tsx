@@ -133,7 +133,7 @@ export default function TrackCard({
           </p>
           <div className="mt-4 flex items-center gap-4">
             {track.parts && track.parts.length > 0 ? (
-              <div className="flex-1 max-w-sm flex gap-1.5 h-2.5 bg-neutral-100/30 p-0.5 rounded-full">
+              <div className="flex-1 max-w-sm flex gap-1.5 h-2.5 bg-neutral-200/50 p-0.5 rounded-full">
                 {track.parts.map((part, idx) => {
                   const partSolved = part.problems.filter((p) => {
                     const slug = extractTitleSlug(p.url);
@@ -142,7 +142,7 @@ export default function TrackCard({
                   const partPercent = Math.round((partSolved / part.problems.length) * 100) || 0;
                   const isPartFull = partSolved === part.problems.length;
                   return (
-                    <div key={idx} className="flex-1 bg-neutral-100 rounded-full overflow-hidden">
+                    <div key={idx} className="flex-1 bg-neutral-200 rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-500 ${isPartFull ? "bg-emerald-500" : "bg-indigo-500"}`}
                         style={{ width: `${partPercent}%` }}
@@ -152,7 +152,7 @@ export default function TrackCard({
                 })}
               </div>
             ) : (
-              <div className="flex-1 max-w-sm h-2 bg-neutral-100 rounded-full overflow-hidden">
+              <div className="flex-1 max-w-sm h-2 bg-neutral-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${isCompleted ? "bg-emerald-500" : "bg-indigo-500"}`}
                   style={{ width: `${progressPercent}%` }}
