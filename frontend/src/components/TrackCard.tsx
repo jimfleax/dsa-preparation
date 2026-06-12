@@ -133,7 +133,7 @@ export default function TrackCard({
           </p>
           <div className="mt-4 flex items-center gap-4">
             {track.parts && track.parts.length > 0 ? (
-              <div className="flex-1 max-w-sm flex gap-1.5 h-2.5 bg-neutral-200/50 p-0.5 rounded-full">
+              <div className="flex-1 max-w-sm flex gap-1.5 h-2 bg-transparent rounded-full">
                 {track.parts.map((part, idx) => {
                   const partSolved = part.problems.filter((p) => {
                     const slug = extractTitleSlug(p.url);
