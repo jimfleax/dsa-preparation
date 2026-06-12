@@ -120,7 +120,11 @@ export default function App() {
           promises.push(
             fetch(`${apiBase}/api/tracker/${sub.problemId}/revisit`, {
               method: "PATCH",
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ timestamp: sub.submission.timestamp }),
             }).then(res => res.json())
           );
         });
