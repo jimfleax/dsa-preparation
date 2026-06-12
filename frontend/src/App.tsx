@@ -497,14 +497,6 @@ export default function App() {
                 Sign In
               </button>
             </SignedOut>
-
-            <div
-              id="version-pill"
-              className="px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[10px] font-bold text-indigo-600 font-mono"
-              onClick={() => window.open("https://jimfleax.in", "blank")}
-            >
-              Jim Fleax
-            </div>
           </div>
         </div>
       </header>
