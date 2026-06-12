@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import TrackCard from "./TrackCard";
-import { TrackedProblem } from "../types";
+import { TrackedProblem, Track } from "../types";
 import {
   PieChart,
   Pie,
@@ -15,7 +15,7 @@ import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
 
 export default function TracksTab() {
-  const [tracks, setTracks] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [trackedProblems, setTrackedProblems] = useState<
     Record<string, TrackedProblem>
   >({});
@@ -80,7 +80,12 @@ export default function TracksTab() {
   let totalSolved = 0;
 
   tracks.forEach((track) => {
-    track.problems.forEach((problem: any) => {
+    const allProblems = [
+      ...(track.problems || []),
+      ...(track.parts?.flatMap((p) => p.problems) || []),
+    ];
+
+    allProblems.forEach((problem) => {
       totalProblems++;
       const slug = extractTitleSlug(problem.url);
       if (slug && trackedProblems[slug]) {
@@ -101,15 +106,20 @@ export default function TracksTab() {
   // Categorize tracks into incomplete and completed
   const categorizedTracks = tracks.reduce(
     (acc, track) => {
+      const allProblems = [
+        ...(track.problems || []),
+        ...(track.parts?.flatMap((p) => p.problems) || []),
+      ];
+
       let completedCount = 0;
-      track.problems.forEach((problem: any) => {
+      allProblems.forEach((problem) => {
         const slug = extractTitleSlug(problem.url);
         if (slug && trackedProblems[slug]) {
           completedCount++;
         }
       });
       const isCompleted =
-        track.problems.length > 0 && completedCount === track.problems.length;
+        allProblems.length > 0 && completedCount === allProblems.length;
       if (isCompleted) {
         acc.completed.push(track);
       } else {
@@ -117,7 +127,7 @@ export default function TracksTab() {
       }
       return acc;
     },
-    { incomplete: [] as any[], completed: [] as any[] },
+    { incomplete: [] as Track[], completed: [] as Track[] },
   );
 
   const { incomplete: incompleteTracks, completed: completedTracks } =

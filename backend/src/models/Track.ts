@@ -7,28 +7,42 @@ export interface TrackProblem {
   url: string;
 }
 
+export interface TrackPart {
+  title: string;
+  description?: string;
+  problems: TrackProblem[];
+}
+
 export interface ITrack extends Document {
   title: string;
   description: string;
   order: number;
   problems: TrackProblem[];
+  parts?: TrackPart[];
 }
+
+const ProblemSchema = {
+  title: { type: String, required: true },
+  titleSlug: { type: String, required: true },
+  difficulty: {
+    type: String,
+    enum: ["Easy", "Medium", "Hard"],
+    required: true,
+  },
+  url: { type: String, required: true },
+};
 
 const TrackSchema: Schema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
     order: { type: Number, required: true, default: 0 },
-    problems: [
+    problems: [ProblemSchema],
+    parts: [
       {
         title: { type: String, required: true },
-        titleSlug: { type: String, required: true },
-        difficulty: {
-          type: String,
-          enum: ["Easy", "Medium", "Hard"],
-          required: true,
-        },
-        url: { type: String, required: true },
+        description: { type: String },
+        problems: [ProblemSchema],
       },
     ],
   },

@@ -28,6 +28,30 @@ export interface TrackedProblem {
   updatedAt: string;
 }
 
+export interface TrackProblem {
+  title: string;
+  titleSlug: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  url: string;
+}
+
+export interface TrackPart {
+  title: string;
+  description?: string;
+  problems: TrackProblem[];
+}
+
+export interface Track {
+  _id: string;
+  title: string;
+  description: string;
+  order: number;
+  problems: TrackProblem[];
+  parts?: TrackPart[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserSettings {
   userId: string;
   leetcodeUsername?: string;
