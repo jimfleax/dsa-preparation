@@ -28,6 +28,7 @@ import AddProblemModal from "./components/AddProblemModal";
 import SettingsModal from "./components/SettingsModal";
 import SyncToast from "./components/SyncToast";
 import HomeTab from "./components/HomeTab";
+import AboutMeModal from "./components/AboutMeModal";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -60,6 +61,7 @@ export default function App() {
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+  const [showAboutMeModal, setShowAboutMeModal] = useState<boolean>(false);
 
   // Sync state
   const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
@@ -780,12 +782,14 @@ export default function App() {
           id="footer-inner"
           className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3"
         >
-          <p id="footer-copy">
-            © 2026 DSA Preparation. Built with ❤️ by{" "}
-            <a href="https://jimfleax.in/" target="_blank">
-              Reetabrata Bhandari
-            </a>
-            .
+          <p id="footer-copy" className="font-medium">
+            Built with ❤️ by{" "}
+            <button 
+              onClick={() => setShowAboutMeModal(true)}
+              className="text-indigo-600 hover:text-indigo-700 font-bold underline decoration-indigo-200 underline-offset-4 cursor-pointer transition-colors"
+            >
+              Reetabrata
+            </button>
           </p>
           <div
             id="footer-meta"
@@ -877,6 +881,11 @@ export default function App() {
           }}
         />
       </SignedOut>
+
+      <AboutMeModal
+        isOpen={showAboutMeModal}
+        onClose={() => setShowAboutMeModal(false)}
+      />
     </div>
   );
 }
