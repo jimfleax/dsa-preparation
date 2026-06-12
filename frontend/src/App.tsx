@@ -442,7 +442,7 @@ export default function App() {
                     Home
                   </button>
                 </Tooltip>
-                <Tooltip content="Learning Resources" shortcut="← →">
+                <Tooltip content="Learning Resources" shortcut="< >">
                   <button
                     id="tab-learn"
                     role="tab"
@@ -458,7 +458,7 @@ export default function App() {
                     Learn
                   </button>
                 </Tooltip>
-                <Tooltip content="Problem Tracker" shortcut="← →">
+                <Tooltip content="Problem Tracker" shortcut="< >">
                   <button
                     id="tab-tracker"
                     role="tab"
@@ -474,7 +474,7 @@ export default function App() {
                     Tracker
                   </button>
                 </Tooltip>
-                <Tooltip content="Skill Tracks" shortcut="← →">
+                <Tooltip content="Skill Tracks" shortcut="< >">
                   <button
                     id="tab-tracks"
                     role="tab"
