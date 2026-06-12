@@ -29,6 +29,7 @@ import SettingsModal from "./components/SettingsModal";
 import SyncToast from "./components/SyncToast";
 import HomeTab from "./components/HomeTab";
 import AboutMeModal from "./components/AboutMeModal";
+import Tooltip from "./components/Tooltip";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -370,6 +371,7 @@ export default function App() {
       {/* Dynamic Navigation Top-Bar */}
       <header
         id="dsa-navbar"
+        role="banner"
         className="bg-white border-b border-neutral-100 h-16 shrink-0 sticky top-0 z-30"
       >
         <div
@@ -395,88 +397,109 @@ export default function App() {
 
           {/* Center: Tab Selectors — only shown when signed in */}
           <SignedIn>
-            <div
-              id="main-tab-selector"
-              className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1"
-            >
-              <button
-                id="tab-home"
-                onClick={() => setActiveMainTab("home")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  activeMainTab === "home"
-                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
+            <nav role="navigation">
+              <div
+                id="main-tab-selector"
+                role="tablist"
+                className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1"
               >
-                <Home className="w-3.5 h-3.5" />
-                Home
-              </button>
-              <button
-                id="tab-learn"
-                onClick={() => setActiveMainTab("learn")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  activeMainTab === "learn"
-                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5" />
-                Learn
-              </button>
-              <button
-                id="tab-tracker"
-                onClick={() => setActiveMainTab("tracker")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  activeMainTab === "tracker"
-                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
-              >
-                <Code2 className="w-3.5 h-3.5" />
-                Tracker
-              </button>
-              <button
-                id="tab-tracks"
-                onClick={() => setActiveMainTab("tracks")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  activeMainTab === "tracks"
-                    ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
-              >
-                <Map className="w-3.5 h-3.5" />
-                Tracks
-              </button>
-            </div>
+                <Tooltip content="Home Dashboard" shortcut="Home">
+                  <button
+                    id="tab-home"
+                    role="tab"
+                    aria-selected={activeMainTab === "home"}
+                    onClick={() => setActiveMainTab("home")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                      activeMainTab === "home"
+                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    <Home className="w-3.5 h-3.5" />
+                    Home
+                  </button>
+                </Tooltip>
+                <Tooltip content="Learning Resources" shortcut="←/→">
+                  <button
+                    id="tab-learn"
+                    role="tab"
+                    aria-selected={activeMainTab === "learn"}
+                    onClick={() => setActiveMainTab("learn")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                      activeMainTab === "learn"
+                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Learn
+                  </button>
+                </Tooltip>
+                <Tooltip content="Problem Tracker" shortcut="←/→">
+                  <button
+                    id="tab-tracker"
+                    role="tab"
+                    aria-selected={activeMainTab === "tracker"}
+                    onClick={() => setActiveMainTab("tracker")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                      activeMainTab === "tracker"
+                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    <Code2 className="w-3.5 h-3.5" />
+                    Tracker
+                  </button>
+                </Tooltip>
+                <Tooltip content="Skill Tracks" shortcut="←/→">
+                  <button
+                    id="tab-tracks"
+                    role="tab"
+                    aria-selected={activeMainTab === "tracks"}
+                    onClick={() => setActiveMainTab("tracks")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                      activeMainTab === "tracks"
+                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    <Map className="w-3.5 h-3.5" />
+                    Tracks
+                  </button>
+                </Tooltip>
+              </div>
+            </nav>
           </SignedIn>
 
           <div id="navbar-controls-sec" className="flex items-center gap-2">
             <SignedIn>
               {/* Show Sync button only in Learn tab */}
               {activeMainTab === "learn" && (
-                <button
-                  id="refresh-docs-btn"
-                  onClick={() => fetchDocumentsList(true)}
-                  disabled={refreshing}
-                  title="Scan and synchronize markdown directories"
-                  className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
-                >
-                  <RefreshCcw
-                    className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-indigo-600" : ""}`}
-                  />
-                  <span className="hidden sm:inline">Sync</span>
-                </button>
+                <Tooltip content="Scan markdown directories">
+                  <button
+                    id="refresh-docs-btn"
+                    onClick={() => fetchDocumentsList(true)}
+                    disabled={refreshing}
+                    className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
+                  >
+                    <RefreshCcw
+                      className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-indigo-600" : ""}`}
+                    />
+                    <span className="hidden sm:inline">Sync</span>
+                  </button>
+                </Tooltip>
               )}
 
               {/* Settings button */}
-              <button
-                id="settings-btn"
-                onClick={() => setShowSettingsModal(true)}
-                title="User Settings"
-                className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer active:scale-95"
-              >
-                <Settings className="w-3.5 h-3.5" />
-              </button>
+              <Tooltip content="User Settings">
+                <button
+                  id="settings-btn"
+                  onClick={() => setShowSettingsModal(true)}
+                  className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer active:scale-95"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                </button>
+              </Tooltip>
 
               {/* Native Logout / User Info */}
               <div className="relative group">
@@ -522,6 +545,7 @@ export default function App() {
       {/* Main Workspace Frame container */}
       <main
         id="dsa-main-content-layout"
+        role="main"
         className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6"
       >
         {/* === SIGNED OUT: Landing Prompt === */}
@@ -588,14 +612,16 @@ export default function App() {
                   {/* Search Input Box */}
                   <div id="search-input-wrapper" className="relative flex-1">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
-                    <input
-                      id="search-input-field"
-                      type="text"
-                      placeholder="Search by title, category, or tags..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
-                    />
+                    <Tooltip content="Quick Search" shortcut="/">
+                      <input
+                        id="search-input-field"
+                        type="text"
+                        placeholder="Search by title, category, or tags..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
+                      />
+                    </Tooltip>
                     {searchQuery && (
                       <button
                         id="clear-search-btn"
@@ -786,6 +812,7 @@ export default function App() {
       {/* Footer Info Hub */}
       <footer
         id="dsa-footer"
+        role="contentinfo"
         className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400"
       >
         <div

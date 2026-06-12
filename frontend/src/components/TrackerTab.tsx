@@ -20,7 +20,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Legend,
 } from "recharts";
@@ -32,6 +32,7 @@ import SmartRevisitModal, {
   selectSmartRevisitProblem,
 } from "./SmartRevisitModal";
 import { useEscapeKey } from "../hooks/useEscapeKey";
+import Tooltip from "./Tooltip";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -256,7 +257,7 @@ export default function ProblemsTab({
                     />
                   ))}
                 </Pie>
-                <Tooltip
+                <RechartsTooltip
                   contentStyle={{
                     borderRadius: "8px",
                     border: "none",
@@ -290,29 +291,33 @@ export default function ProblemsTab({
             </p>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-[200px]">
-            <button
-              id="smart-revisit-btn"
-              onClick={() => {
-                const selected = selectSmartRevisitProblem(problems);
-                if (selected) {
-                  setSmartRevisitProblem(selected);
-                  setIsSmartRevisitOpen(true);
-                }
-              }}
-              disabled={problems.length === 0}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Sparkles className="w-4 h-4" />
-              Smart Revisit
-            </button>
-            <button
-              id="add-problem-btn"
-              onClick={onOpenAddModal}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
-            >
-              <Plus className="w-4 h-4" />
-              Add Problem
-            </button>
+            <Tooltip content="Focus on weakest problem" shortcut="S">
+              <button
+                id="smart-revisit-btn"
+                onClick={() => {
+                  const selected = selectSmartRevisitProblem(problems);
+                  if (selected) {
+                    setSmartRevisitProblem(selected);
+                    setIsSmartRevisitOpen(true);
+                  }
+                }}
+                disabled={problems.length === 0}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4" />
+                Smart Revisit
+              </button>
+            </Tooltip>
+            <Tooltip content="Track new problem" shortcut="A">
+              <button
+                id="add-problem-btn"
+                onClick={onOpenAddModal}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
+              >
+                <Plus className="w-4 h-4" />
+                Add Problem
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -326,14 +331,16 @@ export default function ProblemsTab({
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
-            <input
-              id="problems-search-input"
-              type="text"
-              placeholder="Search problems by title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
-            />
+            <Tooltip content="Quick Search" shortcut="/">
+              <input
+                id="problems-search-input"
+                type="text"
+                placeholder="Search problems by title..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
+              />
+            </Tooltip>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
