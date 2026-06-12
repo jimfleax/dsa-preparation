@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, CheckCircle2, Circle } from "lucide-react";
 import { TrackedProblem, Track, TrackProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
@@ -9,16 +9,26 @@ interface TrackCardProps {
   track: Track;
   trackedProblems: Record<string, TrackedProblem>;
   onUpdate: () => void;
+  activeTrackId?: string | null;
+  onTrackActive?: (trackId: string) => void;
 }
 
 export default function TrackCard({
   track,
   trackedProblems,
   onUpdate,
+  activeTrackId,
+  onTrackActive,
 }: TrackCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [showAttemptModal, setShowAttemptModal] = useState(false);
+
+  useEffect(() => {
+    if (track._id === activeTrackId) {
+      setExpanded(true);
+    }
+  }, [activeTrackId, track._id]);
 
   const allProblems = [
     ...(track.problems || []),
@@ -61,6 +71,10 @@ export default function TrackCard({
   const handleProblemClick = (problem: any) => {
     setSelectedProblem(problem);
     setShowAttemptModal(true);
+    setExpanded(true);
+    if (onTrackActive) {
+      onTrackActive(track._id);
+    }
   };
 
   const renderProblem = (problem: TrackProblem, key: string | number) => {
