@@ -11,6 +11,7 @@ interface TrackCardProps {
   onUpdate: () => void;
   activeTrackId?: string | null;
   onTrackActive?: (trackId: string) => void;
+  isActive?: boolean;
 }
 
 export default function TrackCard({
@@ -19,6 +20,7 @@ export default function TrackCard({
   onUpdate,
   activeTrackId,
   onTrackActive,
+  isActive,
 }: TrackCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
@@ -132,6 +134,11 @@ export default function TrackCard({
             <h3 className="text-lg font-bold text-neutral-900">
               {track.title}
             </h3>
+            {isActive && (
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-indigo-600 text-white px-2.5 py-0.5 rounded-full shadow-sm">
+                Current Track
+              </span>
+            )}
             {isCompleted && (
               <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
                 <CheckCircle2 className="w-3 h-3" />
