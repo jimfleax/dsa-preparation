@@ -21,7 +21,15 @@ export default function TracksTab() {
   >({});
   const [loading, setLoading] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [activeTrackId, setActiveTrackId] = useState<string | null>(
+    localStorage.getItem("activeTrackId")
+  );
   const { getToken } = useAuth();
+
+  const handleTrackActive = (id: string) => {
+    localStorage.setItem("activeTrackId", id);
+    setActiveTrackId(id);
+  };
 
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
@@ -120,18 +128,26 @@ export default function TracksTab() {
       });
       const isCompleted =
         allProblems.length > 0 && completedCount === allProblems.length;
-      if (isCompleted) {
+      
+      if (track._id === activeTrackId) {
+        acc.active = track;
+        acc.isActiveCompleted = isCompleted;
+      } else if (isCompleted) {
         acc.completed.push(track);
       } else {
         acc.incomplete.push(track);
       }
       return acc;
     },
-    { incomplete: [] as Track[], completed: [] as Track[] },
+    { active: null as Track | null, isActiveCompleted: false, incomplete: [] as Track[], completed: [] as Track[] },
   );
 
-  const { incomplete: incompleteTracks, completed: completedTracks } =
+  const { active: activeTrack, isActiveCompleted, incomplete: incompleteTracks, completed: completedTracks } =
     categorizedTracks;
+
+  const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
+    return (a.order || 0) - (b.order || 0);
+  });
 
   return (
     <div className="space-y-6">
@@ -190,7 +206,7 @@ export default function TracksTab() {
               <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
               track problems, mastering{" "}
-              <strong className="text-purple-600"><AnimatedNumber value={completedTracks.length} /></strong> out of{" "}
+              <strong className="text-purple-600"><AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={tracks.length} /></strong> tracks.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
@@ -209,7 +225,7 @@ export default function TracksTab() {
                     Tracks Mastered
                   </p>
                   <p className="text-xl font-extrabold text-emerald-700">
-                    <AnimatedNumber value={completedTracks.length} />
+                    <AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} />
                   </p>
                 </div>
               </div>
@@ -228,7 +244,7 @@ export default function TracksTab() {
                     Tracks Left
                   </p>
                   <p className="text-xl font-extrabold text-neutral-700">
-                    <AnimatedNumber value={incompleteTracks.length} />
+                    <AnimatedNumber value={incompleteTracks.length + (activeTrack && !isActiveCompleted ? 1 : 0)} />
                   </p>
                 </div>
               </div>
@@ -238,15 +254,31 @@ export default function TracksTab() {
       )}
 
       <div className="grid gap-6">
-        {incompleteTracks.map((track) => (
+        {activeTrack && (
+          <div className="relative">
+            <div className="absolute -top-3 left-4 z-10 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm">
+              Current Track
+            </div>
+            <TrackCard
+              track={activeTrack}
+              activeTrackId={activeTrackId}
+              onTrackActive={handleTrackActive}
+              trackedProblems={trackedProblems}
+              onUpdate={fetchTracksAndProgress}
+            />
+          </div>
+        )}
+        {sortedIncompleteTracks.map((track) => (
           <TrackCard
             key={track._id}
             track={track}
+            activeTrackId={activeTrackId}
+            onTrackActive={handleTrackActive}
             trackedProblems={trackedProblems}
             onUpdate={fetchTracksAndProgress}
           />
         ))}
-        {incompleteTracks.length === 0 && completedTracks.length === 0 && (
+        {!activeTrack && incompleteTracks.length === 0 && completedTracks.length === 0 && (
           <div className="text-center py-12 bg-white border border-neutral-200 rounded-2xl">
             <p className="text-neutral-500 font-medium">
               No roadmap tracks available.
@@ -290,6 +322,8 @@ export default function TracksTab() {
                   <TrackCard
                     key={track._id}
                     track={track}
+                    activeTrackId={activeTrackId}
+                    onTrackActive={handleTrackActive}
                     trackedProblems={trackedProblems}
                     onUpdate={fetchTracksAndProgress}
                   />
