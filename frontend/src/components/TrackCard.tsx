@@ -72,9 +72,6 @@ export default function TrackCard({
     setSelectedProblem(problem);
     setShowAttemptModal(true);
     setExpanded(true);
-    if (onTrackActive) {
-      onTrackActive(track._id);
-    }
   };
 
   const renderProblem = (problem: TrackProblem, key: string | number) => {
@@ -266,6 +263,7 @@ export default function TrackCard({
               : undefined
           }
           onUpdated={onUpdate}
+          onSolveClick={() => onTrackActive?.(track._id)}
         />
       )}
     </div>

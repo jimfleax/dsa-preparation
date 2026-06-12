@@ -11,6 +11,7 @@ interface AttemptProblemModalProps {
   problem: any; // from Track
   trackedProblem?: TrackedProblem; // existing record, if any
   onUpdated: () => void;
+  onSolveClick?: () => void;
 }
 
 export default function AttemptProblemModal({
@@ -19,6 +20,7 @@ export default function AttemptProblemModal({
   problem,
   trackedProblem,
   onUpdated,
+  onSolveClick,
 }: AttemptProblemModalProps) {
   const { getToken } = useAuth();
   const [phase, setPhase] = useState<"reveal" | "confirm">("reveal");
@@ -133,7 +135,10 @@ export default function AttemptProblemModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-center items-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer"
-                onClick={() => setPhase("confirm")}
+                onClick={() => {
+                  onSolveClick?.();
+                  setPhase("confirm");
+                }}
               >
                 Solve on LeetCode
                 <ExternalLink className="w-4 h-4" />
