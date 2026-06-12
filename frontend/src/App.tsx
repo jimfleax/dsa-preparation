@@ -276,6 +276,24 @@ export default function App() {
       if (e.key === "Home") {
         e.preventDefault(); // Prevents default scrolling behavior
         setActiveMainTab("home");
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        const tabs: ("home" | "learn" | "tracker" | "tracks")[] = [
+          "home",
+          "learn",
+          "tracker",
+          "tracks",
+        ];
+
+        setActiveMainTab((current) => {
+          const currentIndex = tabs.indexOf(current);
+          if (e.key === "ArrowLeft") {
+            const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            return tabs[prevIndex];
+          } else {
+            const nextIndex = (currentIndex + 1) % tabs.length;
+            return tabs[nextIndex];
+          }
+        });
       }
     };
     window.addEventListener("keydown", handleKeyDown);
