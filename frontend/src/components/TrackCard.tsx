@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, CheckCircle2, Circle } from "lucide-react";
-import { TrackedProblem } from "../types";
+import { TrackedProblem, Track, TrackProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
 import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
 
 interface TrackCardProps {
-  track: any;
+  track: Track;
   trackedProblems: Record<string, TrackedProblem>;
   onUpdate: () => void;
 }
@@ -20,18 +20,94 @@ export default function TrackCard({
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [showAttemptModal, setShowAttemptModal] = useState(false);
 
-  const completedCount = track.problems.filter((p: any) => {
+  const allProblems = [
+    ...(track.problems || []),
+    ...(track.parts?.flatMap((p) => p.problems) || []),
+  ];
+  const totalProblems = allProblems.length;
+  const completedCount = allProblems.filter((p) => {
     const slug = extractTitleSlug(p.url);
     return slug && !!trackedProblems[slug];
   }).length;
   const progressPercent =
-    Math.round((completedCount / track.problems.length) * 100) || 0;
+    Math.round((completedCount / totalProblems) * 100) || 0;
   const isCompleted =
-    track.problems.length > 0 && completedCount === track.problems.length;
+    totalProblems > 0 && completedCount === totalProblems;
+
+  const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(() => {
+    if (!track.parts || track.parts.length === 0) return {};
+    const initial: Record<number, boolean> = {};
+    let firstIncompleteFound = false;
+    track.parts.forEach((part, idx) => {
+      const partSolved = part.problems.filter((p) => {
+        const slug = extractTitleSlug(p.url);
+        return slug && !!trackedProblems[slug];
+      }).length;
+      const isPartCompleted = partSolved === part.problems.length;
+      if (!firstIncompleteFound && !isPartCompleted) {
+        initial[idx] = true;
+        firstIncompleteFound = true;
+      } else {
+        initial[idx] = false;
+      }
+    });
+    return initial;
+  });
+
+  const togglePart = (idx: number) => {
+    setExpandedParts(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   const handleProblemClick = (problem: any) => {
     setSelectedProblem(problem);
     setShowAttemptModal(true);
+  };
+
+  const renderProblem = (problem: TrackProblem, key: string | number) => {
+    const slug = extractTitleSlug(problem.url);
+    const tracked = slug ? trackedProblems[slug] : undefined;
+    const isSolved = !!tracked;
+
+    return (
+      <div
+        key={key}
+        className="p-4 hover:bg-neutral-50 flex items-center justify-between cursor-pointer group transition-colors"
+        onClick={() => handleProblemClick(problem)}
+      >
+        <div className="flex items-center gap-4">
+          {isSolved ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+          ) : (
+            <Circle className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0" />
+          )}
+          <div>
+            <p
+              className={`text-sm font-bold ${isSolved ? "text-neutral-500 line-through decoration-neutral-300" : "text-neutral-800 group-hover:text-indigo-700 transition-colors"}`}
+            >
+              {problem.title}
+            </p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                  problem.difficulty === "Easy"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : problem.difficulty === "Medium"
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-rose-100 text-rose-700"
+                }`}
+              >
+                {problem.difficulty}
+              </span>
+              {tracked && (
+                <span className="text-[10px] text-neutral-400 font-bold bg-neutral-100 px-1.5 py-0.5 rounded">
+                  Attempts: {tracked.attemptCount}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -56,16 +132,37 @@ export default function TrackCard({
             {track.description}
           </p>
           <div className="mt-4 flex items-center gap-4">
-            <div className="flex-1 max-w-sm h-2 bg-neutral-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${isCompleted ? "bg-emerald-500" : "bg-indigo-500"}`}
-                style={{ width: `${progressPercent}%` }}
-              ></div>
-            </div>
+            {track.parts && track.parts.length > 0 ? (
+              <div className="flex-1 max-w-sm flex gap-1.5 h-2.5 bg-neutral-100/30 p-0.5 rounded-full">
+                {track.parts.map((part, idx) => {
+                  const partSolved = part.problems.filter((p) => {
+                    const slug = extractTitleSlug(p.url);
+                    return slug && !!trackedProblems[slug];
+                  }).length;
+                  const partPercent = Math.round((partSolved / part.problems.length) * 100) || 0;
+                  const isPartFull = partSolved === part.problems.length;
+                  return (
+                    <div key={idx} className="flex-1 bg-neutral-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-500 ${isPartFull ? "bg-emerald-500" : "bg-indigo-500"}`}
+                        style={{ width: `${partPercent}%` }}
+                      ></div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex-1 max-w-sm h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${isCompleted ? "bg-emerald-500" : "bg-indigo-500"}`}
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
+            )}
             <span
               className={`text-xs font-bold ${isCompleted ? "text-emerald-600" : "text-neutral-600"}`}
             >
-              <AnimatedNumber value={completedCount} /> / <AnimatedNumber value={track.problems.length} /> (<AnimatedNumber value={progressPercent} />%)
+              <AnimatedNumber value={completedCount} /> / <AnimatedNumber value={totalProblems} /> (<AnimatedNumber value={progressPercent} />%)
             </span>
           </div>
         </div>
@@ -82,54 +179,65 @@ export default function TrackCard({
 
       {expanded && (
         <div className="border-t border-neutral-100">
-          <div className="divide-y divide-neutral-100 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
-            {track.problems.map((problem: any, idx: number) => {
-              const slug = extractTitleSlug(problem.url);
-              const tracked = slug ? trackedProblems[slug] : undefined;
-              const isSolved = !!tracked;
+          {track.parts && track.parts.length > 0 ? (
+            <div className="divide-y divide-neutral-100 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
+              {track.problems && track.problems.length > 0 && (
+                <div className="bg-neutral-50/30 divide-y divide-neutral-100">
+                  {track.problems.map((problem, idx) => renderProblem(problem, `flat-${idx}`))}
+                </div>
+              )}
+              {track.parts.map((part, pIdx) => {
+                const partSolved = part.problems.filter((p) => {
+                  const slug = extractTitleSlug(p.url);
+                  return slug && !!trackedProblems[slug];
+                }).length;
+                const isPartCompleted = partSolved === part.problems.length;
+                const isPartExpanded = expandedParts[pIdx];
 
-              return (
-                <div
-                  key={idx}
-                  className="p-4 hover:bg-neutral-50 flex items-center justify-between cursor-pointer group transition-colors"
-                  onClick={() => handleProblemClick(problem)}
-                >
-                  <div className="flex items-center gap-4">
-                    {isSolved ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                    ) : (
-                      <Circle className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0" />
-                    )}
-                    <div>
-                      <p
-                        className={`text-sm font-bold ${isSolved ? "text-neutral-500 line-through decoration-neutral-300" : "text-neutral-800 group-hover:text-indigo-700 transition-colors"}`}
-                      >
-                        {problem.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                            problem.difficulty === "Easy"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : problem.difficulty === "Medium"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-rose-100 text-rose-700"
-                          }`}
-                        >
-                          {problem.difficulty}
+                return (
+                  <div key={pIdx} className="bg-white">
+                    <div
+                      className={`p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/80 transition-colors ${isPartExpanded ? 'bg-neutral-50/40 border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
+                      onClick={() => togglePart(pIdx)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {isPartCompleted ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-neutral-300 shrink-0" />
+                        )}
+                        <div>
+                          <h4 className={`text-sm font-bold ${isPartExpanded ? 'text-indigo-900' : 'text-neutral-800'}`}>{part.title}</h4>
+                          {part.description && (
+                            <p className="text-[11px] text-neutral-500 font-medium">{part.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-neutral-500 bg-neutral-50 px-2 py-0.5 rounded-full border border-neutral-100">
+                          {partSolved} / {part.problems.length}
                         </span>
-                        {tracked && (
-                          <span className="text-[10px] text-neutral-400 font-bold bg-neutral-100 px-1.5 py-0.5 rounded">
-                            Attempts: {tracked.attemptCount}
-                          </span>
+                        {isPartExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-neutral-400" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-neutral-400" />
                         )}
                       </div>
                     </div>
+                    {isPartExpanded && (
+                      <div className="bg-white divide-y divide-neutral-50">
+                        {part.problems.map((problem, idx) => renderProblem(problem, `part-${pIdx}-prob-${idx}`))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="divide-y divide-neutral-100 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
+              {track.problems.map((problem, idx) => renderProblem(problem, idx))}
+            </div>
+          )}
         </div>
       )}
 
