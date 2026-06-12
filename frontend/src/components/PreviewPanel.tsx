@@ -38,7 +38,7 @@ export default function PreviewPanel({
   const [copied, setCopied] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEscapeKey(isOpen, onClose, 35, "preview-panel");
+  useEscapeKey(isOpen, onClose, 50, "preview-panel");
 
   useEffect(() => {
     if (!activeDoc) {
@@ -118,7 +118,7 @@ export default function PreviewPanel({
       <div
         id="preview-backdrop"
         onClick={onClose}
-        className={`fixed inset-0 z-35 bg-black/40 backdrop-blur-xs transition-all duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-all duration-300 ${
           isOpen
             ? isMaximized
               ? "opacity-100 pointer-events-auto"
@@ -129,7 +129,7 @@ export default function PreviewPanel({
 
       <div
         id="preview-sidebar-container"
-        className={`fixed inset-y-0 right-0 z-40 bg-white border-l border-neutral-100 shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform ${
+        className={`fixed inset-y-0 right-0 z-50 bg-white border-l border-neutral-100 shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } ${
           isMaximized

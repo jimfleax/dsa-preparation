@@ -18,6 +18,7 @@ import {
   Map,
   Home,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings } from "./types";
 import StatsGrid from "./components/StatsGrid";
@@ -44,6 +45,9 @@ export default function App() {
   const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success">("idle");
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Top-level tab state: controls which main view is active
   const tabs = useMemo(() => ["home", "learn", "tracker", "tracks"] as const, []);
@@ -239,17 +243,28 @@ export default function App() {
 
   // Load all listed documents on mount
   const fetchDocumentsList = async (showRefreshIndicator = false) => {
-    if (showRefreshIndicator) setRefreshing(true);
-    else setLoading(true);
+    if (showRefreshIndicator) {
+      setRefreshing(true);
+      setSyncStatus("syncing");
+    } else {
+      setLoading(true);
+    }
 
     try {
       const response = await fetch(`${apiBase}/api/documents`);
       const data = await response.json();
       if (data.success) {
         setDocuments(data.documents);
+        if (showRefreshIndicator) {
+          setSyncStatus("success");
+          setTimeout(() => setSyncStatus("idle"), 2000);
+        }
+      } else {
+        if (showRefreshIndicator) setSyncStatus("idle");
       }
     } catch (err) {
       console.error("Error loading listed documents:", err);
+      if (showRefreshIndicator) setSyncStatus("idle");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -292,7 +307,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Global "Home" key listener
+  // Global shortcuts key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if typing in an input or textarea
@@ -307,6 +322,18 @@ export default function App() {
       if (e.key === "Home") {
         e.preventDefault(); // Prevents default scrolling behavior
         setActiveMainTab("home");
+      } else if (e.key === "/") {
+        e.preventDefault();
+        if (activeMainTab === "learn") {
+          searchInputRef.current?.focus();
+        } else if (activeMainTab === "tracker") {
+          document.getElementById("problems-search-input")?.focus();
+        } else {
+          // Switch to learn tab first if on home or tracks
+          setActiveMainTab("learn");
+          // Small delay to allow tab animation/rendering
+          setTimeout(() => searchInputRef.current?.focus(), 150);
+        }
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         setActiveMainTab((current) => {
           const currentIndex = tabs.indexOf(current);
@@ -322,7 +349,7 @@ export default function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [tabs]);
 
   // Auto-ping every 5 seconds when unreachable
   useEffect(() => {
@@ -502,13 +529,47 @@ export default function App() {
                   <button
                     id="refresh-docs-btn"
                     onClick={() => fetchDocumentsList(true)}
-                    disabled={refreshing}
-                    className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95 text-xs font-semibold"
+                    disabled={syncStatus !== "idle"}
+                    className="h-9 px-3 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 text-xs font-semibold min-w-[80px]"
                   >
-                    <RefreshCcw
-                      className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-indigo-600" : ""}`}
-                    />
-                    <span className="hidden sm:inline">Sync</span>
+                    <AnimatePresence mode="wait">
+                      {syncStatus === "idle" && (
+                        <motion.div
+                          key="idle"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="flex items-center gap-1.5"
+                        >
+                          <RefreshCcw className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Sync</span>
+                        </motion.div>
+                      )}
+                      {syncStatus === "syncing" && (
+                        <motion.div
+                          key="syncing"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="flex items-center gap-1.5"
+                        >
+                          <RefreshCcw className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                          <span className="hidden sm:inline">Syncing...</span>
+                        </motion.div>
+                      )}
+                      {syncStatus === "success" && (
+                        <motion.div
+                          key="success"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="flex items-center gap-1.5 text-emerald-600"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Synced</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </button>
                 </Tooltip>
               )}
@@ -696,6 +757,7 @@ export default function App() {
                         <Tooltip content="Quick Search" shortcut="/">
                           <input
                             id="search-input-field"
+                            ref={searchInputRef}
                             type="text"
                             placeholder="Search by title, category, or tags..."
                             value={searchQuery}
@@ -874,15 +936,6 @@ export default function App() {
                         </div>
                       )}
                     </div>
-
-                    {/* Interactive Collapsible previewer component drawer */}
-                    <PreviewPanel
-                      activeDoc={activeDoc}
-                      isOpen={isPreviewOpen}
-                      onClose={() => setIsPreviewOpen(false)}
-                      isMaximized={isPreviewMaximized}
-                      setIsMaximized={setIsPreviewMaximized}
-                    />
                   </div>
                 </div>
               </motion.div>
@@ -954,6 +1007,13 @@ export default function App() {
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
+        <PreviewPanel
+          activeDoc={activeDoc}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          isMaximized={isPreviewMaximized}
+          setIsMaximized={setIsPreviewMaximized}
+        />
         {showSyncToast && (
           <SyncToast
             count={newSubmissionsCount}
