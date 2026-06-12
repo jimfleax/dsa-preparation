@@ -193,10 +193,15 @@ export default function TrackCard({
                 return (
                   <div key={pIdx} className="bg-white">
                     <div
-                      className={`p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/80 transition-colors ${isPartExpanded ? 'bg-neutral-50/40 border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
+                      className={`relative overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/50 transition-colors ${isPartExpanded ? 'border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
                       onClick={() => togglePart(pIdx)}
                     >
-                      <div className="flex items-center gap-3">
+                      {/* Subtle Progress Fill */}
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 pointer-events-none transition-all duration-500 ease-out ${isPartCompleted ? 'bg-emerald-50/60' : 'bg-neutral-100/70'}`}
+                        style={{ width: `${Math.round((partSolved / part.problems.length) * 100) || 0}%` }}
+                      />
+                      <div className="relative z-10 flex items-center gap-3">
                         {isPartCompleted ? (
                           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                         ) : (
@@ -209,8 +214,8 @@ export default function TrackCard({
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-neutral-500 bg-neutral-50 px-2 py-0.5 rounded-full border border-neutral-100">
+                      <div className="relative z-10 flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-neutral-500 bg-white/60 px-2 py-0.5 rounded-full border border-neutral-200 backdrop-blur-sm">
                           {partSolved} / {part.problems.length}
                         </span>
                         <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? 'rotate-180' : ''}`} />
