@@ -65,23 +65,32 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         }
 
         if (tracksData.success) {
-          let totalTrackProblems = 0;
-          let completedTrackProblems = 0;
+        let completedTracks = 0;
+        let totalTracks = tracksData.tracks.length;
 
-          tracksData.tracks.forEach((track: any) => {
-            track.problems.forEach((problem: any) => {
-              totalTrackProblems++;
-              const slug = extractTitleSlug(problem.url);
-              if (slug && solvedSlugs.has(slug)) {
-                completedTrackProblems++;
-              }
-            });
+        tracksData.tracks.forEach((track: any) => {
+          const allProblems = [
+            ...(track.problems || []),
+            ...(track.parts?.flatMap((p: any) => p.problems) || []),
+          ];
+
+          let completedCount = 0;
+          allProblems.forEach((problem: any) => {
+            const slug = extractTitleSlug(problem.url);
+            if (slug && solvedSlugs.has(slug)) {
+              completedCount++;
+            }
           });
 
-          setTrackProgress({
-            completed: completedTrackProblems,
-            total: totalTrackProblems,
-          });
+          if (allProblems.length > 0 && completedCount === allProblems.length) {
+            completedTracks++;
+          }
+        });
+
+        setTrackProgress({
+          completed: completedTracks,
+          total: totalTracks,
+        });
         }
       } catch (error) {
         console.error("Failed to fetch home stats:", error);

@@ -189,24 +189,48 @@ export default function TracksTab() {
               You have completed{" "}
               <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
-              track problems.
+              track problems, mastering{" "}
+              <strong className="text-purple-600"><AnimatedNumber value={completedTracks.length} /></strong> out of{" "}
+              <strong className="text-neutral-800"><AnimatedNumber value={tracks.length} /></strong> tracks.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
-              <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl">
-                <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider">
-                  Solved
-                </p>
-                <p className="text-xl font-extrabold text-emerald-700">
-                  <AnimatedNumber value={totalSolved} />
-                </p>
+              <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-4">
+                <div>
+                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                    Problems Solved
+                  </p>
+                  <p className="text-xl font-extrabold text-emerald-700">
+                    <AnimatedNumber value={totalSolved} />
+                  </p>
+                </div>
+                <div className="w-px h-8 bg-emerald-200 mx-2"></div>
+                <div>
+                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                    Tracks Mastered
+                  </p>
+                  <p className="text-xl font-extrabold text-emerald-700">
+                    <AnimatedNumber value={completedTracks.length} />
+                  </p>
+                </div>
               </div>
-              <div className="bg-neutral-50 border border-neutral-200 px-4 py-2 rounded-xl">
-                <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">
-                  Remaining
-                </p>
-                <p className="text-xl font-extrabold text-neutral-700">
-                  <AnimatedNumber value={totalProblems - totalSolved} />
-                </p>
+              <div className="bg-neutral-50 border border-neutral-200 px-4 py-2 rounded-xl flex items-center gap-4">
+                <div>
+                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
+                    Problems Left
+                  </p>
+                  <p className="text-xl font-extrabold text-neutral-700">
+                    <AnimatedNumber value={totalProblems - totalSolved} />
+                  </p>
+                </div>
+                <div className="w-px h-8 bg-neutral-200 mx-2"></div>
+                <div>
+                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
+                    Tracks Left
+                  </p>
+                  <p className="text-xl font-extrabold text-neutral-700">
+                    <AnimatedNumber value={incompleteTracks.length} />
+                  </p>
+                </div>
               </div>
             </div>
           </div>
