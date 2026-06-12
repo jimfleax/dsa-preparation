@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, CheckCircle2, Circle } from "lucide-react";
+import { ChevronDown, CheckCircle2, Circle } from "lucide-react";
 import { TrackedProblem, Track, TrackProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
 import { extractTitleSlug } from "../lib/slugUtils";
@@ -167,20 +167,16 @@ export default function TrackCard({
           </div>
         </div>
         <div
-          className={`p-2 rounded-xl ${isCompleted ? "text-emerald-500 bg-emerald-100" : "text-neutral-400 bg-neutral-100"}`}
+          className={`p-2 rounded-xl transition-all duration-300 ${isCompleted ? "text-emerald-500 bg-emerald-100" : "text-neutral-400 bg-neutral-100"}`}
         >
-          {expanded ? (
-            <ChevronUp className="w-5 h-5" />
-          ) : (
-            <ChevronDown className="w-5 h-5" />
-          )}
+          <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${expanded ? 'rotate-180' : ''}`} />
         </div>
       </div>
 
-      {expanded && (
-        <div className="border-t border-neutral-100">
+      <div className={`grid transition-all duration-500 ease-in-out ${expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="overflow-hidden border-t border-neutral-100">
           {track.parts && track.parts.length > 0 ? (
-            <div className="divide-y divide-neutral-100 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
+            <div className="divide-y divide-neutral-100">
               {track.problems && track.problems.length > 0 && (
                 <div className="bg-neutral-50/30 divide-y divide-neutral-100">
                   {track.problems.map((problem, idx) => renderProblem(problem, `flat-${idx}`))}
@@ -217,29 +213,25 @@ export default function TrackCard({
                         <span className="text-[10px] font-bold text-neutral-500 bg-neutral-50 px-2 py-0.5 rounded-full border border-neutral-100">
                           {partSolved} / {part.problems.length}
                         </span>
-                        {isPartExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-neutral-400" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-neutral-400" />
-                        )}
+                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? 'rotate-180' : ''}`} />
                       </div>
                     </div>
-                    {isPartExpanded && (
-                      <div className="bg-white divide-y divide-neutral-50">
+                    <div className={`grid transition-all duration-300 ease-in-out ${isPartExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                      <div className="overflow-hidden bg-white divide-y divide-neutral-50">
                         {part.problems.map((problem, idx) => renderProblem(problem, `part-${pIdx}-prob-${idx}`))}
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="divide-y divide-neutral-100 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
+            <div className="divide-y divide-neutral-100">
               {track.problems.map((problem, idx) => renderProblem(problem, idx))}
             </div>
           )}
         </div>
-      )}
+      </div>
 
       {showAttemptModal && selectedProblem && (
         <AttemptProblemModal
