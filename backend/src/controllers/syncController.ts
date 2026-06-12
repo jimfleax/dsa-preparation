@@ -65,8 +65,14 @@ export const checkSync = async (req: Request, res: Response) => {
       } else {
         const subDate = new Date(Number(sub.timestamp) * 1000);
         if (!isNaN(subDate.getTime()) && existing.lastAttemptedDate) {
-          // If the submission is strictly newer than the recorded lastAttemptedDate
-          if (subDate.getTime() > new Date(existing.lastAttemptedDate).getTime()) {
+          const existingDate = new Date(existing.lastAttemptedDate);
+          
+          // Compare dates (year, month, day) in UTC to avoid local timezone shifts causing weirdness
+          const subDay = new Date(Date.UTC(subDate.getUTCFullYear(), subDate.getUTCMonth(), subDate.getUTCDate()));
+          const existingDay = new Date(Date.UTC(existingDate.getUTCFullYear(), existingDate.getUTCMonth(), existingDate.getUTCDate()));
+
+          // If the submission is on a strictly newer day than the recorded lastAttemptedDate
+          if (subDay.getTime() > existingDay.getTime()) {
             revisitedSubmissions.push({
               submission: sub,
               problemId: existing._id,

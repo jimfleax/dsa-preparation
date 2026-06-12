@@ -246,8 +246,14 @@ export const revisitProblem = async (req: Request, res: Response) => {
         .json({ success: false, error: "Problem not found." });
     }
 
+    const { timestamp } = req.body || {};
+
     problem.attemptCount += 1;
-    problem.lastAttemptedDate = new Date();
+    if (timestamp) {
+      problem.lastAttemptedDate = new Date(Number(timestamp) * 1000);
+    } else {
+      problem.lastAttemptedDate = new Date();
+    }
     await problem.save();
 
     res.json({ success: true, problem });
