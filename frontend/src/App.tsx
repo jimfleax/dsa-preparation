@@ -215,6 +215,11 @@ export default function App() {
       const response = await fetch(`${apiBase}/api/user/settings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (response.status === 401) {
+        console.warn("Unauthorized token detected, logging out.");
+        logout();
+        return;
+      }
       const data = await response.json();
       if (data.success) {
         setUserSettings(data.settings);

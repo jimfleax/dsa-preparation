@@ -45,7 +45,7 @@ app.use(cors({
         }
       }
 
-      if (originHostname === allowedDomain || originHostname === "localhost") {
+      if (originHostname === allowedDomain || originHostname === "localhost" || originHostname === "dsa.jimfleax.in") {
         return callback(null, true);
       }
       

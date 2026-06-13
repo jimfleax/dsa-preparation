@@ -30,7 +30,8 @@ export const requireAuth = (
 
       return next();
     } catch (error) {
-      console.error("Token verification failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.warn(`Token verification failed: ${errorMessage}`);
       res.status(401).json({ error: "Not authorized, token failed" });
       return;
     }
