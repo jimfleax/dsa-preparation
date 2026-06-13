@@ -47,6 +47,7 @@ app.use(cors({
 
       const isLocal = originHostname === "localhost" || 
                       originHostname === "127.0.0.1" || 
+                      originHostname === "::1" ||
                       originHostname.startsWith("192.168.") || 
                       originHostname.startsWith("10.") ||
                       originHostname.endsWith(".local");
@@ -63,8 +64,13 @@ app.use(cors({
       return callback(new Error("Invalid origin"));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
+
+// Pre-flight handler for all routes
+app.options("*", cors() as any);
 
 app.use(express.json());
 
@@ -161,7 +167,7 @@ app.get("/api/documents", (req, res) => {
     res.json({ success: true, documents: result });
   } catch (error: any) {
     console.error("Error reading documents directory:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: "Failed to list documents", message: error.message });
   }
 });
 
@@ -187,7 +193,8 @@ app.get("/api/document", (req, res) => {
     if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
       return res.status(404).json({
         success: false,
-        error: `Document ${safeFilename} does not exist.`,
+        error: "Document not found",
+        message: `The document ${safeFilename} could not be located on the server.`,
       });
     }
 
@@ -205,7 +212,7 @@ app.get("/api/document", (req, res) => {
     });
   } catch (error: any) {
     console.error("Error loading document:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: "Internal Server Error", message: error.message });
   }
 });
 
@@ -216,6 +223,7 @@ app.get("/api/health", (req, res) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    dbConnected: !!process.env.MONGODB_URI,
   });
 });
 
