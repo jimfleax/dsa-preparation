@@ -45,12 +45,20 @@ app.use(cors({
         }
       }
 
-      if (originHostname === allowedDomain || originHostname === "localhost" || originHostname === "dsa.jimfleax.in") {
+      const isLocal = originHostname === "localhost" || 
+                      originHostname === "127.0.0.1" || 
+                      originHostname.startsWith("192.168.") || 
+                      originHostname.startsWith("10.") ||
+                      originHostname.endsWith(".local");
+
+      if (originHostname === allowedDomain || isLocal || originHostname === "dsa.jimfleax.in") {
         return callback(null, true);
       }
       
       console.warn(`[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`);
-      return callback(new Error("Not allowed by CORS"));
+      const corsError = new Error(`CORS Error: Origin ${origin} is not allowed.`);
+      (corsError as any).status = 403;
+      return callback(corsError);
     } catch (err) {
       return callback(new Error("Invalid origin"));
     }
@@ -260,10 +268,13 @@ app.use(
 
     // Ensure JSON response for API routes
     if (req.path.startsWith("/api/")) {
-      res.status(err.status || 500).json({
+      const status = err.status || 500;
+      res.status(status).json({
         success: false,
-        error: "Internal Server Error",
-        message: process.env.NODE_ENV === "production" ? "An unexpected error occurred" : err.message,
+        error: status === 500 ? "Internal Server Error" : "Client Error",
+        message: (process.env.NODE_ENV === "production" && status === 500) 
+          ? "An unexpected error occurred" 
+          : err.message,
       });
     } else {
       // For non-API routes, fall back to default express handler or custom HTML
