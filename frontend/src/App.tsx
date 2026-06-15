@@ -32,6 +32,7 @@ import SyncToast from "./components/SyncToast";
 import HomeTab from "./components/HomeTab";
 import AboutMeModal from "./components/AboutMeModal";
 import Tooltip from "./components/Tooltip";
+import ReviewDuePopup from "./components/ReviewDuePopup";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -664,6 +665,7 @@ export default function App() {
 
         {/* === SIGNED IN: Full App === */}
         <SignedIn>
+          <ReviewDuePopup onRevisited={() => setProblemsRefreshKey((k) => k + 1)} />
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             {/* === HOME TAB VIEW === */}
             {activeMainTab === "home" && (

@@ -4,8 +4,7 @@ import { X, CalendarClock, RotateCcw, Loader2, BookOpen } from "lucide-react";
 import { TrackedProblem } from "../types";
 
 interface ReviewDuePopupProps {
-  problems: TrackedProblem[];
-  onRevisited: () => void;
+  onRevisited?: () => void;
 }
 
 export function ReviewActionCard({ 
@@ -147,21 +146,42 @@ export function ReviewActionCard({
   );
 }
 
-export default function ReviewDuePopup({ problems, onRevisited }: ReviewDuePopupProps) {
+export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
+  const { getToken, isSignedIn } = useAuth();
+  const apiBase =
+    (import.meta as any).env.VITE_API_URL ||
+    "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   useEffect(() => {
-    const now = Date.now();
-    const due = problems.filter((p) => {
-      if (!p.reviewDurationDays) return false;
-      const lastAttempt = new Date(p.lastAttemptedDate).getTime();
-      const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
-      return diffDays >= p.reviewDurationDays;
-    });
+    if (!isSignedIn) return;
 
-    setDueProblems(due);
-  }, [problems]);
+    const fetchDueProblems = async () => {
+      try {
+        const token = await getToken();
+        const response = await fetch(`${apiBase}/api/tracker`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+
+        if (data.success && data.problems) {
+          const now = Date.now();
+          const due = data.problems.filter((p: TrackedProblem) => {
+            if (!p.reviewDurationDays) return false;
+            const lastAttempt = new Date(p.lastAttemptedDate).getTime();
+            const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+            return diffDays >= p.reviewDurationDays;
+          });
+          setDueProblems(due);
+        }
+      } catch (err) {
+        console.error("Failed to fetch due problems:", err);
+      }
+    };
+
+    fetchDueProblems();
+  }, [isSignedIn, getToken, apiBase]);
 
   const handleDismissCard = (id: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== id));
@@ -169,7 +189,7 @@ export default function ReviewDuePopup({ problems, onRevisited }: ReviewDuePopup
 
   const handleRevisitDone = (problemId: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== problemId));
-    onRevisited();
+    if (onRevisited) onRevisited();
   };
 
   if (dueProblems.length === 0 || isModalDismissed) return null;

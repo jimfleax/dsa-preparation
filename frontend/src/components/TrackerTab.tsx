@@ -32,7 +32,6 @@ import UntrackedProblemsModal from "./UntrackedProblemsModal";
 import SmartRevisitModal, {
   selectSmartRevisitProblem,
 } from "./SmartRevisitModal";
-import ReviewDuePopup from "./ReviewDuePopup";
 import ScheduleReviewModal from "./ScheduleReviewModal";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import Tooltip from "./Tooltip";
@@ -809,8 +808,6 @@ export default function ProblemsTab({
           </div>
         </>
       )}
-
-      <ReviewDuePopup problems={problems} onRevisited={fetchProblems} />
     </div>
   );
 }
