@@ -9,11 +9,9 @@ interface ReviewDuePopupProps {
 
 export function ReviewActionCard({ 
   problem, 
-  onDismiss, 
   onRevisited 
 }: { 
   problem: TrackedProblem; 
-  onDismiss: (id: string) => void; 
   onRevisited: (id: string) => void; 
 }) {
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
@@ -51,21 +49,7 @@ export function ReviewActionCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl border border-indigo-100 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div className="flex items-center justify-between px-4 py-3 bg-indigo-50 border-b border-indigo-100">
-        <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm">
-          <CalendarClock className="w-4 h-4" />
-          <span>Review Due Today</span>
-        </div>
-        {onDismiss && (
-          <button
-            onClick={() => onDismiss(problem._id)}
-            className="p-1 hover:bg-indigo-100 rounded-lg text-indigo-400 hover:text-indigo-600 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
       <div className="p-4 space-y-4">
         <div>
           <a
@@ -183,10 +167,6 @@ export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
     fetchDueProblems();
   }, [isSignedIn, getToken, apiBase]);
 
-  const handleDismissCard = (id: string) => {
-    setDueProblems((prev) => prev.filter((p) => p._id !== id));
-  };
-
   const handleRevisitDone = (problemId: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== problemId));
     if (onRevisited) onRevisited();
@@ -219,7 +199,6 @@ export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
             <ReviewActionCard
               key={problem._id}
               problem={problem}
-              onDismiss={handleDismissCard}
               onRevisited={handleRevisitDone}
             />
           ))}
