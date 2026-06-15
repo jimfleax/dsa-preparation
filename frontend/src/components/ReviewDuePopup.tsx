@@ -167,6 +167,12 @@ export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
     fetchDueProblems();
   }, [isSignedIn, getToken, apiBase]);
 
+  useEffect(() => {
+    const handleOpen = () => setIsModalDismissed(false);
+    window.addEventListener('openReviewModal', handleOpen);
+    return () => window.removeEventListener('openReviewModal', handleOpen);
+  }, []);
+
   const handleRevisitDone = (problemId: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== problemId));
     if (onRevisited) onRevisited();

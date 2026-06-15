@@ -25,6 +25,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
     total: number;
   } | null>(null);
   const [greeting, setGreeting] = useState<string>("Hello");
+  const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const { getToken } = useAuth();
 
   const apiBase =
@@ -64,6 +65,15 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
           trackerData.problems.forEach((p: any) => {
             if (p.titleSlug) solvedSlugs.add(p.titleSlug);
           });
+
+          const now = Date.now();
+          const due = trackerData.problems.filter((p: any) => {
+            if (!p.reviewDurationDays) return false;
+            const lastAttempt = new Date(p.lastAttemptedDate).getTime();
+            const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+            return diffDays >= p.reviewDurationDays;
+          });
+          setDueProblems(due);
         }
 
         if (tracksData.success) {
@@ -112,6 +122,27 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         >
           {greeting}
         </h1>
+
+        {dueProblems.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('openReviewModal'))}
+              className="flex flex-col items-start px-4 py-2.5 bg-white border border-rose-200 hover:border-rose-300 hover:shadow-md rounded-xl transition-all text-left max-w-sm"
+            >
+              <div className="flex items-center gap-1.5 text-rose-600 mb-1">
+                <CalendarClock className="w-3 h-3" />
+                <span className="text-[10px] font-bold uppercase tracking-wide">
+                  Scheduled for review today
+                </span>
+              </div>
+              <span className="text-sm font-semibold text-neutral-800 line-clamp-1 w-full">
+                {dueProblems.length === 1 
+                  ? dueProblems[0].title 
+                  : "You have multiple problems to review"}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Sleek Metrics Section */}
