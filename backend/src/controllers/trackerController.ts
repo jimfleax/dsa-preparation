@@ -10,11 +10,13 @@ import { z } from "zod";
 
 const addProblemSchema = z.object({
   url: z.string().url("A valid LeetCode URL is required."),
+  reviewDurationDays: z.number().int().min(1).optional().nullable(),
 });
 
 const updateProblemSchema = z.object({
   url: z.string().url("A valid URL is required.").optional(),
   attemptCount: z.coerce.number().int().min(1, "Attempt count must be at least 1.").optional(),
+  reviewDurationDays: z.number().int().min(1).optional().nullable(),
 });
 
 /**
@@ -143,7 +145,7 @@ export const addProblem = async (req: Request, res: Response) => {
     if (!parseResult.success) {
       return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
     }
-    const { url } = parseResult.data;
+    const { url, reviewDurationDays } = parseResult.data;
 
     const titleSlug = extractTitleSlug(url.trim());
     if (!titleSlug) {
@@ -197,6 +199,7 @@ export const addProblem = async (req: Request, res: Response) => {
       difficulty: difficulty as "Easy" | "Medium" | "Hard" | undefined,
       attemptCount: 1,
       lastAttemptedDate: new Date(),
+      ...(reviewDurationDays ? { reviewDurationDays } : {}),
     });
 
     res.status(201).json({ success: true, problem });
@@ -246,7 +249,7 @@ export const revisitProblem = async (req: Request, res: Response) => {
         .json({ success: false, error: "Problem not found." });
     }
 
-    const { timestamp } = req.body || {};
+    const { timestamp, reviewDurationDays } = req.body || {};
 
     problem.attemptCount += 1;
     if (timestamp) {
@@ -254,6 +257,15 @@ export const revisitProblem = async (req: Request, res: Response) => {
     } else {
       problem.lastAttemptedDate = new Date();
     }
+    
+    if (reviewDurationDays !== undefined) {
+      if (reviewDurationDays === null) {
+        problem.reviewDurationDays = undefined; // Unset
+      } else {
+        problem.reviewDurationDays = reviewDurationDays;
+      }
+    }
+    
     await problem.save();
 
     res.json({ success: true, problem });
@@ -284,7 +296,7 @@ export const updateProblem = async (req: Request, res: Response) => {
     if (!parseResult.success) {
       return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
     }
-    const { url, attemptCount } = parseResult.data;
+    const { url, attemptCount, reviewDurationDays } = parseResult.data;
 
     const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {
@@ -295,6 +307,14 @@ export const updateProblem = async (req: Request, res: Response) => {
 
     if (attemptCount !== undefined) {
       problem.attemptCount = attemptCount;
+    }
+
+    if (reviewDurationDays !== undefined) {
+      if (reviewDurationDays === null) {
+        problem.reviewDurationDays = undefined;
+      } else {
+        problem.reviewDurationDays = reviewDurationDays;
+      }
     }
 
     if (url && typeof url === "string" && url.trim() !== problem.url) {

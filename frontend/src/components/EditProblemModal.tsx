@@ -27,6 +27,7 @@ export default function EditProblemModal({
 }: EditProblemModalProps) {
   const [url, setUrl] = useState<string>("");
   const [attemptCount, setAttemptCount] = useState<number>(1);
+  const [reviewDuration, setReviewDuration] = useState<string>("");
   const [titlePreview, setTitlePreview] = useState<string>("");
   const [difficultyPreview, setDifficultyPreview] = useState<string>("");
   const [fetchingTitle, setFetchingTitle] = useState<boolean>(false);
@@ -45,6 +46,7 @@ export default function EditProblemModal({
     if (problem && isOpen) {
       setUrl(problem.url);
       setAttemptCount(problem.attemptCount);
+      setReviewDuration(problem.reviewDurationDays ? String(problem.reviewDurationDays) : "");
       setTitlePreview(problem.title);
       setDifficultyPreview(problem.difficulty || "");
       setError(null);
@@ -128,7 +130,11 @@ export default function EditProblemModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ url: url.trim(), attemptCount }),
+        body: JSON.stringify({ 
+          url: url.trim(), 
+          attemptCount,
+          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null
+        }),
       });
       const data = await response.json();
 
@@ -290,6 +296,27 @@ export default function EditProblemModal({
                   className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-neutral-600">
+                Mark for Review (Optional)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 7"
+                  value={reviewDuration}
+                  onChange={(e) => setReviewDuration(e.target.value)}
+                  disabled={saving || deleting}
+                  className="w-24 px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+                <span className="text-sm text-neutral-500 font-medium">days</span>
+              </div>
+              <p className="text-[10px] text-neutral-400">
+                Leave empty if you don't want to schedule a review.
+              </p>
             </div>
 
             {error && (

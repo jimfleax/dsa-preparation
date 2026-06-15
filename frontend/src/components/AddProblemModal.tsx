@@ -18,6 +18,7 @@ export default function AddProblemModal({
   const [titlePreview, setTitlePreview] = useState<string>("");
   const [difficultyPreview, setDifficultyPreview] = useState<string>("");
   const [fetchingTitle, setFetchingTitle] = useState<boolean>(false);
+  const [reviewDuration, setReviewDuration] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
@@ -109,7 +110,10 @@ export default function AddProblemModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ 
+          url: url.trim(),
+          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null
+        }),
       });
       const data = await response.json();
 
@@ -122,6 +126,7 @@ export default function AddProblemModal({
       setUrl("");
       setTitlePreview("");
       setDifficultyPreview("");
+      setReviewDuration("");
       onAdded();
 
       // Auto-close after short delay to show success state
@@ -140,6 +145,7 @@ export default function AddProblemModal({
     setUrl("");
     setTitlePreview("");
     setDifficultyPreview("");
+    setReviewDuration("");
     setError(null);
     setSuccess(false);
     onClose();
@@ -248,6 +254,32 @@ export default function AddProblemModal({
               <p className="text-[10px] text-neutral-400">
                 Title is fetched from LeetCode in real-time as you enter the
                 URL.
+              </p>
+            </div>
+
+            {/* Review Duration Input */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="review-duration-input"
+                className="text-xs font-semibold text-neutral-600"
+              >
+                Mark for Review (Optional)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="review-duration-input"
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 7"
+                  value={reviewDuration}
+                  onChange={(e) => setReviewDuration(e.target.value)}
+                  disabled={saving}
+                  className="w-24 px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+                <span className="text-sm text-neutral-500 font-medium">days</span>
+              </div>
+              <p className="text-[10px] text-neutral-400">
+                Leave empty if you don't want to schedule a review.
               </p>
             </div>
 
