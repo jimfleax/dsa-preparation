@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { X, CalendarClock, RotateCcw, Loader2, BookOpen } from "lucide-react";
 import { TrackedProblem } from "../types";
 
 interface ReviewDuePopupProps {
   onRevisited?: () => void;
+  refreshKey?: number;
 }
 
 export function ReviewActionCard({ 
@@ -130,7 +131,7 @@ export function ReviewActionCard({
   );
 }
 
-export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
+export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
   const { getToken, isSignedIn } = useAuth();
@@ -138,40 +139,42 @@ export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
 
-  useEffect(() => {
+  const fetchDueProblems = useCallback(async () => {
     if (!isSignedIn) return;
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/tracker`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
 
-    const fetchDueProblems = async () => {
-      try {
-        const token = await getToken();
-        const response = await fetch(`${apiBase}/api/tracker`, {
-          headers: { Authorization: `Bearer ${token}` },
+      if (data.success && data.problems) {
+        const now = Date.now();
+        const due = data.problems.filter((p: TrackedProblem) => {
+          if (!p.reviewDurationDays) return false;
+          const lastAttempt = new Date(p.lastAttemptedDate).getTime();
+          const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+          return diffDays >= p.reviewDurationDays;
         });
-        const data = await response.json();
-
-        if (data.success && data.problems) {
-          const now = Date.now();
-          const due = data.problems.filter((p: TrackedProblem) => {
-            if (!p.reviewDurationDays) return false;
-            const lastAttempt = new Date(p.lastAttemptedDate).getTime();
-            const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
-            return diffDays >= p.reviewDurationDays;
-          });
-          setDueProblems(due);
-        }
-      } catch (err) {
-        console.error("Failed to fetch due problems:", err);
+        setDueProblems(due);
       }
-    };
-
-    fetchDueProblems();
+    } catch (err) {
+      console.error("Failed to fetch due problems:", err);
+    }
   }, [isSignedIn, getToken, apiBase]);
 
   useEffect(() => {
-    const handleOpen = () => setIsModalDismissed(false);
+    fetchDueProblems();
+  }, [fetchDueProblems, refreshKey]);
+
+  useEffect(() => {
+    const handleOpen = () => {
+      fetchDueProblems();
+      setIsModalDismissed(false);
+    };
     window.addEventListener('openReviewModal', handleOpen);
     return () => window.removeEventListener('openReviewModal', handleOpen);
-  }, []);
+  }, [fetchDueProblems]);
 
   const handleRevisitDone = (problemId: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== problemId));

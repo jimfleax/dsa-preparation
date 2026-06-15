@@ -665,7 +665,10 @@ export default function App() {
 
         {/* === SIGNED IN: Full App === */}
         <SignedIn>
-          <ReviewDuePopup onRevisited={() => setProblemsRefreshKey((k) => k + 1)} />
+          <ReviewDuePopup 
+            refreshKey={problemsRefreshKey}
+            onRevisited={() => setProblemsRefreshKey((k) => k + 1)} 
+          />
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             {/* === HOME TAB VIEW === */}
             {activeMainTab === "home" && (
@@ -685,6 +688,7 @@ export default function App() {
                 <HomeTab
                   totalDocuments={documents.length}
                   onNavigate={setActiveMainTab}
+                  refreshKey={problemsRefreshKey}
                 />
               </motion.div>
             )}

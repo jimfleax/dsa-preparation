@@ -16,9 +16,10 @@ import { CalendarClock, X } from "lucide-react";
 interface HomeTabProps {
   totalDocuments: number;
   onNavigate: (tab: "learn" | "tracker" | "tracks") => void;
+  refreshKey?: number;
 }
 
-export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
+export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: HomeTabProps) {
   const [totalSolved, setTotalSolved] = useState<number | null>(null);
   const [trackProgress, setTrackProgress] = useState<{
     completed: number;
@@ -110,7 +111,7 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
     };
 
     fetchStats();
-  }, [getToken, apiBase]);
+  }, [getToken, apiBase, refreshKey]);
 
   return (
     <div className="flex flex-col flex-1 min-h-[500px] pt-8">
