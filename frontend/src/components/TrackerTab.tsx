@@ -447,9 +447,6 @@ export default function ProblemsTab({
                         </span>
                       )
                     ) : null}
-                    <p className="text-[11px] text-neutral-400 font-mono mt-1">
-                      {problem.titleSlug}
-                    </p>
                   </div>
                   <span
                     className={`shrink-0 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
@@ -597,9 +594,6 @@ export default function ProblemsTab({
                           </div>
                         )
                       ) : null}
-                      <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
-                        {problem.titleSlug}
-                      </p>
                     </td>
 
                     {/* Difficulty Badge */}
