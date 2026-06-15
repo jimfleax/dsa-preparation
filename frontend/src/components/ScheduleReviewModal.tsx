@@ -76,6 +76,47 @@ export default function ScheduleReviewModal({
     }
   };
 
+  const handleRemove = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+
+    if (!problem) return;
+
+    setSaving(true);
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          url: problem.url,
+          attemptCount: problem.attemptCount,
+          reviewDurationDays: null
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.error || "Failed to remove review schedule.");
+        return;
+      }
+
+      setSuccess(true);
+      onUpdated();
+      setTimeout(() => {
+        handleClose();
+      }, 800);
+    } catch (err) {
+      setError("Network error. Could not reach the server.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleClose = () => {
     setError(null);
     setSuccess(false);
@@ -186,6 +227,20 @@ export default function ScheduleReviewModal({
               >
                 Cancel
               </button>
+              {problem.reviewDurationDays ? (
+                <button
+                  type="button"
+                  onClick={handleRemove}
+                  disabled={saving}
+                  className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  {saving ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    "Remove Review"
+                  )}
+                </button>
+              ) : null}
               <button
                 type="submit"
                 disabled={saving}
