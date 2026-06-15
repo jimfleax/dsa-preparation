@@ -19,4 +19,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           # The URL is updated to point to your new dsapreparation Space
-          git push https://jimfleax:$HF_TOKEN@huggingface.co/spaces/jimfleax/dsapreparation main
+          git push --force https://jimfleax:$HF_TOKEN@huggingface.co/spaces/jimfleax/dsapreparation main
