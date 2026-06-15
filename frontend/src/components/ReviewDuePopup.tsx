@@ -149,24 +149,12 @@ export function ReviewActionCard({
 
 export default function ReviewDuePopup({ problems, onRevisited }: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
-  const [revisitingId, setRevisitingId] = useState<string | null>(null);
-  const [keepReviewDuration, setKeepReviewDuration] = useState<{ [key: string]: string }>({});
-  const [showKeepReviewingId, setShowKeepReviewingId] = useState<string | null>(null);
-
-  const { getToken } = useAuth();
-  const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+  const [isModalDismissed, setIsModalDismissed] = useState(false);
 
   useEffect(() => {
-    // Only show problems that haven't been dismissed in the current session
-    const dismissedIds = JSON.parse(sessionStorage.getItem("dismissedReviews") || "[]");
-    
     const now = Date.now();
     const due = problems.filter((p) => {
       if (!p.reviewDurationDays) return false;
-      if (dismissedIds.includes(p._id)) return false;
-      
       const lastAttempt = new Date(p.lastAttemptedDate).getTime();
       const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
       return diffDays >= p.reviewDurationDays;
@@ -175,10 +163,7 @@ export default function ReviewDuePopup({ problems, onRevisited }: ReviewDuePopup
     setDueProblems(due);
   }, [problems]);
 
-  const handleDismiss = (id: string) => {
-    const dismissedIds = JSON.parse(sessionStorage.getItem("dismissedReviews") || "[]");
-    dismissedIds.push(id);
-    sessionStorage.setItem("dismissedReviews", JSON.stringify(dismissedIds));
+  const handleDismissCard = (id: string) => {
     setDueProblems((prev) => prev.filter((p) => p._id !== id));
   };
 
@@ -187,18 +172,39 @@ export default function ReviewDuePopup({ problems, onRevisited }: ReviewDuePopup
     onRevisited();
   };
 
-  if (dueProblems.length === 0) return null;
+  if (dueProblems.length === 0 || isModalDismissed) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4 w-full max-w-sm">
-      {dueProblems.map((problem) => (
-        <ReviewActionCard
-          key={problem._id}
-          problem={problem}
-          onDismiss={handleDismiss}
-          onRevisited={handleRevisitDone}
-        />
-      ))}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div 
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+        onClick={() => setIsModalDismissed(true)}
+      />
+      <div className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4 no-scrollbar">
+        <div className="flex justify-between items-center bg-white p-3 rounded-2xl shadow-xl border border-neutral-100 sticky top-0 z-20">
+           <span className="text-sm font-bold text-neutral-800 px-2 flex items-center gap-2">
+             <CalendarClock className="w-4 h-4 text-indigo-600" />
+             {dueProblems.length} problem{dueProblems.length > 1 ? "s" : ""} due for review
+           </span>
+           <button 
+             onClick={() => setIsModalDismissed(true)} 
+             className="p-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-700 rounded-xl transition-colors cursor-pointer"
+           >
+             <X className="w-4 h-4"/>
+           </button>
+        </div>
+
+        <div className="space-y-4">
+          {dueProblems.map((problem) => (
+            <ReviewActionCard
+              key={problem._id}
+              problem={problem}
+              onDismiss={handleDismissCard}
+              onRevisited={handleRevisitDone}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
