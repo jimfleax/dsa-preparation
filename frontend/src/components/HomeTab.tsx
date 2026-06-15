@@ -67,11 +67,17 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
             if (p.titleSlug) solvedSlugs.add(p.titleSlug);
           });
 
-          const now = Date.now();
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
           const due = trackerData.problems.filter((p: any) => {
             if (!p.reviewDurationDays) return false;
-            const lastAttempt = new Date(p.lastAttemptedDate).getTime();
-            const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+            const lastAttempt = new Date(p.lastAttemptedDate);
+            lastAttempt.setHours(0, 0, 0, 0);
+
+            const diffTime = today.getTime() - lastAttempt.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
             return diffDays >= p.reviewDurationDays;
           });
           setDueProblems(due);

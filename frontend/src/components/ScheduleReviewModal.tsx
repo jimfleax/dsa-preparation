@@ -168,15 +168,19 @@ export default function ScheduleReviewModal({
                 <span className="leading-relaxed">
                   This problem is currently scheduled for review on{" "}
                   <strong>
-                    {new Date(
-                      new Date(problem.lastAttemptedDate).getTime() +
-                        problem.reviewDurationDays * 24 * 60 * 60 * 1000
-                    ).toLocaleDateString(undefined, {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {(() => {
+                      const lastAttempt = new Date(problem.lastAttemptedDate);
+                      lastAttempt.setHours(0, 0, 0, 0);
+                      const scheduledDate = new Date(
+                        lastAttempt.getTime() + problem.reviewDurationDays * 24 * 60 * 60 * 1000
+                      );
+                      return scheduledDate.toLocaleDateString(undefined, {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+                    })()}
                   </strong>.
                   <br />
                   <span className="text-indigo-600 opacity-90">Changing the duration below will overwrite the current schedule.</span>

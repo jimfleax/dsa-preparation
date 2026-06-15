@@ -149,11 +149,16 @@ export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePop
       const data = await response.json();
 
       if (data.success && data.problems) {
-        const now = Date.now();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const due = data.problems.filter((p: TrackedProblem) => {
           if (!p.reviewDurationDays) return false;
-          const lastAttempt = new Date(p.lastAttemptedDate).getTime();
-          const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+          const lastAttempt = new Date(p.lastAttemptedDate);
+          lastAttempt.setHours(0, 0, 0, 0);
+
+          const diffTime = today.getTime() - lastAttempt.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
           return diffDays >= p.reviewDurationDays;
         });
         setDueProblems(due);
