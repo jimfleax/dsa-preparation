@@ -49,7 +49,7 @@ export function ReviewActionCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div className="bg-neutral-50/50 rounded-xl border border-neutral-200 overflow-hidden animate-in slide-in-from-bottom-2 fade-in duration-300">
       <div className="p-4 space-y-4">
         <div>
           <a
@@ -180,21 +180,21 @@ export default function ReviewDuePopup({ onRevisited }: ReviewDuePopupProps) {
         className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
         onClick={() => setIsModalDismissed(true)}
       />
-      <div className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4 no-scrollbar">
-        <div className="flex justify-between items-center bg-white p-3 rounded-2xl shadow-xl border border-neutral-100 sticky top-0 z-20">
-           <span className="text-sm font-bold text-neutral-800 px-2 flex items-center gap-2">
-             <CalendarClock className="w-4 h-4 text-indigo-600" />
+      <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 fade-in duration-200">
+        <div className="flex justify-between items-center bg-indigo-50 border-b border-indigo-100 px-4 py-3 shrink-0">
+           <span className="text-sm font-bold text-indigo-700 flex items-center gap-2">
+             <CalendarClock className="w-4 h-4" />
              {dueProblems.length} problem{dueProblems.length > 1 ? "s" : ""} due for review
            </span>
            <button 
              onClick={() => setIsModalDismissed(true)} 
-             className="p-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-700 rounded-xl transition-colors cursor-pointer"
+             className="p-1.5 bg-indigo-100/50 hover:bg-indigo-200/50 text-indigo-600 hover:text-indigo-800 rounded-lg transition-colors cursor-pointer"
            >
              <X className="w-4 h-4"/>
            </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="overflow-y-auto p-4 space-y-3 no-scrollbar">
           {dueProblems.map((problem) => (
             <ReviewActionCard
               key={problem._id}
