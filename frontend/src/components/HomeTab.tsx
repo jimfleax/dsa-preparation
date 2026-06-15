@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { TrackedProblem } from "../types";
+import { ReviewActionCard } from "./ReviewDuePopup";
+import { CalendarClock, X } from "lucide-react";
 
 interface HomeTabProps {
   totalDocuments: number;
@@ -23,6 +26,8 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
     total: number;
   } | null>(null);
   const [greeting, setGreeting] = useState<string>("Hello");
+  const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
+  const [selectedDueProblem, setSelectedDueProblem] = useState<TrackedProblem | null>(null);
   const { getToken } = useAuth();
 
   const apiBase =
@@ -62,6 +67,15 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
           trackerData.problems.forEach((p: any) => {
             if (p.titleSlug) solvedSlugs.add(p.titleSlug);
           });
+
+          const now = Date.now();
+          const due = trackerData.problems.filter((p: any) => {
+            if (!p.reviewDurationDays) return false;
+            const lastAttempt = new Date(p.lastAttemptedDate).getTime();
+            const diffDays = (now - lastAttempt) / (1000 * 60 * 60 * 24);
+            return diffDays >= p.reviewDurationDays;
+          });
+          setDueProblems(due);
         }
 
         if (tracksData.success) {
@@ -110,7 +124,48 @@ export default function HomeTab({ totalDocuments, onNavigate }: HomeTabProps) {
         >
           {greeting}
         </h1>
+
+        {dueProblems.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {dueProblems.map((problem) => (
+              <button
+                key={problem._id}
+                onClick={() => setSelectedDueProblem(problem)}
+                className="flex flex-col items-start px-4 py-2.5 bg-white border border-rose-200 hover:border-rose-300 hover:shadow-md rounded-xl transition-all text-left max-w-[240px]"
+              >
+                <div className="flex items-center gap-1.5 text-rose-600 mb-1">
+                  <CalendarClock className="w-3 h-3" />
+                  <span className="text-[10px] font-bold uppercase tracking-wide">
+                    Scheduled for review today
+                  </span>
+                </div>
+                <span className="text-sm font-semibold text-neutral-800 line-clamp-1 w-full">
+                  {problem.title}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {selectedDueProblem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setSelectedDueProblem(null)}
+          />
+          <div className="relative z-10 w-full max-w-sm">
+            <ReviewActionCard
+              problem={selectedDueProblem}
+              onDismiss={() => setSelectedDueProblem(null)}
+              onRevisited={(id) => {
+                setDueProblems((prev) => prev.filter((p) => p._id !== id));
+                setSelectedDueProblem(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Sleek Metrics Section */}
       <div className="mt-8 md:mt-12 w-full flex justify-end">
