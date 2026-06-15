@@ -15,6 +15,7 @@ import {
   EyeOff,
   Plus,
   Sparkles,
+  CalendarPlus,
 } from "lucide-react";
 import {
   PieChart,
@@ -32,6 +33,7 @@ import SmartRevisitModal, {
   selectSmartRevisitProblem,
 } from "./SmartRevisitModal";
 import ReviewDuePopup from "./ReviewDuePopup";
+import ScheduleReviewModal from "./ScheduleReviewModal";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import Tooltip from "./Tooltip";
 
@@ -78,6 +80,8 @@ export default function ProblemsTab({
   const [isSmartRevisitOpen, setIsSmartRevisitOpen] = useState<boolean>(false);
   const [smartRevisitProblem, setSmartRevisitProblem] =
     useState<TrackedProblem | null>(null);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
+  const [schedulingProblem, setSchedulingProblem] = useState<TrackedProblem | null>(null);
 
   const { getToken } = useAuth();
   const apiBase =
@@ -502,6 +506,15 @@ export default function ProblemsTab({
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
+                    onClick={() => {
+                      setSchedulingProblem(problem);
+                      setIsScheduleModalOpen(true);
+                    }}
+                    className="px-3 py-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer"
+                  >
+                    <CalendarPlus className="w-3.5 h-3.5" />
+                  </button>
+                  <button
                     onClick={() => handleDelete(problem._id)}
                     disabled={deletingId === problem._id}
                     className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer disabled:opacity-50"
@@ -645,6 +658,16 @@ export default function ProblemsTab({
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
+                          onClick={() => {
+                            setSchedulingProblem(problem);
+                            setIsScheduleModalOpen(true);
+                          }}
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
+                          title="Schedule Review"
+                        >
+                          <CalendarPlus className="w-3.5 h-3.5" />
+                        </button>
+                        <button
                           onClick={() => setProblemToDelete(problem)}
                           disabled={deletingId === problem._id}
                           className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 active:scale-90 transition-all duration-200 cursor-pointer disabled:opacity-50"
@@ -685,6 +708,16 @@ export default function ProblemsTab({
         isOpen={isUntrackedModalOpen}
         onClose={() => setIsUntrackedModalOpen(false)}
         onTracked={fetchProblems}
+      />
+
+      <ScheduleReviewModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => {
+          setIsScheduleModalOpen(false);
+          setSchedulingProblem(null);
+        }}
+        onUpdated={fetchProblems}
+        problem={schedulingProblem}
       />
 
       <SmartRevisitModal
