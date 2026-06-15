@@ -329,16 +329,13 @@ export default function App() {
         e.preventDefault(); // Prevents default scrolling behavior
         setActiveMainTab("home");
       } else if (e.key === "/") {
-        e.preventDefault();
+        // Focus search input only within the current tab; do nothing if tab has no search bar
         if (activeMainTab === "learn") {
+          e.preventDefault();
           searchInputRef.current?.focus();
         } else if (activeMainTab === "tracker") {
+          e.preventDefault();
           document.getElementById("problems-search-input")?.focus();
-        } else {
-          // Switch to learn tab first if on home or tracks
-          setActiveMainTab("learn");
-          // Small delay to allow tab animation/rendering
-          setTimeout(() => searchInputRef.current?.focus(), 150);
         }
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         setActiveMainTab((current) => {
@@ -355,7 +352,7 @@ export default function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [tabs]);
+  }, [tabs, activeMainTab]);
 
   // Auto-ping every 5 seconds when unreachable
   useEffect(() => {
