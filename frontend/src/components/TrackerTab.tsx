@@ -435,12 +435,19 @@ export default function ProblemsTab({
                       <span className="line-clamp-2">{problem.title}</span>
                       <ExternalLink className="w-3 h-3 text-neutral-400 shrink-0" />
                     </a>
-                    {problem.reviewDurationDays && (Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= problem.reviewDurationDays && (
-                      <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100">
-                        <CalendarClock className="w-3 h-3" />
-                        Marked for review today
-                      </span>
-                    )}
+                    {problem.reviewDurationDays ? (
+                      (Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= problem.reviewDurationDays ? (
+                        <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100">
+                          <CalendarClock className="w-3 h-3" />
+                          Marked for review today
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+                          <CalendarClock className="w-3 h-3" />
+                          Review Scheduled
+                        </span>
+                      )
+                    ) : null}
                     <p className="text-[11px] text-neutral-400 font-mono mt-1">
                       {problem.titleSlug}
                     </p>
@@ -574,14 +581,23 @@ export default function ProblemsTab({
                         </span>
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
-                      {problem.reviewDurationDays && (Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= problem.reviewDurationDays && (
-                        <div className="mt-1 flex">
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wide">
-                            <CalendarClock className="w-2.5 h-2.5" />
-                            Review Today
-                          </span>
-                        </div>
-                      )}
+                      {problem.reviewDurationDays ? (
+                        (Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= problem.reviewDurationDays ? (
+                          <div className="mt-1 flex">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wide">
+                              <CalendarClock className="w-2.5 h-2.5" />
+                              Review Today
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="mt-1 flex">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wide">
+                              <CalendarClock className="w-2.5 h-2.5" />
+                              Review Scheduled
+                            </span>
+                          </div>
+                        )
+                      ) : null}
                       <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
                         {problem.titleSlug}
                       </p>

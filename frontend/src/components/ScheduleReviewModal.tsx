@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { X, CalendarPlus, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, CalendarPlus, CalendarClock, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
@@ -121,6 +121,28 @@ export default function ScheduleReviewModal({
           </div>
 
           <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto">
+            {problem.reviewDurationDays ? (
+              <div className="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-indigo-700 font-medium">
+                <CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  This problem is currently scheduled for review on{" "}
+                  <strong>
+                    {new Date(
+                      new Date(problem.lastAttemptedDate).getTime() +
+                        problem.reviewDurationDays * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString(undefined, {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </strong>.
+                  <br />
+                  <span className="text-indigo-600 opacity-90">Changing the duration below will overwrite the current schedule.</span>
+                </span>
+              </div>
+            ) : null}
+
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-neutral-600">
                 Remind me to review in (days)
