@@ -10,7 +10,8 @@ interface TrackCardProps {
   trackedProblems: Record<string, TrackedProblem>;
   onUpdate: () => void;
   activeTrackId?: string | null;
-  onTrackActive?: (trackId: string) => void;
+  activePartIndex?: number | null;
+  onTrackActive?: (trackId: string, partIndex?: number) => void;
   isActive?: boolean;
 }
 
@@ -19,18 +20,23 @@ export default function TrackCard({
   trackedProblems,
   onUpdate,
   activeTrackId,
+  activePartIndex,
   onTrackActive,
   isActive,
 }: TrackCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
+  const [selectedPartIndex, setSelectedPartIndex] = useState<number | null>(null);
   const [showAttemptModal, setShowAttemptModal] = useState(false);
 
   useEffect(() => {
     if (track._id === activeTrackId) {
       setExpanded(true);
+      if (activePartIndex !== undefined && activePartIndex !== null) {
+        setExpandedParts(prev => ({ ...prev, [activePartIndex]: true }));
+      }
     }
-  }, [activeTrackId, track._id]);
+  }, [activeTrackId, track._id, activePartIndex]);
 
   const allProblems = [
     ...(track.problems || []),
@@ -70,13 +76,14 @@ export default function TrackCard({
     setExpandedParts(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const handleProblemClick = (problem: any) => {
+  const handleProblemClick = (problem: any, partIndex?: number) => {
     setSelectedProblem(problem);
+    setSelectedPartIndex(partIndex ?? null);
     setShowAttemptModal(true);
     setExpanded(true);
   };
 
-  const renderProblem = (problem: TrackProblem, key: string | number) => {
+  const renderProblem = (problem: TrackProblem, key: string | number, partIndex?: number) => {
     const slug = extractTitleSlug(problem.url);
     const tracked = slug ? trackedProblems[slug] : undefined;
     const isSolved = !!tracked;
@@ -85,7 +92,7 @@ export default function TrackCard({
       <div
         key={key}
         className="p-4 hover:bg-neutral-50 flex items-center justify-between cursor-pointer group transition-colors"
-        onClick={() => handleProblemClick(problem)}
+        onClick={() => handleProblemClick(problem, partIndex)}
       >
         <div className="flex items-center gap-4">
           {isSolved ? (
@@ -241,7 +248,7 @@ export default function TrackCard({
                     </div>
                     <div className={`grid transition-all duration-300 ease-in-out ${isPartExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                       <div className="overflow-hidden bg-white divide-y divide-neutral-50">
-                        {part.problems.map((problem, idx) => renderProblem(problem, `part-${pIdx}-prob-${idx}`))}
+                        {part.problems.map((problem, idx) => renderProblem(problem, `part-${pIdx}-prob-${idx}`, pIdx))}
                       </div>
                     </div>
                   </div>
@@ -270,7 +277,7 @@ export default function TrackCard({
               : undefined
           }
           onUpdated={onUpdate}
-          onSolveClick={() => onTrackActive?.(track._id)}
+          onSolveClick={() => onTrackActive?.(track._id, selectedPartIndex ?? undefined)}
         />
       )}
     </div>

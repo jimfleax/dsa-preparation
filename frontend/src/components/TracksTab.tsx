@@ -24,10 +24,21 @@ export default function TracksTab() {
   const [activeTrackId, setActiveTrackId] = useState<string | null>(
     localStorage.getItem("activeTrackId")
   );
+  const [activePartIndex, setActivePartIndex] = useState<number | null>(
+    localStorage.getItem("activePartIndex") ? parseInt(localStorage.getItem("activePartIndex")!) : null
+  );
   const { getToken } = useAuth();
 
-  const handleTrackActive = (id: string) => {
+  const handleTrackActive = (id: string, partIndex?: number) => {
     localStorage.setItem("activeTrackId", id);
+    setActiveTrackId(id);
+    if (partIndex !== undefined) {
+      localStorage.setItem("activePartIndex", partIndex.toString());
+      setActivePartIndex(partIndex);
+    } else {
+      localStorage.removeItem("activePartIndex");
+      setActivePartIndex(null);
+    }
   };
 
   const apiBase =
@@ -72,6 +83,11 @@ export default function TracksTab() {
       const savedActiveId = localStorage.getItem("activeTrackId");
       if (savedActiveId !== activeTrackId) {
         setActiveTrackId(savedActiveId);
+      }
+      const savedActivePartIndexStr = localStorage.getItem("activePartIndex");
+      const savedActivePartIndex = savedActivePartIndexStr ? parseInt(savedActivePartIndexStr) : null;
+      if (savedActivePartIndex !== activePartIndex) {
+        setActivePartIndex(savedActivePartIndex);
       }
     } catch (err) {
       console.error("Error fetching tracks", err);
@@ -270,6 +286,7 @@ export default function TracksTab() {
             track={track}
             isActive={track._id === activeTrackId}
             activeTrackId={activeTrackId}
+            activePartIndex={activePartIndex}
             onTrackActive={handleTrackActive}
             trackedProblems={trackedProblems}
             onUpdate={fetchTracksAndProgress}
@@ -320,6 +337,7 @@ export default function TracksTab() {
                     key={track._id}
                     track={track}
                     activeTrackId={activeTrackId}
+                    activePartIndex={activePartIndex}
                     onTrackActive={handleTrackActive}
                     trackedProblems={trackedProblems}
                     onUpdate={fetchTracksAndProgress}
