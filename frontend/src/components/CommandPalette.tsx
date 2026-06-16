@@ -310,7 +310,7 @@ export default function CommandPalette({
                 placeholder="Search problems, articles, or commands..."
                 className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-sm"
               />
-              <div className="flex items-center shrink-0 ml-2 select-none">
+              <div className="flex items-center shrink-0 ml-2 select-none opacity-80 hover:opacity-100 transition-opacity duration-200">
                 <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-1.5 py-0.5 rounded text-[8px] font-mono text-neutral-500 font-semibold shadow-xs leading-none">ESC</kbd>
               </div>
             </div>
@@ -426,7 +426,7 @@ export default function CommandPalette({
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-0.5 shrink-0 ml-2 select-none">
+                          <div className="flex items-center gap-0.5 shrink-0 ml-2 select-none opacity-80 hover:opacity-100 group-hover:opacity-100 transition-opacity duration-200">
                             <kbd className="bg-neutral-100/90 border border-neutral-200/60 px-1.5 py-0.5 rounded text-[8px] font-mono text-neutral-500 font-semibold shadow-xs leading-none uppercase">
                               {altKeyLabel}
                             </kbd>

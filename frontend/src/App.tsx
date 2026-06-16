@@ -622,7 +622,7 @@ export default function App() {
               <Tooltip content="use this keyboard shortcut to open control panel">
                 <button
                   onClick={togglePalette}
-                  className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all cursor-pointer active:scale-95 select-none p-1 rounded-xl"
+                  className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all duration-200 cursor-pointer active:scale-95 select-none p-1 rounded-xl opacity-80 hover:opacity-100"
                 >
                   {isMac ? (
                     <>
