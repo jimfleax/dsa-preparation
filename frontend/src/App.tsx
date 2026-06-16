@@ -14,7 +14,6 @@ import {
   RefreshCcw,
   Code2,
   LogIn,
-  Settings,
   Map,
   Home,
   Loader2,
@@ -37,6 +36,7 @@ import CommandPalette from "./components/CommandPalette";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 
 export default function App() {
+  const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [collectionFilter, setCollectionFilter] = useState<
@@ -617,14 +617,24 @@ export default function App() {
                 </Tooltip>
               )}
 
-              {/* Settings button */}
-              <Tooltip content="User Settings">
+              {/* Keyboard Shortcut to open command palette */}
+              <Tooltip content="use this keyboard shortcut to open control panel">
                 <button
-                  id="settings-btn"
-                  onClick={() => setShowSettingsModal(true)}
-                  className="p-2 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-colors cursor-pointer active:scale-95"
+                  onClick={togglePalette}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-50 hover:bg-indigo-50/50 border border-neutral-200/80 hover:border-indigo-200/80 rounded-xl text-neutral-400 hover:text-indigo-600 transition-all shadow-sm cursor-pointer active:scale-95 text-[10px] font-bold tracking-wide"
                 >
-                  <Settings className="w-3.5 h-3.5" />
+                  {isMac ? (
+                    <>
+                      <kbd className="font-sans font-semibold">⌘</kbd>
+                      <kbd className="font-sans font-semibold">K</kbd>
+                    </>
+                  ) : (
+                    <>
+                      <kbd className="font-sans font-semibold">Ctrl</kbd>
+                      <span className="text-neutral-300 font-normal">+</span>
+                      <kbd className="font-sans font-semibold">K</kbd>
+                    </>
+                  )}
                 </button>
               </Tooltip>
 
