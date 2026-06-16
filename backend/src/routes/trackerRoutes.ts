@@ -7,6 +7,7 @@ import {
   deleteProblem,
   updateProblem,
   toggleTrackProblem,
+  updateNotes,
 } from "../controllers/trackerController.ts";
 
 const router = Router();
@@ -31,5 +32,8 @@ router.put("/:id", updateProblem);
 
 // DELETE /api/tracker/:id — Remove a problem
 router.delete("/:id", deleteProblem);
+
+// PATCH /api/tracker/:id/notes — Update notes for a problem
+router.patch("/:id/notes", updateNotes);
 
 export default router;

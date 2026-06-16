@@ -19,6 +19,7 @@ export interface ITrackedProblem extends Document {
   lastAttemptedDate: Date;
   reviewDurationDays?: number;
   notrack: boolean;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +66,11 @@ const TrackedProblemSchema = new Schema<ITrackedProblem>(
     notrack: {
       type: Boolean,
       default: false,
+    },
+    notes: {
+      type: String,
+      required: false,
+      maxlength: [2000, "Notes cannot exceed 2000 characters"],
     },
   },
   { timestamps: true },

@@ -16,6 +16,7 @@ import {
   Plus,
   Sparkles,
   CalendarPlus,
+  StickyNote,
 } from "lucide-react";
 import {
   PieChart,
@@ -33,6 +34,7 @@ import SmartRevisitModal, {
   selectSmartRevisitProblem,
 } from "./SmartRevisitModal";
 import ScheduleReviewModal from "./ScheduleReviewModal";
+import NoteModal from "./NoteModal";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import Tooltip from "./Tooltip";
 
@@ -81,6 +83,8 @@ export default function ProblemsTab({
     useState<TrackedProblem | null>(null);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
   const [schedulingProblem, setSchedulingProblem] = useState<TrackedProblem | null>(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
+  const [noteProblem, setNoteProblem] = useState<TrackedProblem | null>(null);
 
   const { getToken } = useAuth();
   const apiBase =
@@ -432,6 +436,9 @@ export default function ProblemsTab({
                       className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors inline-flex items-center gap-1.5"
                     >
                       <span className="line-clamp-2">{problem.title}</span>
+                      {problem.notes && (
+                        <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+                      )}
                       <ExternalLink className="w-3 h-3 text-neutral-400 shrink-0" />
                     </a>
                     {problem.reviewDurationDays ? (
@@ -510,6 +517,19 @@ export default function ProblemsTab({
                   </button>
                   <button
                     onClick={() => {
+                      setNoteProblem(problem);
+                      setIsNoteModalOpen(true);
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer ${
+                      problem.notes
+                        ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
+                        : "text-neutral-400 bg-neutral-50 hover:text-amber-600 hover:bg-amber-50"
+                    }`}
+                  >
+                    <StickyNote className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
                       setSchedulingProblem(problem);
                       setIsScheduleModalOpen(true);
                     }}
@@ -575,6 +595,9 @@ export default function ProblemsTab({
                         <span className="truncate max-w-[300px]">
                           {problem.title}
                         </span>
+                        {problem.notes && (
+                          <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+                        )}
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
                       {problem.reviewDurationDays ? (
@@ -668,6 +691,20 @@ export default function ProblemsTab({
                         </button>
                         <button
                           onClick={() => {
+                            setNoteProblem(problem);
+                            setIsNoteModalOpen(true);
+                          }}
+                          className={`p-1.5 rounded-lg active:scale-90 transition-all duration-200 cursor-pointer ${
+                            problem.notes
+                              ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
+                              : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
+                          }`}
+                          title={problem.notes ? "View/Edit Note" : "Add Note"}
+                        >
+                          <StickyNote className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
                             setSchedulingProblem(problem);
                             setIsScheduleModalOpen(true);
                           }}
@@ -737,6 +774,16 @@ export default function ProblemsTab({
         }}
         problem={smartRevisitProblem}
         onRevisited={fetchProblems}
+      />
+
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => {
+          setIsNoteModalOpen(false);
+          setNoteProblem(null);
+        }}
+        onUpdated={fetchProblems}
+        problem={noteProblem}
       />
 
       {/* Delete Confirmation Modal */}

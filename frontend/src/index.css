@@ -127,3 +127,28 @@
   font-style: italic;
   margin-bottom: 1rem;
 }
+
+/* Sleek note editor with smooth caret */
+.note-editor {
+  caret-color: #6366f1;
+  transition: caret-color 0.3s ease;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  resize: vertical;
+}
+
+.note-editor:focus {
+  caret-color: #818cf8;
+  animation: caret-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes caret-pulse {
+  0%, 100% { caret-color: #6366f1; }
+  50% { caret-color: #a5b4fc; }
+}
+
+/* Character count styling */
+.note-char-count {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease;
+}

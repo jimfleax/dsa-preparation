@@ -19,6 +19,10 @@ const updateProblemSchema = z.object({
   reviewDurationDays: z.number().int().min(1).optional().nullable(),
 });
 
+const updateNotesSchema = z.object({
+  notes: z.string().max(2000, "Notes cannot exceed 2000 characters").nullable(),
+});
+
 /**
  * POST /api/problems/scrape-title
  * Public endpoint to scrape a LeetCode problem title (no auth required).
@@ -462,6 +466,51 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error toggling track status:", error);
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * PATCH /api/problems/:id/notes
+ * Updates the notes for a tracked problem. Set to null to remove.
+ */
+export const updateNotes = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Invalid ID format." });
+    }
+
+    const parseResult = updateNotesSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
+    }
+    const { notes } = parseResult.data;
+
+    const problem = await TrackedProblem.findOne({ _id: id, userId });
+    if (!problem) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Problem not found." });
+    }
+
+    if (notes === null) {
+      problem.notes = undefined;
+    } else {
+      problem.notes = notes;
+    }
+
+    await problem.save();
+
+    res.json({ success: true, problem });
+  } catch (error: unknown) {
+    console.error("Error updating notes:", error);
     const message = error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }

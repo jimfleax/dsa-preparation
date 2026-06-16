@@ -25,6 +25,7 @@ export interface TrackedProblem {
   lastAttemptedDate: string;
   reviewDurationDays?: number;
   notrack?: boolean;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }

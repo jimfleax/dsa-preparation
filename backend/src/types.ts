@@ -24,6 +24,7 @@ export interface TrackedProblem {
   attemptCount: number;
   lastAttemptedDate: string;
   notrack?: boolean;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
