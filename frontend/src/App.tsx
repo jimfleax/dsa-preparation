@@ -683,21 +683,20 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Workspace Frame container */}
-      <main
-        id="dsa-main-content-layout"
-        role="main"
-        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 overflow-x-hidden relative"
-      >
-        {/* === SIGNED OUT: Landing Prompt === */}
-        <SignedOut>
-          <div className="flex-1 -mx-4 sm:-mx-6 lg:-mx-8 -my-8">
-            <LandingPage onSignIn={() => setShowLoginModal(true)} />
-          </div>
-        </SignedOut>
+      {/* === SIGNED OUT: Landing Page === */}
+      <SignedOut>
+        <main className="flex-1 w-full flex flex-col overflow-x-hidden">
+          <LandingPage onSignIn={() => setShowLoginModal(true)} />
+        </main>
+      </SignedOut>
 
-        {/* === SIGNED IN: Full App === */}
-        <SignedIn>
+      {/* Main Workspace Frame container */}
+      <SignedIn>
+        <main
+          id="dsa-main-content-layout"
+          role="main"
+          className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 overflow-x-hidden relative"
+        >
           <ReviewDuePopup 
             refreshKey={problemsRefreshKey}
             onRevisited={() => setProblemsRefreshKey((k) => k + 1)} 
@@ -929,11 +928,12 @@ export default function App() {
             )}
             {/* End Learn Tab conditional */}
           </AnimatePresence>
-        </SignedIn>
-      </main>
+        </main>
+      </SignedIn>
 
       {/* Footer Info Hub */}
-      <footer
+      <SignedIn>
+        <footer
         id="dsa-footer"
         role="contentinfo"
         className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400"
@@ -991,6 +991,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </SignedIn>
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
