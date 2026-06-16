@@ -479,9 +479,9 @@ export default function App() {
           <div id="navbar-logo-sec" className="flex items-center gap-3">
             <div
               id="logo-icon-box"
-              className="p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center"
+              className="p-1.5 sm:p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center"
             >
-              <GraduationCap className="w-5 h-5" />
+              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="hidden sm:block">
               <h1
@@ -499,7 +499,7 @@ export default function App() {
               <div
                 id="main-tab-selector"
                 role="tablist"
-                className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1"
+                className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 hidden sm:flex gap-1"
               >
                 <Tooltip content="Home Dashboard" shortcut="Home">
                   <button
@@ -622,12 +622,12 @@ export default function App() {
                 </Tooltip>
               )}
 
-              {/* Keyboard Shortcut to open command palette */}
-              <Tooltip content="use this keyboard shortcut to open control panel">
-                <button
-                  onClick={togglePalette}
-                  className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all duration-200 cursor-pointer active:scale-95 select-none p-1 rounded-xl opacity-80 hover:opacity-100"
-                >
+              <div className="hidden sm:block">
+                <Tooltip content="use this keyboard shortcut to open control panel">
+                  <button
+                    onClick={togglePalette}
+                    className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all duration-200 cursor-pointer active:scale-95 select-none p-1 rounded-xl opacity-80 hover:opacity-100"
+                  >
                   {isMac ? (
                     <>
                       <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">⌘</kbd>
@@ -641,11 +641,12 @@ export default function App() {
                   )}
                 </button>
               </Tooltip>
+              </div>
 
               {/* Native Logout / User Info */}
               <div className="relative group">
                 <button
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer"
+                  className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-xs sm:text-sm"
                   title="Account"
                 >
                   {user?.username?.charAt(0).toUpperCase() || "U"}
@@ -695,7 +696,7 @@ export default function App() {
         <main
           id="dsa-main-content-layout"
           role="main"
-          className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 overflow-x-hidden relative"
+          className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:py-8 flex flex-col gap-6 overflow-x-hidden relative"
         >
           <ReviewDuePopup 
             refreshKey={problemsRefreshKey}
@@ -931,12 +932,50 @@ export default function App() {
         </main>
       </SignedIn>
 
-      {/* Footer Info Hub */}
+      {/* === SIGNED IN: Bottom Navigation for Mobile === */}
+      <SignedIn>
+        <nav
+          className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe"
+        >
+          <div className="flex justify-around items-center px-2 py-2">
+            <button
+              onClick={() => setActiveMainTab("home")}
+              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "home" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-[10px] font-bold">Home</span>
+            </button>
+            <button
+              onClick={() => setActiveMainTab("learn")}
+              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "learn" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="text-[10px] font-bold">Learn</span>
+            </button>
+            <button
+              onClick={() => setActiveMainTab("tracker")}
+              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracker" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+            >
+              <Code2 className="w-5 h-5" />
+              <span className="text-[10px] font-bold">Tracker</span>
+            </button>
+            <button
+              onClick={() => setActiveMainTab("tracks")}
+              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracks" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+            >
+              <Map className="w-5 h-5" />
+              <span className="text-[10px] font-bold">Tracks</span>
+            </button>
+          </div>
+        </nav>
+      </SignedIn>
+
+      {/* Settings Modal */}
       <SignedIn>
         <footer
         id="dsa-footer"
         role="contentinfo"
-        className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400"
+        className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400 hidden sm:block"
       >
         <div
           id="footer-inner"
