@@ -621,7 +621,7 @@ export default function App() {
               <Tooltip content="use this keyboard shortcut to open control panel">
                 <button
                   onClick={togglePalette}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-50 hover:bg-indigo-50/50 border border-neutral-200/80 hover:border-indigo-200/80 rounded-xl text-neutral-400 hover:text-indigo-600 transition-all shadow-sm cursor-pointer active:scale-95 text-[10px] font-bold tracking-wide"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-50 hover:bg-indigo-50/50 border border-neutral-200/80 hover:border-indigo-200/80 rounded-xl text-neutral-400 hover:text-indigo-600 transition-all cursor-pointer active:scale-95 text-[10px] font-bold tracking-wide"
                 >
                   {isMac ? (
                     <>
