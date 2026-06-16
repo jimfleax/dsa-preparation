@@ -20,7 +20,7 @@ import {
   Loader2,
   CheckCircle2,
 } from "lucide-react";
-import { DocumentMetadata, UserSettings } from "./types";
+import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
 import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
 import PreviewPanel from "./components/PreviewPanel";
@@ -33,6 +33,8 @@ import HomeTab from "./components/HomeTab";
 import AboutMeModal from "./components/AboutMeModal";
 import Tooltip from "./components/Tooltip";
 import ReviewDuePopup from "./components/ReviewDuePopup";
+import CommandPalette from "./components/CommandPalette";
+import { useCommandPalette } from "./hooks/useCommandPalette";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -111,6 +113,37 @@ export default function App() {
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
+
+  // Command Palette
+  const {
+    isOpen: isPaletteOpen,
+    open: openPalette,
+    close: closePalette,
+    toggle: togglePalette,
+    calendarData,
+    isLoading: isCalendarLoading
+  } = useCommandPalette(userSettings?.leetcodeUsername);
+
+  const [trackedProblemsForPalette, setTrackedProblemsForPalette] = useState<TrackedProblem[]>([]);
+
+  // Fetch tracked problems when palette opens to populate search
+  useEffect(() => {
+    if (isPaletteOpen && isSignedIn) {
+      const fetchProblems = async () => {
+        try {
+          const token = await getToken();
+          const res = await fetch(`${apiBase}/api/tracker`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            setTrackedProblemsForPalette(data.problems);
+          }
+        } catch (e) {}
+      };
+      fetchProblems();
+    }
+  }, [isPaletteOpen, isSignedIn, getToken, apiBase]);
 
   const checkLeetCodeSync = useCallback(async () => {
     try {
@@ -316,6 +349,13 @@ export default function App() {
   // Global shortcuts key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+K / Cmd+K
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        togglePalette();
+        return;
+      }
+
       // Ignore if typing in an input or textarea
       if (
         e.target instanceof HTMLInputElement ||
@@ -1015,6 +1055,18 @@ export default function App() {
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
+        <CommandPalette 
+          isOpen={isPaletteOpen}
+          onClose={closePalette}
+          leetcodeUsername={userSettings?.leetcodeUsername}
+          calendarData={calendarData}
+          isLoadingCalendar={isCalendarLoading}
+          documents={documents}
+          trackedProblems={trackedProblemsForPalette}
+          onNavigate={setActiveMainTab}
+          onSelectDocument={handleSelectDocument}
+          onOpenSettings={() => setShowSettingsModal(true)}
+        />
         <PreviewPanel
           activeDoc={activeDoc}
           isOpen={isPreviewOpen}
