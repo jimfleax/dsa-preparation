@@ -937,34 +937,30 @@ export default function App() {
         <nav
           className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe"
         >
-          <div className="flex justify-around items-center px-2 py-2">
+          <div className="flex justify-around items-center px-4 py-2.5">
             <button
               onClick={() => setActiveMainTab("home")}
-              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "home" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+              className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "home" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
             >
               <Home className="w-5 h-5" />
-              <span className="text-[10px] font-bold">Home</span>
             </button>
             <button
               onClick={() => setActiveMainTab("learn")}
-              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "learn" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+              className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "learn" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
             >
               <BookOpen className="w-5 h-5" />
-              <span className="text-[10px] font-bold">Learn</span>
             </button>
             <button
               onClick={() => setActiveMainTab("tracker")}
-              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracker" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+              className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracker" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
             >
               <Code2 className="w-5 h-5" />
-              <span className="text-[10px] font-bold">Tracker</span>
             </button>
             <button
               onClick={() => setActiveMainTab("tracks")}
-              className={`flex flex-col items-center justify-center gap-1 p-2 w-16 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracks" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+              className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracks" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
             >
               <Map className="w-5 h-5" />
-              <span className="text-[10px] font-bold">Tracks</span>
             </button>
           </div>
         </nav>
