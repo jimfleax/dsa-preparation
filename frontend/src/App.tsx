@@ -1080,7 +1080,10 @@ export default function App() {
         <PreviewPanel
           activeDoc={activeDoc}
           isOpen={isPreviewOpen}
-          onClose={() => setIsPreviewOpen(false)}
+          onClose={() => {
+            setIsPreviewOpen(false);
+            setActiveDoc(null);
+          }}
           isMaximized={isPreviewMaximized}
           setIsMaximized={setIsPreviewMaximized}
         />

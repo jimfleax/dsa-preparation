@@ -45,12 +45,6 @@ export default function DocumentCard({
             )}
             {isTheory ? "Theory" : "Problemsheet"}
           </span>
-
-          {isActive && (
-            <span className="text-[10px] font-bold text-indigo-600 bg-white border border-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-3xs animate-pulse">
-              Selected
-            </span>
-          )}
         </div>
 
         {/* Category & Title */}
