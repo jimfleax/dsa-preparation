@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, BookOpen, Code2, Map, Home, Settings, 
-  Flame, CalendarDays, Award, X, FileText
+  Flame, CalendarDays, Award, X, FileText, Trophy
 } from "lucide-react";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { DocumentMetadata, TrackedProblem } from "../types";
@@ -255,6 +255,18 @@ export default function CommandPalette({
                     </div>
                   ) : calendarData && leetcodeUsername ? (
                     <div className="space-y-5">
+                      {calendarData.ranking && (
+                        <div>
+                          <div className="flex items-center gap-2 text-neutral-500 mb-1">
+                            <Trophy className="w-4 h-4 text-amber-500" />
+                            <span className="text-xs font-medium">Global Rank</span>
+                          </div>
+                          <p className="text-2xl font-bold text-neutral-900">
+                            {calendarData.ranking.toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+
                       <div>
                         <div className="flex items-center gap-2 text-neutral-500 mb-1">
                           <Flame className="w-4 h-4 text-orange-500" />

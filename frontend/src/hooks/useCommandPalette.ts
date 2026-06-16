@@ -5,6 +5,7 @@ export interface LeetCodeCalendarData {
   streak: number;
   totalActiveDays: number;
   submissionCalendar: string; // JSON string
+  ranking?: number;
 }
 
 export function useCommandPalette(leetcodeUsername?: string) {
