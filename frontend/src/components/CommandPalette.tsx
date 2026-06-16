@@ -217,12 +217,12 @@ export default function CommandPalette({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
-        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs md:flex items-center justify-center hidden"
+        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs flex items-center justify-center"
         onClick={onClose}
       />
 
       {/* Main Container */}
-      <div className="fixed inset-0 z-[60] pointer-events-none md:flex items-center justify-center hidden">
+      <div className="fixed inset-0 z-[60] pointer-events-none flex p-4 items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: -20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -239,7 +239,7 @@ export default function CommandPalette({
                 initial={{ opacity: 0, width: 0, scale: 0.9 }}
                 animate={{ opacity: 1, width: 220, scale: 1 }}
                 exit={{ opacity: 0, width: 0, scale: 0.9 }}
-                className="bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-md flex flex-col overflow-hidden shrink-0"
+                className="hidden md:flex bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-md flex-col overflow-hidden shrink-0"
               >
                 <div className="p-5 flex-1 w-[220px] flex flex-col justify-center">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">
@@ -319,9 +319,9 @@ export default function CommandPalette({
           </AnimatePresence>
 
           {/* Center Column - contains Center Box and Banner */}
-          <div className="flex flex-col gap-3 items-center">
+          <div className="flex flex-col gap-3 items-center w-full">
             {/* Center Box - Search & List */}
-            <div className={`bg-white border border-neutral-200 rounded-2xl shadow-lg flex flex-col overflow-hidden transition-all duration-300 ${isSearchMode ? "w-[600px]" : "w-[400px]"}`}>
+            <div className={`bg-white border border-neutral-200 rounded-2xl shadow-lg flex flex-col overflow-hidden transition-all duration-300 w-full ${isSearchMode ? "max-w-[600px]" : "max-w-[400px]"}`}>
             {/* Search Input */}
             <div className="relative px-4 py-4 border-b border-neutral-100 flex items-center">
               <Search className="w-5 h-5 text-neutral-400 shrink-0" />
@@ -505,7 +505,7 @@ export default function CommandPalette({
                 initial={{ opacity: 0, width: 0, scale: 0.9 }}
                 animate={{ opacity: 1, width: 230, scale: 1 }}
                 exit={{ opacity: 0, width: 0, scale: 0.9 }}
-                className="bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-md flex flex-col overflow-hidden shrink-0"
+                className="hidden md:flex bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-md flex-col overflow-hidden shrink-0"
               >
                 <div className="p-5 flex-1 w-[230px] flex flex-col justify-center">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">

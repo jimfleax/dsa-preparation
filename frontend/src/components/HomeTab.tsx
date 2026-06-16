@@ -153,9 +153,9 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
       </div>
 
       {/* Sleek Metrics Section */}
-      <div className="mt-8 md:mt-12 w-full flex justify-end">
+      <div className="mt-8 md:mt-12 w-full flex justify-center md:justify-end">
         <div
-          className="text-right text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
+          className="text-center md:text-right text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           <p>

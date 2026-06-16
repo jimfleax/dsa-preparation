@@ -173,9 +173,9 @@ export default function TrackCard({
           setExpanded(!expanded);
         }}
       >
-        <div className="flex-1 pr-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg font-bold text-neutral-900">
+        <div className="flex-1 pr-6 min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="text-lg font-bold text-neutral-900 truncate max-w-full">
               {track.title}
             </h3>
             {isActive && (

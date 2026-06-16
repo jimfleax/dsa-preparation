@@ -514,7 +514,7 @@ export default function App() {
                     }`}
                   >
                     <Home className="w-3.5 h-3.5" />
-                    Home
+                    <span className="hidden sm:inline">Home</span>
                   </button>
                 </Tooltip>
                 <Tooltip content="Learning Resources" shortcut="< >">
@@ -530,7 +530,7 @@ export default function App() {
                     }`}
                   >
                     <BookOpen className="w-3.5 h-3.5" />
-                    Learn
+                    <span className="hidden sm:inline">Learn</span>
                   </button>
                 </Tooltip>
                 <Tooltip content="Problem Tracker" shortcut="< >">
@@ -546,7 +546,7 @@ export default function App() {
                     }`}
                   >
                     <Code2 className="w-3.5 h-3.5" />
-                    Tracker
+                    <span className="hidden sm:inline">Tracker</span>
                   </button>
                 </Tooltip>
                 <Tooltip content="Skill Tracks" shortcut="< >">
@@ -562,7 +562,7 @@ export default function App() {
                     }`}
                   >
                     <Map className="w-3.5 h-3.5" />
-                    Tracks
+                    <span className="hidden sm:inline">Tracks</span>
                   </button>
                 </Tooltip>
               </div>
