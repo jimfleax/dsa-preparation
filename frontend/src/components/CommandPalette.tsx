@@ -230,7 +230,7 @@ export default function CommandPalette({
                 exit={{ opacity: 0, width: 0, scale: 0.9 }}
                 className="bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-md flex flex-col overflow-hidden shrink-0"
               >
-                <div className="p-5 flex-1 w-[220px]">
+                <div className="p-5 flex-1 w-[220px] flex flex-col justify-center">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">
                     LeetCode Profile
                   </h3>
