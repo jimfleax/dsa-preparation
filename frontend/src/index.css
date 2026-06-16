@@ -131,8 +131,7 @@
 /* Sleek note editor with smooth caret */
 .note-editor {
   caret-color: #6366f1;
-  /* Smooth transitions for a soft typing illusion */
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1), caret-color 0.5s ease;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
   line-height: 1.75;
   letter-spacing: 0.01em;
   resize: vertical;
