@@ -53,6 +53,9 @@ export default function CommandPalette({
 
   const isSearchMode = searchQuery.trim().length > 0;
 
+  const showSidePanels = !isSearchMode && !!leetcodeUsername && (isLoadingCalendar || !!calendarData);
+  const showBanner = !isSearchMode && !showSidePanels;
+
   const searchResults = useMemo(() => {
     if (!isSearchMode) return { docs: [], problems: [] };
     
@@ -216,9 +219,9 @@ export default function CommandPalette({
           onClick={(e) => e.stopPropagation()}
           onKeyDown={handleKeyDown}
         >
-          {/* Left Panel - Stats (Hidden in search mode) */}
+          {/* Left Panel - Stats (Hidden in search mode or when username/data is not available) */}
           <AnimatePresence>
-            {!isSearchMode && (
+            {showSidePanels && (
               <motion.div
                 initial={{ opacity: 0, width: 0, scale: 0.9 }}
                 animate={{ opacity: 1, width: 220, scale: 1 }}
@@ -290,8 +293,10 @@ export default function CommandPalette({
             )}
           </AnimatePresence>
 
-          {/* Center Box - Search & List */}
-          <div className={`bg-white border border-neutral-200 rounded-2xl shadow-lg flex flex-col overflow-hidden transition-all duration-300 ${isSearchMode ? "w-[600px]" : "w-[400px]"}`}>
+          {/* Center Column - contains Center Box and Banner */}
+          <div className="flex flex-col gap-3 items-center">
+            {/* Center Box - Search & List */}
+            <div className={`bg-white border border-neutral-200 rounded-2xl shadow-lg flex flex-col overflow-hidden transition-all duration-300 ${isSearchMode ? "w-[600px]" : "w-[400px]"}`}>
             {/* Search Input */}
             <div className="relative px-4 py-4 border-b border-neutral-100 flex items-center">
               <Search className="w-5 h-5 text-neutral-400 shrink-0" />
@@ -432,10 +437,43 @@ export default function CommandPalette({
               )}
             </div>
           </div>
+            
+            {/* Premium LeetCode connection banner */}
+            <AnimatePresence>
+              {showBanner && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="w-full bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl p-3.5 shadow-md flex items-center justify-between gap-4 pointer-events-auto"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                      <Flame className="w-4 h-4" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-semibold text-neutral-800">
+                        Unlock LeetCode progress
+                      </p>
+                      <p className="text-[10px] text-neutral-500 mt-0.5 leading-normal">
+                        Link your username to view activity heatmaps, daily streaks, and detailed submission progress directly in this control panel.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleOpenSettings}
+                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 whitespace-nowrap shadow-sm hover:shadow cursor-pointer"
+                  >
+                    Connect Account
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-          {/* Right Panel - Heatmap (Hidden in search mode) */}
+          {/* Right Panel - Heatmap (Hidden in search mode or when username/data is not available) */}
           <AnimatePresence>
-            {!isSearchMode && (
+            {showSidePanels && (
               <motion.div
                 initial={{ opacity: 0, width: 0, scale: 0.9 }}
                 animate={{ opacity: 1, width: 230, scale: 1 }}
