@@ -29,14 +29,55 @@ export default function TrackCard({
   const [selectedPartIndex, setSelectedPartIndex] = useState<number | null>(null);
   const [showAttemptModal, setShowAttemptModal] = useState(false);
 
+  const getDefaultExpandedParts = () => {
+    if (!track.parts || track.parts.length === 0) return {};
+    const initial: Record<number, boolean> = {};
+    const hasActivePart = track._id === activeTrackId && activePartIndex !== undefined && activePartIndex !== null;
+    let firstIncompleteFound = false;
+
+    track.parts.forEach((part, idx) => {
+      initial[idx] = false;
+    });
+
+    if (hasActivePart && activePartIndex !== undefined && activePartIndex !== null) {
+      const activePart = track.parts[activePartIndex];
+      const partSolved = activePart.problems.filter((p) => {
+        const slug = extractTitleSlug(p.url);
+        return slug && !!trackedProblems[slug];
+      }).length;
+      const isPartCompleted = activePart.problems.length > 0 && partSolved === activePart.problems.length;
+      
+      if (!isPartCompleted) {
+        initial[activePartIndex] = true;
+        firstIncompleteFound = true;
+      }
+    }
+
+    if (!firstIncompleteFound) {
+      track.parts.forEach((part, idx) => {
+        if (firstIncompleteFound) return;
+        const partSolved = part.problems.filter((p) => {
+          const slug = extractTitleSlug(p.url);
+          return slug && !!trackedProblems[slug];
+        }).length;
+        const isPartCompleted = part.problems.length > 0 && partSolved === part.problems.length;
+        if (!isPartCompleted) {
+          initial[idx] = true;
+          firstIncompleteFound = true;
+        }
+      });
+    }
+
+    return initial;
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (track._id === activeTrackId) {
       setExpanded(true);
       if (activePartIndex !== undefined && activePartIndex !== null) {
         setExpandedParts(prev => {
-          const next: Record<number, boolean> = {};
-          Object.keys(prev).forEach(k => next[Number(k)] = false);
-          next[activePartIndex] = true;
+          const next = getDefaultExpandedParts();
           
           // Check if it's the same to prevent unnecessary renders
           const isSame = Object.keys(prev).every(k => prev[Number(k)] === next[Number(k)]) && 
@@ -61,31 +102,7 @@ export default function TrackCard({
   const isCompleted =
     totalProblems > 0 && completedCount === totalProblems;
 
-  const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(() => {
-    if (!track.parts || track.parts.length === 0) return {};
-    const initial: Record<number, boolean> = {};
-    const hasActivePart = track._id === activeTrackId && activePartIndex !== undefined && activePartIndex !== null;
-    let firstIncompleteFound = false;
-    
-    track.parts.forEach((part, idx) => {
-      if (hasActivePart) {
-        initial[idx] = (idx === activePartIndex);
-      } else {
-        const partSolved = part.problems.filter((p) => {
-          const slug = extractTitleSlug(p.url);
-          return slug && !!trackedProblems[slug];
-        }).length;
-        const isPartCompleted = partSolved === part.problems.length;
-        if (!firstIncompleteFound && !isPartCompleted) {
-          initial[idx] = true;
-          firstIncompleteFound = true;
-        } else {
-          initial[idx] = false;
-        }
-      }
-    });
-    return initial;
-  });
+  const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(() => getDefaultExpandedParts());
 
   const togglePart = (idx: number) => {
     setExpandedParts(prev => ({ ...prev, [idx]: !prev[idx] }));
@@ -149,7 +166,12 @@ export default function TrackCard({
     <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden">
       <div
         className={`p-5 cursor-pointer transition-colors flex justify-between items-center ${isCompleted ? "hover:bg-emerald-50/50" : "hover:bg-neutral-50"}`}
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => {
+          if (!expanded) {
+            setExpandedParts(getDefaultExpandedParts());
+          }
+          setExpanded(!expanded);
+        }}
       >
         <div className="flex-1 pr-6">
           <div className="flex items-center gap-3">
