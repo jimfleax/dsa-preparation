@@ -33,6 +33,7 @@ import Tooltip from "./components/Tooltip";
 import ReviewDuePopup from "./components/ReviewDuePopup";
 import CommandPalette from "./components/CommandPalette";
 import { useCommandPalette } from "./hooks/useCommandPalette";
+import LandingPage from "./components/LandingPage";
 
 export default function App() {
   const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
@@ -690,26 +691,8 @@ export default function App() {
       >
         {/* === SIGNED OUT: Landing Prompt === */}
         <SignedOut>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-md mx-auto shadow-lg">
-              <div className="p-4 bg-indigo-50 rounded-2xl text-indigo-600 w-fit mx-auto mb-6">
-                <GraduationCap className="w-12 h-12" />
-              </div>
-              <h2 className="text-xl font-bold text-neutral-900 mb-2">
-                Welcome to DSA Preparation
-              </h2>
-              <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
-                Track your DSA problem-solving journey, organize study
-                materials, and sync your LeetCode progress — all in one place.
-              </p>
-              <button
-                onClick={() => setShowLoginModal(true)}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100 flex items-center gap-2 mx-auto"
-              >
-                <LogIn className="w-4 h-4" />
-                Sign In to Get Started
-              </button>
-            </div>
+          <div className="flex-1 -mx-4 sm:-mx-6 lg:-mx-8 -my-8">
+            <LandingPage onSignIn={() => setShowLoginModal(true)} />
           </div>
         </SignedOut>
 
