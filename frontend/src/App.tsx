@@ -450,6 +450,16 @@ export default function App() {
     setSelectedTags([]);
   };
 
+  const displayTags = useMemo(() => {
+    return [...allTags].sort((a, b) => {
+      const aSelected = selectedTags.includes(a);
+      const bSelected = selectedTags.includes(b);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return 0;
+    });
+  }, [allTags, selectedTags]);
+
   return (
     <div
       id="dsa-app-root"
@@ -835,7 +845,7 @@ export default function App() {
                           Filter by Tags:
                         </span>
                         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1 flex-1">
-                          {allTags.map((tag) => {
+                          {displayTags.map((tag) => {
                             const isSelected = selectedTags.includes(tag);
                             return (
                               <button
