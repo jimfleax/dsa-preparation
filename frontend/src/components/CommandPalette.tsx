@@ -36,6 +36,8 @@ export default function CommandPalette({
 }: CommandPaletteProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeItemRef = useRef<HTMLButtonElement | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   useEscapeKey(isOpen, onClose, 60, "command-palette");
 
@@ -67,6 +69,81 @@ export default function CommandPalette({
 
     return { docs, problems };
   }, [searchQuery, documents, trackedProblems, isSearchMode]);
+
+  const items = useMemo(() => {
+    if (isSearchMode) {
+      const result: Array<
+        | { type: "doc"; data: DocumentMetadata }
+        | { type: "problem"; data: TrackedProblem }
+      > = [];
+      searchResults.docs.forEach(doc => result.push({ type: "doc", data: doc }));
+      searchResults.problems.forEach(p => result.push({ type: "problem", data: p }));
+      return result;
+    } else {
+      return [
+        { type: "nav" as const, tab: "home" as const, label: "Home Dashboard" },
+        { type: "nav" as const, tab: "learn" as const, label: "Study Theory & Docs" },
+        { type: "nav" as const, tab: "tracker" as const, label: "Problem Tracker" },
+        { type: "nav" as const, tab: "tracks" as const, label: "Roadmap Tracks" },
+        { type: "nav" as const, tab: "settings" as const, label: "Settings" }
+      ];
+    }
+  }, [isSearchMode, searchResults]);
+
+  const navItemsConfig = useMemo(() => [
+    { tab: "home" as const, label: "Home Dashboard", icon: Home, hoverColor: "text-indigo-600" },
+    { tab: "learn" as const, label: "Study Theory & Docs", icon: BookOpen, hoverColor: "text-indigo-600" },
+    { tab: "tracker" as const, label: "Problem Tracker", icon: Code2, hoverColor: "text-emerald-600" },
+    { tab: "tracks" as const, label: "Roadmap Tracks", icon: Map, hoverColor: "text-purple-600" },
+    { tab: "settings" as const, label: "Settings", icon: Settings, hoverColor: "text-neutral-900" }
+  ], []);
+
+  // Reset focus index when items change
+  useEffect(() => {
+    setFocusedIndex(0);
+  }, [items]);
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({
+        block: "nearest",
+        behavior: "auto"
+      });
+    }
+  }, [focusedIndex]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (items.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      e.stopPropagation();
+      setFocusedIndex((prev) => (prev + 1) % items.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      e.stopPropagation();
+      setFocusedIndex((prev) => (prev - 1 + items.length) % items.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      const activeItem = items[focusedIndex];
+      if (!activeItem) return;
+
+      if (activeItem.type === "doc") {
+        onSelectDocument(activeItem.data);
+        onClose();
+      } else if (activeItem.type === "problem") {
+        handleNavigate("tracker");
+      } else if (activeItem.type === "nav") {
+        if (activeItem.tab === "settings") {
+          handleOpenSettings();
+        } else {
+          handleNavigate(activeItem.tab);
+        }
+      }
+    }
+  };
 
   const handleNavigate = (tab: "home" | "learn" | "tracker" | "tracks") => {
     onNavigate(tab);
@@ -101,6 +178,7 @@ export default function CommandPalette({
           transition={{ duration: 0.2, type: "spring", stiffness: 300, damping: 30 }}
           className="flex gap-4 pointer-events-auto items-stretch"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={handleKeyDown}
         >
           {/* Left Panel - Stats (Hidden in search mode) */}
           <AnimatePresence>
@@ -190,7 +268,7 @@ export default function CommandPalette({
                 className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-sm"
               />
               <div className="flex items-center gap-1 shrink-0 ml-2">
-                <kbd className="px-2 py-1 bg-neutral-100 border border-neutral-200 rounded text-[10px] font-mono text-neutral-500">ESC</kbd>
+                <kbd className="px-1.5 py-0.5 bg-neutral-100 border border-neutral-200 rounded text-[9px] font-mono text-neutral-400">ESC</kbd>
               </div>
             </div>
 
@@ -201,42 +279,61 @@ export default function CommandPalette({
                   {searchResults.docs.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2">Learning Resources</h4>
-                      {searchResults.docs.map(doc => (
-                        <button
-                          key={doc.id}
-                          onClick={() => { onSelectDocument(doc); onClose(); }}
-                          className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-indigo-50 flex items-center gap-3 group transition-colors"
-                        >
-                          <div className="p-2 bg-indigo-100/50 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                            <BookOpen className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-neutral-900">{doc.title}</p>
-                            <p className="text-[11px] text-neutral-500">{doc.category}</p>
-                          </div>
-                        </button>
-                      ))}
+                      {searchResults.docs.map((doc, index) => {
+                        const isFocused = focusedIndex === index;
+                        return (
+                          <button
+                            key={doc.id}
+                            ref={isFocused ? activeItemRef : undefined}
+                            onClick={() => { onSelectDocument(doc); onClose(); }}
+                            onMouseEnter={() => setFocusedIndex(index)}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 group transition-colors ${
+                              isFocused ? "bg-indigo-50/80 text-indigo-900" : "hover:bg-indigo-50"
+                            }`}
+                          >
+                            <div className={`p-2 rounded-lg transition-colors ${
+                              isFocused ? "bg-indigo-600 text-white" : "bg-indigo-100/50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white"
+                            }`}>
+                              <BookOpen className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className={`text-sm font-semibold transition-colors ${isFocused ? "text-indigo-950" : "text-neutral-900"}`}>{doc.title}</p>
+                              <p className={`text-[11px] transition-colors ${isFocused ? "text-indigo-700/80" : "text-neutral-500"}`}>{doc.category}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                   
                   {searchResults.problems.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2">Tracked Problems</h4>
-                      {searchResults.problems.map(p => (
-                        <button
-                          key={p._id}
-                          onClick={() => handleNavigate("tracker")}
-                          className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-emerald-50 flex items-center gap-3 group transition-colors"
-                        >
-                          <div className="p-2 bg-emerald-100/50 rounded-lg text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                            <Code2 className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-neutral-900">{p.title}</p>
-                            <p className="text-[11px] text-neutral-500">{p.difficulty || "Unknown"} • {p.attemptCount} attempts</p>
-                          </div>
-                        </button>
-                      ))}
+                      {searchResults.problems.map((p, index) => {
+                        const globalIndex = searchResults.docs.length + index;
+                        const isFocused = focusedIndex === globalIndex;
+                        return (
+                          <button
+                            key={p._id}
+                            ref={isFocused ? activeItemRef : undefined}
+                            onClick={() => handleNavigate("tracker")}
+                            onMouseEnter={() => setFocusedIndex(globalIndex)}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 group transition-colors ${
+                              isFocused ? "bg-emerald-50/80 text-emerald-900" : "hover:bg-emerald-50"
+                            }`}
+                          >
+                            <div className={`p-2 rounded-lg transition-colors ${
+                              isFocused ? "bg-emerald-600 text-white" : "bg-emerald-100/50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
+                            }`}>
+                              <Code2 className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className={`text-sm font-semibold transition-colors ${isFocused ? "text-emerald-950" : "text-neutral-900"}`}>{p.title}</p>
+                              <p className={`text-[11px] transition-colors ${isFocused ? "text-emerald-700/80" : "text-neutral-500"}`}>{p.difficulty || "Unknown"} • {p.attemptCount} attempts</p>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
 
@@ -250,52 +347,45 @@ export default function CommandPalette({
                 <div className="py-2 space-y-1">
                   <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2 mt-1">Navigation</h4>
                   
-                  <button onClick={() => handleNavigate("home")} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center justify-between group transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 text-neutral-500 group-hover:text-indigo-600 transition-colors">
-                        <Home className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-neutral-800 group-hover:text-neutral-900">Home Dashboard</span>
-                    </div>
-                  </button>
-                  
-                  <button onClick={() => handleNavigate("learn")} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center justify-between group transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 text-neutral-500 group-hover:text-indigo-600 transition-colors">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-neutral-800 group-hover:text-neutral-900">Study Theory & Docs</span>
-                    </div>
-                  </button>
-                  
-                  <button onClick={() => handleNavigate("tracker")} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center justify-between group transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 text-neutral-500 group-hover:text-emerald-600 transition-colors">
-                        <Code2 className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-neutral-800 group-hover:text-neutral-900">Problem Tracker</span>
-                    </div>
-                  </button>
-                  
-                  <button onClick={() => handleNavigate("tracks")} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center justify-between group transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 text-neutral-500 group-hover:text-purple-600 transition-colors">
-                        <Map className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-neutral-800 group-hover:text-neutral-900">Roadmap Tracks</span>
-                    </div>
-                  </button>
-
-                  <div className="h-px bg-neutral-100 my-2 mx-2"></div>
-
-                  <button onClick={handleOpenSettings} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center justify-between group transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 text-neutral-500 group-hover:text-neutral-900 transition-colors">
-                        <Settings className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-neutral-800 group-hover:text-neutral-900">Settings</span>
-                    </div>
-                  </button>
+                  {navItemsConfig.map((item, index) => {
+                    const Icon = item.icon;
+                    const isSettings = item.tab === "settings";
+                    const isFocused = focusedIndex === index;
+                    
+                    return (
+                      <React.Fragment key={item.tab}>
+                        {isSettings && <div className="h-px bg-neutral-100 my-2 mx-2"></div>}
+                        
+                        <button 
+                          ref={isFocused ? activeItemRef : undefined}
+                          onClick={() => {
+                            if (isSettings) {
+                              handleOpenSettings();
+                            } else {
+                              handleNavigate(item.tab);
+                            }
+                          }}
+                          onMouseEnter={() => setFocusedIndex(index)}
+                          className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between group transition-colors ${
+                            isFocused ? "bg-neutral-100" : "hover:bg-neutral-50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-1.5 transition-colors ${
+                              isFocused ? item.hoverColor : `text-neutral-500 group-hover:${item.hoverColor}`
+                            }`}>
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <span className={`text-sm font-medium transition-colors ${
+                              isFocused ? "text-neutral-900" : "text-neutral-800 group-hover:text-neutral-900"
+                            }`}>
+                              {item.label}
+                            </span>
+                          </div>
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
                 </div>
               )}
             </div>
