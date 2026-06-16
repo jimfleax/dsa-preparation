@@ -33,7 +33,16 @@ export default function TrackCard({
     if (track._id === activeTrackId) {
       setExpanded(true);
       if (activePartIndex !== undefined && activePartIndex !== null) {
-        setExpandedParts(prev => ({ ...prev, [activePartIndex]: true }));
+        setExpandedParts(prev => {
+          const next: Record<number, boolean> = {};
+          Object.keys(prev).forEach(k => next[Number(k)] = false);
+          next[activePartIndex] = true;
+          
+          // Check if it's the same to prevent unnecessary renders
+          const isSame = Object.keys(prev).every(k => prev[Number(k)] === next[Number(k)]) && 
+                         Object.keys(next).every(k => prev[Number(k)] === next[Number(k)]);
+          return isSame ? prev : next;
+        });
       }
     }
   }, [activeTrackId, track._id, activePartIndex]);
@@ -55,18 +64,24 @@ export default function TrackCard({
   const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(() => {
     if (!track.parts || track.parts.length === 0) return {};
     const initial: Record<number, boolean> = {};
+    const hasActivePart = track._id === activeTrackId && activePartIndex !== undefined && activePartIndex !== null;
     let firstIncompleteFound = false;
+    
     track.parts.forEach((part, idx) => {
-      const partSolved = part.problems.filter((p) => {
-        const slug = extractTitleSlug(p.url);
-        return slug && !!trackedProblems[slug];
-      }).length;
-      const isPartCompleted = partSolved === part.problems.length;
-      if (!firstIncompleteFound && !isPartCompleted) {
-        initial[idx] = true;
-        firstIncompleteFound = true;
+      if (hasActivePart) {
+        initial[idx] = (idx === activePartIndex);
       } else {
-        initial[idx] = false;
+        const partSolved = part.problems.filter((p) => {
+          const slug = extractTitleSlug(p.url);
+          return slug && !!trackedProblems[slug];
+        }).length;
+        const isPartCompleted = partSolved === part.problems.length;
+        if (!firstIncompleteFound && !isPartCompleted) {
+          initial[idx] = true;
+          firstIncompleteFound = true;
+        } else {
+          initial[idx] = false;
+        }
       }
     });
     return initial;
