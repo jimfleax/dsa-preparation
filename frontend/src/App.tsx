@@ -480,9 +480,9 @@ export default function App() {
           <div id="navbar-logo-sec" className="flex items-center gap-3">
             <div
               id="logo-icon-box"
-              className="p-1.5 sm:p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center"
+              className="p-2 sm:p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center"
             >
-              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <h1
@@ -648,7 +648,7 @@ export default function App() {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-xs sm:text-sm relative z-50"
+                  className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-sm sm:text-base relative z-50"
                   title="Account"
                 >
                   {user?.username?.charAt(0).toUpperCase() || "U"}
