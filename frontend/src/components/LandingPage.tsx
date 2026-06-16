@@ -100,10 +100,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         </motion.div>
       </section>
 
-      {/* Footer minimal */}
-      <footer className="w-full mt-auto py-8 text-center text-sm text-neutral-400 border-t border-neutral-100 z-10 relative">
-        <p>© {new Date().getFullYear()} DSA Preparation. All rights reserved.</p>
-      </footer>
+
     </div>
   );
 }

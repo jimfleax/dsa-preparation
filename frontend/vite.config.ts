@@ -19,12 +19,15 @@ export default defineConfig(() => {
               urlPattern: /^\/api\//,
               handler: "NetworkFirst",
               options: {
-                cacheName: "api-cache",
+                cacheName: "api-data-cache",
                 expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                  maxEntries: 200,
+                  maxAgeSeconds: 60 * 60 * 24, // 24 hours
                 },
                 networkTimeoutSeconds: 5,
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
               },
             },
           ],

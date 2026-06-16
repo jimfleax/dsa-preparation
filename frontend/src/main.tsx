@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { NetworkStatusProvider } from "./context/NetworkStatusContext";
 import { AuthProvider } from "./context/AuthContext";
 import { SkeletonTheme } from "react-loading-skeleton";
 import App from "./App.tsx";
@@ -18,10 +19,12 @@ const updateSW = registerSW({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
-        <App />
-      </SkeletonTheme>
-    </AuthProvider>
+    <NetworkStatusProvider>
+      <AuthProvider>
+        <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
+          <App />
+        </SkeletonTheme>
+      </AuthProvider>
+    </NetworkStatusProvider>
   </StrictMode>,
 );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
+import { useNetworkStatus } from "./context/NetworkStatusContext";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginModal from "./components/LoginModal";
 import RegisterModal from "./components/RegisterModal";
@@ -18,6 +19,7 @@ import {
   Home,
   Loader2,
   CheckCircle2,
+  WifiOff,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
 import DocumentCard from "./components/DocumentCard";
@@ -37,6 +39,8 @@ import LandingPage from "./components/LandingPage";
 
 export default function App() {
   const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+  const { isOffline } = useNetworkStatus();
+  const prevOfflineRef = useRef(isOffline);
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeDoc, setActiveDoc] = useState<DocumentMetadata | null>(null);
@@ -344,6 +348,25 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Offline / Online title swap ────────────────────────────
+  useEffect(() => {
+    document.title = isOffline
+      ? "No Internet — DSA Preparation"
+      : "DSA Preparation";
+  }, [isOffline]);
+
+  // ── Auto-refresh all data when coming back online ──────────
+  useEffect(() => {
+    if (prevOfflineRef.current && !isOffline) {
+      // Transitioned from offline → online: refresh everything
+      fetchDocumentsList();
+      checkBackendStatus();
+      fetchUserSettings();
+      setProblemsRefreshKey((k) => k + 1);
+    }
+    prevOfflineRef.current = isOffline;
+  }, [isOffline, checkBackendStatus, fetchUserSettings]);
+
   // Global shortcuts key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -480,16 +503,24 @@ export default function App() {
           <div id="navbar-logo-sec" className="flex items-center gap-3">
             <div
               id="logo-icon-box"
-              className="p-2 sm:p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center"
+              className={`p-2 sm:p-2 rounded-xl text-white flex items-center justify-center transition-colors duration-300 ${
+                isOffline ? "bg-rose-500" : "bg-indigo-600"
+              }`}
             >
-              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
+              {isOffline ? (
+                <WifiOff className="w-5 h-5 sm:w-6 sm:h-6" />
+              ) : (
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
+              )}
             </div>
             <div>
               <h1
                 id="navbar-main-heading"
-                className="text-base font-bold text-neutral-905 tracking-tight leading-tight"
+                className={`text-base font-bold tracking-tight leading-tight transition-colors duration-300 ${
+                  isOffline ? "text-rose-600" : "text-neutral-905"
+                }`}
               >
-                DSA Preparation
+                {isOffline ? "No Internet" : "DSA Preparation"}
               </h1>
             </div>
           </div>
@@ -697,6 +728,29 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* ── Offline Banner ─────────────────────────────────── */}
+      <AnimatePresence>
+        {isOffline && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden sticky top-16 z-29"
+          >
+            <div className="bg-gradient-to-r from-rose-50 via-amber-50 to-rose-50 border-b border-rose-100 px-4 py-2.5 flex items-center justify-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+              </span>
+              <span className="text-xs font-semibold text-rose-700">
+                You're offline — showing cached data. Reconnecting automatically…
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* === SIGNED OUT: Landing Page === */}
       <SignedOut>
@@ -981,7 +1035,6 @@ export default function App() {
       </SignedIn>
 
       {/* Footer Info Hub */}
-      <SignedIn>
         <footer
         id="dsa-footer"
         role="contentinfo"
@@ -1040,7 +1093,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-      </SignedIn>
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
