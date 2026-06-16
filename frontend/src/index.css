@@ -168,3 +168,10 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Hide Recharts native legend on mobile — it uses inline styles so !important is required */
+@media (max-width: 639px) {
+  .hide-legend-mobile .recharts-legend-wrapper {
+    display: none !important;
+  }
+}

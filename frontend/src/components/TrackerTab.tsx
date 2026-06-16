@@ -285,7 +285,7 @@ export default function ProblemsTab({
         <div className="col-span-1 bg-white border border-neutral-100 p-3 sm:p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center h-36 sm:h-48 hover:border-neutral-200 hover:shadow-md transition-all duration-300">
           {problems.length > 0 ? (
             <div className="w-full h-full flex flex-col justify-center">
-              <div className="flex-1 min-h-0 w-full">
+              <div className="flex-1 min-h-0 w-full hide-legend-mobile">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -324,7 +324,6 @@ export default function ProblemsTab({
                       layout="vertical"
                       iconType="circle"
                       wrapperStyle={{ fontSize: "11px" }}
-                      className="hidden sm:block"
                     />
                   </PieChart>
                 </ResponsiveContainer>
