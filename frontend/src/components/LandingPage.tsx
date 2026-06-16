@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { LogIn, GraduationCap, Code2, Map, BookOpen, ArrowRight, Github, CodeSquare } from "lucide-react";
+import { LogIn, GraduationCap, Code2, Map, BookOpen, ArrowRight, Github, CodeSquare, RefreshCcw } from "lucide-react";
 
 interface LandingPageProps {
   onSignIn: () => void;
@@ -92,9 +92,9 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             delay={0.2}
           />
           <FeatureCard 
-            icon={<BookOpen className="w-6 h-6 text-purple-600" />}
-            title="Interactive Notes"
-            description="Write, organize, and search your study materials using a powerful Markdown editor with syntax highlighting."
+            icon={<RefreshCcw className="w-6 h-6 text-purple-600" />}
+            title="Smart Review Tracker"
+            description="Log your attempts, utilize spaced repetition for optimal review intervals, and attach rich Markdown notes to every problem."
             delay={0.3}
           />
         </motion.div>
