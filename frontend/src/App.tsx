@@ -506,6 +506,7 @@ export default function App() {
               className={`p-2 sm:p-2 rounded-xl text-white flex items-center justify-center transition-colors duration-300 ${
                 isOffline ? "bg-rose-500" : "bg-indigo-600"
               }`}
+              aria-hidden="true"
             >
               {isOffline ? (
                 <WifiOff className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -610,6 +611,7 @@ export default function App() {
                     id="refresh-docs-btn"
                     onClick={() => fetchDocumentsList(true)}
                     disabled={syncStatus !== "idle"}
+                    aria-label="Sync documents"
                     className="h-9 px-3 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 text-xs font-semibold min-w-[80px]"
                   >
                     <AnimatePresence mode="wait">
@@ -658,6 +660,7 @@ export default function App() {
                 <Tooltip content="use this keyboard shortcut to open control panel">
                   <button
                     onClick={togglePalette}
+                    aria-label="Open Command Palette"
                     className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all duration-200 cursor-pointer active:scale-95 select-none p-1 rounded-xl opacity-80 hover:opacity-100"
                   >
                   {isMac ? (
@@ -679,6 +682,8 @@ export default function App() {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  aria-expanded={userDropdownOpen}
+                  aria-label="User Account Menu"
                   className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-sm sm:text-base relative z-50"
                   title="Account"
                 >

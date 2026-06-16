@@ -79,7 +79,7 @@ export default function RegisterModal({
       <div className="p-8 overflow-y-auto">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
-            <UserPlus className="w-6 h-6" />
+            <UserPlus className="w-6 h-6" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold text-neutral-900">
             Create Account
@@ -101,10 +101,11 @@ export default function RegisterModal({
               Username
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" aria-hidden="true" />
               <input
                 type="text"
                 required
+                aria-label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all"
@@ -118,10 +119,11 @@ export default function RegisterModal({
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" aria-hidden="true" />
               <input
                 type="email"
                 required
+                aria-label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={`w-full pl-10 pr-10 py-2.5 bg-neutral-50 border rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${
@@ -134,7 +136,7 @@ export default function RegisterModal({
                 placeholder="you@example.com"
               />
               {email.length > 0 && isEmailValid && (
-                <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-emerald-500" />
+                <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-emerald-500" aria-hidden="true" />
               )}
             </div>
           </div>
@@ -144,10 +146,11 @@ export default function RegisterModal({
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" aria-hidden="true" />
               <input
                 type="password"
                 required
+                aria-label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`w-full pl-10 pr-4 py-2.5 bg-neutral-50 border rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${
@@ -174,9 +177,9 @@ export default function RegisterModal({
                 return (
                   <div key={rule.key} className="flex items-center text-xs">
                     {isValid ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mr-1.5 flex-shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mr-1.5 flex-shrink-0" aria-hidden="true" />
                     ) : (
-                      <XCircle className="w-3.5 h-3.5 text-neutral-300 mr-1.5 flex-shrink-0" />
+                      <XCircle className="w-3.5 h-3.5 text-neutral-300 mr-1.5 flex-shrink-0" aria-hidden="true" />
                     )}
                     <span className={isValid ? "text-emerald-700" : "text-neutral-500"}>
                       {rule.label}
@@ -193,7 +196,7 @@ export default function RegisterModal({
             className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md shadow-indigo-100 transition-all active:scale-[0.98] mt-2 flex items-center justify-center"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
             ) : (
               "Sign Up"
             )}

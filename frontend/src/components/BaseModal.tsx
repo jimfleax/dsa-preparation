@@ -41,10 +41,14 @@ export default function BaseModal({
         id={`${modalId}-backdrop`}
         onClick={onClose}
         className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm transition-opacity"
+        aria-hidden="true"
       />
 
       <div
         id={modalId}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? `${modalId}-title` : undefined}
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
@@ -54,9 +58,10 @@ export default function BaseModal({
           {absoluteClose && (
             <button
               onClick={onClose}
+              aria-label="Close modal"
               className="absolute right-4 top-4 text-neutral-400 hover:text-neutral-700 bg-neutral-50 hover:bg-neutral-100 p-1.5 rounded-full transition-colors z-10"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           )}
 
@@ -69,7 +74,7 @@ export default function BaseModal({
                   </div>
                 )}
                 <div>
-                  <h2 className="text-sm font-bold text-neutral-900 line-clamp-1">
+                  <h2 id={`${modalId}-title`} className="text-sm font-bold text-neutral-900 line-clamp-1">
                     {title}
                   </h2>
                   {subtitle && (
@@ -81,9 +86,10 @@ export default function BaseModal({
               </div>
               <button
                 onClick={onClose}
+                aria-label="Close modal"
                 className="p-2 hover:bg-neutral-200 rounded-lg text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer bg-white border border-neutral-200 shadow-sm ml-4 shrink-0"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}

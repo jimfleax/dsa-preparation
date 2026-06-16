@@ -63,7 +63,7 @@ export default function LoginModal({
       <div className="p-8 overflow-y-auto">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
-            <LogIn className="w-6 h-6" />
+            <LogIn className="w-6 h-6" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold text-neutral-900">
             Welcome Back
@@ -85,10 +85,11 @@ export default function LoginModal({
               Username
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" aria-hidden="true" />
               <input
                 type="text"
                 required
+                aria-label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all"
@@ -102,10 +103,11 @@ export default function LoginModal({
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400" aria-hidden="true" />
               <input
                 type="password"
                 required
+                aria-label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all"
@@ -120,7 +122,7 @@ export default function LoginModal({
             className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold rounded-xl shadow-md shadow-indigo-100 transition-all active:scale-[0.98] mt-2 flex items-center justify-center"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
             ) : (
               "Sign In"
             )}

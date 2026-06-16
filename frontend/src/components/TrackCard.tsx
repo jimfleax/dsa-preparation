@@ -123,14 +123,23 @@ export default function TrackCard({
     return (
       <div
         key={key}
+        role="button"
+        tabIndex={0}
+        aria-label={`Attempt problem: ${problem.title}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleProblemClick(problem, partIndex);
+          }
+        }}
         className="p-4 hover:bg-neutral-50 flex items-center justify-between cursor-pointer group transition-colors"
         onClick={() => handleProblemClick(problem, partIndex)}
       >
         <div className="flex items-center gap-4">
           {isSolved ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" aria-hidden="true" />
           ) : (
-            <Circle className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0" />
+            <Circle className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0" aria-hidden="true" />
           )}
           <div>
             <p
@@ -165,6 +174,19 @@ export default function TrackCard({
   return (
     <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden">
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        aria-label={`${track.title} track progress: ${progressPercent}%`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!expanded) {
+              setExpandedParts(getDefaultExpandedParts());
+            }
+            setExpanded(!expanded);
+          }
+        }}
         className={`p-5 cursor-pointer transition-colors flex justify-between items-center ${isCompleted ? "hover:bg-emerald-50/50" : "hover:bg-neutral-50"}`}
         onClick={() => {
           if (!expanded) {
@@ -184,8 +206,8 @@ export default function TrackCard({
               </span>
             )}
             {isCompleted && (
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                <CheckCircle2 className="w-3 h-3" />
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full" aria-label="Completed">
+                <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                 Completed
               </span>
             )}
@@ -230,6 +252,7 @@ export default function TrackCard({
         </div>
         <div
           className={`p-2 rounded-xl transition-all duration-300 ${isCompleted ? "text-emerald-500 bg-emerald-100" : "text-neutral-400 bg-neutral-100"}`}
+          aria-hidden="true"
         >
           <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${expanded ? 'rotate-180' : ''}`} />
         </div>
@@ -255,6 +278,16 @@ export default function TrackCard({
                 return (
                   <div key={pIdx} className="bg-white">
                     <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isPartExpanded}
+                      aria-label={`Toggle ${part.title}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          togglePart(pIdx);
+                        }
+                      }}
                       className={`relative overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/50 transition-colors ${isPartExpanded ? 'border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
                       onClick={() => togglePart(pIdx)}
                     >
@@ -265,9 +298,9 @@ export default function TrackCard({
                       />
                       <div className="relative z-10 flex items-center gap-3">
                         {isPartCompleted ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" />
                         ) : (
-                          <Circle className="w-4 h-4 text-neutral-300 shrink-0" />
+                          <Circle className="w-4 h-4 text-neutral-300 shrink-0" aria-hidden="true" />
                         )}
                         <div>
                           <h4 className={`text-xs font-bold ${isPartExpanded ? 'text-indigo-900' : 'text-neutral-800'}`}>{part.title}</h4>
@@ -277,10 +310,10 @@ export default function TrackCard({
                         </div>
                       </div>
                       <div className="relative z-10 flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-neutral-500 bg-white/60 px-2 py-0.5 rounded-full border border-neutral-200 backdrop-blur-sm">
+                        <span className="text-[10px] font-bold text-neutral-500 bg-white/60 px-2 py-0.5 rounded-full border border-neutral-200 backdrop-blur-sm" aria-label={`${partSolved} of ${part.problems.length} solved`}>
                           {partSolved} / {part.problems.length}
                         </span>
-                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
                       </div>
                     </div>
                     <div className={`grid transition-all duration-300 ease-in-out ${isPartExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
