@@ -191,7 +191,7 @@ export default function NoteModal({
                   onChange={(e) => setNotes(e.target.value)}
                   disabled={saving}
                   placeholder="Write down your thoughts, approaches, or key takeaways for this problem..."
-                  className="note-editor w-full h-full min-h-[200px] flex-1 p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-mono shadow-inner resize-none"
+                  className="note-editor w-full h-full min-h-[200px] flex-1 p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-sans shadow-inner resize-none"
                 />
                 
                 <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-none">
