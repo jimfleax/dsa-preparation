@@ -43,6 +43,18 @@ export default function CommandPalette({
   const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const altKeyLabel = isMac ? "⌥" : "Alt";
 
+  const heatmapScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && !isLoadingCalendar && calendarData) {
+      setTimeout(() => {
+        if (heatmapScrollRef.current) {
+          heatmapScrollRef.current.scrollLeft = heatmapScrollRef.current.scrollWidth;
+        }
+      }, 50);
+    }
+  }, [isOpen, isLoadingCalendar, calendarData]);
+
   useEscapeKey(isOpen, onClose, 60, "command-palette");
 
   useEffect(() => {
@@ -495,7 +507,11 @@ export default function CommandPalette({
                       <div className="h-24 bg-neutral-200 rounded w-full"></div>
                     </div>
                   ) : calendarData?.submissionCalendar ? (
-                    <LeetCodeHeatmap submissionCalendar={calendarData.submissionCalendar} weeksToShow={16} />
+                    <div ref={heatmapScrollRef} className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar pb-2">
+                      <div className="w-max pr-2">
+                        <LeetCodeHeatmap submissionCalendar={calendarData.submissionCalendar} weeksToShow={52} />
+                      </div>
+                    </div>
                   ) : !leetcodeUsername ? (
                     <div className="flex flex-col items-center justify-center text-center py-6 text-neutral-500">
                       <CalendarDays className="w-8 h-8 mb-3 opacity-30 text-indigo-500" />

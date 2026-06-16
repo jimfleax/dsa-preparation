@@ -106,7 +106,9 @@ export default function LeetCodeHeatmap({
     <div className={`flex flex-col ${className}`}>
       <svg 
         viewBox={`0 0 ${totalWidth} ${totalHeight}`} 
-        className="w-full h-auto text-[9px] font-sans text-neutral-400"
+        width={totalWidth}
+        height={totalHeight}
+        className="text-[9px] font-sans text-neutral-400"
       >
         {/* Month Labels */}
         <g transform={`translate(${labelWidth}, 10)`}>
@@ -124,9 +126,13 @@ export default function LeetCodeHeatmap({
 
         {/* Day Labels */}
         <g transform={`translate(0, ${labelHeight})`}>
+          <text y={0 * (cellSize + cellGap) + 8} className="fill-current">Sun</text>
           <text y={1 * (cellSize + cellGap) + 8} className="fill-current">Mon</text>
+          <text y={2 * (cellSize + cellGap) + 8} className="fill-current">Tue</text>
           <text y={3 * (cellSize + cellGap) + 8} className="fill-current">Wed</text>
+          <text y={4 * (cellSize + cellGap) + 8} className="fill-current">Thu</text>
           <text y={5 * (cellSize + cellGap) + 8} className="fill-current">Fri</text>
+          <text y={6 * (cellSize + cellGap) + 8} className="fill-current">Sat</text>
         </g>
 
         {/* Heatmap Grid */}
