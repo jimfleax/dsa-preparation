@@ -432,8 +432,8 @@ export default function App() {
       }
 
       if (selectedTags.length > 0) {
-        const hasAllTags = selectedTags.every((t) => doc.tags.includes(t));
-        if (!hasAllTags) return false;
+        const hasSomeTags = selectedTags.some((t) => doc.tags.includes(t));
+        if (!hasSomeTags) return false;
       }
 
       return true;
