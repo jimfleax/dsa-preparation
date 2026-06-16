@@ -94,7 +94,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           <FeatureCard 
             icon={<RefreshCcw className="w-6 h-6 text-purple-600" />}
             title="Smart Review Tracker"
-            description="Log your attempts, utilize spaced repetition for optimal review intervals, and attach rich Markdown notes to every problem."
+            description="Log your attempts, utilize spaced repetition for optimal review intervals, and attach notes to every problem."
             delay={0.3}
           />
         </motion.div>
