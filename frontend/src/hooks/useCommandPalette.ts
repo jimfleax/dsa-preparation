@@ -27,7 +27,9 @@ export function useCommandPalette(leetcodeUsername?: string) {
     if (cached) {
       try {
         const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < 5 * 60 * 1000) {
+        // Invalidate cache if it is older than 5 minutes OR if the cached data is missing 'ranking'
+        // (to handle transition from older backend version that didn't include ranking)
+        if (Date.now() - timestamp < 5 * 60 * 1000 && data && "ranking" in data) {
           setCalendarData(data);
           return;
         }
