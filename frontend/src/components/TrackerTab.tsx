@@ -264,25 +264,25 @@ export default function ProblemsTab({
       {/* Stats Section */}
       <div
         id="problems-stats-section"
-        className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         {/* Total Solved Card */}
-        <div className="col-span-1 bg-white border border-neutral-100 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-2 sm:gap-4 hover:border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group">
-          <div className="bg-indigo-50 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
-            <Inbox className="w-5 h-5 sm:w-8 sm:h-8" />
+        <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group">
+          <div className="bg-indigo-50 p-4 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+            <Inbox className="w-8 h-8" />
           </div>
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs md:text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">
               Problems Solved
             </p>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-neutral-800">
+            <p className="text-3xl sm:text-4xl font-extrabold text-neutral-800">
               <AnimatedNumber value={problems.length} />
             </p>
           </div>
         </div>
 
         {/* Difficulty Distribution Chart */}
-        <div className="col-span-2 md:col-span-1 bg-white border border-neutral-100 p-3 sm:p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center h-40 sm:h-48 hover:border-neutral-200 hover:shadow-md transition-all duration-300">
+        <div className="bg-white border border-neutral-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center h-48 hover:border-neutral-200 hover:shadow-md transition-all duration-300">
           {problems.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -290,9 +290,9 @@ export default function ProblemsTab({
                   data={difficultyData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={38}
-                  outerRadius={55}
-                  paddingAngle={4}
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={5}
                   dataKey="value"
                   stroke="none"
                   style={{ outline: "none" }}
@@ -311,7 +311,7 @@ export default function ProblemsTab({
                     borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     padding: "6px 10px",
                   }}
                   itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
@@ -321,25 +321,25 @@ export default function ProblemsTab({
                   align="right"
                   layout="vertical"
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "10px" }}
+                  wrapperStyle={{ fontSize: "12px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-xs sm:text-sm text-neutral-400 font-medium">
+            <p className="text-sm text-neutral-400 font-medium">
               No problems tracked yet.
             </p>
           )}
         </div>
 
         {/* Quick Actions Card */}
-        <div className="col-span-1 bg-white border border-neutral-100 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-2 sm:gap-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs md:text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">
+        <div className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
+          <div className="text-center mb-1">
+            <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">
               Quick Actions
             </p>
           </div>
-          <div className="flex flex-col gap-2 w-full max-w-[200px]">
+          <div className="flex flex-col gap-3 w-full max-w-[200px]">
             <Tooltip content="Focus on weakest problem" shortcut="S">
               <button
                 id="smart-revisit-btn"
@@ -351,20 +351,20 @@ export default function ProblemsTab({
                   }
                 }}
                 disabled={problems.length === 0}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-[10px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-[11px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                <span className="truncate">Smart Revisit</span>
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Smart Revisit
               </button>
             </Tooltip>
             <Tooltip content="Track new problem" shortcut="A">
               <button
                 id="add-problem-btn"
                 onClick={onOpenAddModal}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
               >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                <span className="truncate">Add Problem</span>
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Add Problem
               </button>
             </Tooltip>
           </div>

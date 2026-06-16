@@ -221,17 +221,17 @@ export default function TracksTab() {
   return (
     <div className="space-y-6">
       {totalProblems > 0 && (
-        <div className="bg-white border border-neutral-200 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-6 md:gap-8">
-          <div className="h-40 sm:h-48 w-full md:w-[280px] shrink-0 flex items-center justify-center">
+        <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-8">
+          <div className="h-48 w-full md:w-[280px] shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={38}
-                  outerRadius={55}
-                  paddingAngle={4}
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={5}
                   dataKey="value"
                   stroke="none"
                   style={{ outline: "none" }}
@@ -251,7 +251,7 @@ export default function TracksTab() {
                     borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     padding: "6px 10px",
                   }}
                   itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
@@ -261,12 +261,12 @@ export default function TracksTab() {
                   align="right"
                   layout="vertical"
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "10px" }}
+                  wrapperStyle={{ fontSize: "12px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex-1 text-center md:text-left w-full">
+          <div className="flex-1 text-center md:text-left">
             <h3 className="text-base sm:text-lg font-bold text-neutral-800">
               Overall Progress
             </h3>
@@ -278,42 +278,41 @@ export default function TracksTab() {
               <strong className="text-purple-600"><AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={tracks.length} /></strong> tracks.
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-4 w-full">
-              <div className="bg-emerald-50 border border-emerald-100 p-3 sm:px-4 sm:py-2 rounded-xl flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-center sm:text-left">
+            <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
+              <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-4">
                 <div>
-                  <p className="text-[9px] sm:text-[10px] text-emerald-600/85 font-bold uppercase tracking-wider">
-                    Solved
+                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                    Problems Solved
                   </p>
-                  <p className="text-base sm:text-xl font-extrabold text-emerald-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
                     <AnimatedNumber value={totalSolved} />
                   </p>
                 </div>
-                <div className="hidden sm:block w-px h-8 bg-emerald-200 mx-2 self-center"></div>
-                <div className="border-t sm:border-t-0 pt-1.5 sm:pt-0 border-emerald-100/65 w-full sm:w-auto">
-                  <p className="text-[9px] sm:text-[10px] text-emerald-600/85 font-bold uppercase tracking-wider">
-                    Mastered
+                <div className="w-px h-8 bg-emerald-200 mx-2"></div>
+                <div>
+                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                    Tracks Mastered
                   </p>
-                  <p className="text-base sm:text-xl font-extrabold text-emerald-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
                     <AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} />
                   </p>
                 </div>
               </div>
-
-              <div className="bg-neutral-50 border border-neutral-200 p-3 sm:px-4 sm:py-2 rounded-xl flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-center sm:text-left">
+              <div className="bg-neutral-50 border border-neutral-200 px-4 py-2 rounded-xl flex items-center gap-4">
                 <div>
-                  <p className="text-[9px] sm:text-[10px] text-neutral-500/85 font-bold uppercase tracking-wider">
-                    Left
+                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
+                    Problems Left
                   </p>
-                  <p className="text-base sm:text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
                     <AnimatedNumber value={totalProblems - totalSolved} />
                   </p>
                 </div>
-                <div className="hidden sm:block w-px h-8 bg-neutral-200 mx-2 self-center"></div>
-                <div className="border-t sm:border-t-0 pt-1.5 sm:pt-0 border-neutral-200 w-full sm:w-auto">
-                  <p className="text-[9px] sm:text-[10px] text-neutral-500/85 font-bold uppercase tracking-wider">
+                <div className="w-px h-8 bg-neutral-200 mx-2"></div>
+                <div>
+                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
                     Tracks Left
                   </p>
-                  <p className="text-base sm:text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
                     <AnimatedNumber value={incompleteTracks.length} />
                   </p>
                 </div>
