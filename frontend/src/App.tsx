@@ -121,7 +121,8 @@ export default function App() {
     close: closePalette,
     toggle: togglePalette,
     calendarData,
-    isLoading: isCalendarLoading
+    isLoading: isCalendarLoading,
+    error: calendarError
   } = useCommandPalette(userSettings?.leetcodeUsername);
 
   const [trackedProblemsForPalette, setTrackedProblemsForPalette] = useState<TrackedProblem[]>([]);
@@ -1071,6 +1072,7 @@ export default function App() {
           leetcodeUsername={userSettings?.leetcodeUsername}
           calendarData={calendarData}
           isLoadingCalendar={isCalendarLoading}
+          calendarError={calendarError}
           documents={documents}
           trackedProblems={trackedProblemsForPalette}
           onNavigate={setActiveMainTab}

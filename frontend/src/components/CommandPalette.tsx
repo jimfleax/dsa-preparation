@@ -15,6 +15,7 @@ interface CommandPaletteProps {
   leetcodeUsername?: string;
   calendarData: LeetCodeCalendarData | null;
   isLoadingCalendar: boolean;
+  calendarError?: string | null;
   documents: DocumentMetadata[];
   trackedProblems: TrackedProblem[];
   onNavigate: (tab: "home" | "learn" | "tracker" | "tracks") => void;
@@ -28,6 +29,7 @@ export default function CommandPalette({
   leetcodeUsername,
   calendarData,
   isLoadingCalendar,
+  calendarError,
   documents,
   trackedProblems,
   onNavigate,
@@ -53,8 +55,8 @@ export default function CommandPalette({
 
   const isSearchMode = searchQuery.trim().length > 0;
 
-  const showSidePanels = !isSearchMode && !!leetcodeUsername && (isLoadingCalendar || !!calendarData);
-  const showBanner = !isSearchMode && !showSidePanels;
+  const showSidePanels = !isSearchMode && !!leetcodeUsername && !calendarError && (isLoadingCalendar || !!calendarData);
+  const showBanner = !isSearchMode && !!calendarError;
 
   const searchResults = useMemo(() => {
     if (!isSearchMode) return { docs: [], problems: [] };
@@ -448,23 +450,23 @@ export default function CommandPalette({
                   className="w-full bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl p-3.5 shadow-md flex items-center justify-between gap-4 pointer-events-auto"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                    <div className="p-2 bg-rose-50 rounded-xl text-rose-500 shrink-0">
                       <Flame className="w-4 h-4" />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs font-semibold text-neutral-800">
-                        Unlock LeetCode progress
+                      <p className="text-xs font-semibold text-rose-600">
+                        Failed to retrieve LeetCode stats
                       </p>
                       <p className="text-[10px] text-neutral-500 mt-0.5 leading-normal">
-                        Link your username to view activity heatmaps, daily streaks, and detailed submission progress directly in this control panel.
+                        {calendarError || `We couldn't load stats for "${leetcodeUsername}".`} Please check settings or connection.
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={handleOpenSettings}
-                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 whitespace-nowrap shadow-sm hover:shadow cursor-pointer"
+                    className="px-3.5 py-2 bg-neutral-800 hover:bg-neutral-950 text-white rounded-xl text-xs font-bold transition-all active:scale-95 whitespace-nowrap shadow-sm hover:shadow cursor-pointer"
                   >
-                    Connect Account
+                    Check Settings
                   </button>
                 </motion.div>
               )}
