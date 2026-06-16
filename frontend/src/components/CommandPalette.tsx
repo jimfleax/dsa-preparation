@@ -8,6 +8,7 @@ import { useEscapeKey } from "../hooks/useEscapeKey";
 import { DocumentMetadata, TrackedProblem } from "../types";
 import { LeetCodeCalendarData } from "../hooks/useCommandPalette";
 import LeetCodeHeatmap from "./LeetCodeHeatmap";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -261,7 +262,7 @@ export default function CommandPalette({
                             <span className="text-xs font-medium">Global Rank</span>
                           </div>
                           <p className="text-2xl font-bold text-neutral-900">
-                            {calendarData.ranking.toLocaleString()}
+                            <AnimatedNumber value={calendarData.ranking} formatter={(val) => val.toLocaleString()} />
                           </p>
                         </div>
                       )}
@@ -272,7 +273,7 @@ export default function CommandPalette({
                           <span className="text-xs font-medium">Current Streak</span>
                         </div>
                         <p className="text-2xl font-bold text-neutral-900">
-                          {calendarData.streak} <span className="text-sm font-normal text-neutral-500">days</span>
+                          <AnimatedNumber value={calendarData.streak} /> <span className="text-sm font-normal text-neutral-500">days</span>
                         </p>
                       </div>
                       
@@ -282,7 +283,7 @@ export default function CommandPalette({
                           <span className="text-xs font-medium">Active Days</span>
                         </div>
                         <p className="text-xl font-bold text-neutral-900">
-                          {calendarData.totalActiveDays}
+                          <AnimatedNumber value={calendarData.totalActiveDays} />
                         </p>
                       </div>
 

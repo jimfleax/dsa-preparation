@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 
-export function AnimatedNumber({ value, duration = 1000 }: { value: number | null; duration?: number }) {
+export function AnimatedNumber({ 
+  value, 
+  duration = 1000,
+  formatter
+}: { 
+  value: number | null; 
+  duration?: number;
+  formatter?: (val: number) => string;
+}) {
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
@@ -29,5 +37,5 @@ export function AnimatedNumber({ value, duration = 1000 }: { value: number | nul
     return () => cancelAnimationFrame(animationFrame);
   }, [value, duration]);
 
-  return <>{displayValue}</>;
+  return <>{formatter ? formatter(displayValue) : displayValue}</>;
 }
