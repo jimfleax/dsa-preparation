@@ -14,3 +14,4 @@ scripts/
 feature_plans/
 assets/
 CODEBASE_AUDIT.md
+.agent/
