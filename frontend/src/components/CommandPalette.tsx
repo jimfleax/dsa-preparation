@@ -38,6 +38,8 @@ export default function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+  const altKeyLabel = isMac ? "⌥" : "Alt";
 
   useEscapeKey(isOpen, onClose, 60, "command-palette");
 
@@ -91,11 +93,11 @@ export default function CommandPalette({
   }, [isSearchMode, searchResults]);
 
   const navItemsConfig = useMemo(() => [
-    { tab: "home" as const, label: "Home Dashboard", icon: Home, hoverColor: "text-indigo-600" },
-    { tab: "learn" as const, label: "Study Theory & Docs", icon: BookOpen, hoverColor: "text-indigo-600" },
-    { tab: "tracker" as const, label: "Problem Tracker", icon: Code2, hoverColor: "text-emerald-600" },
-    { tab: "tracks" as const, label: "Roadmap Tracks", icon: Map, hoverColor: "text-purple-600" },
-    { tab: "settings" as const, label: "Settings", icon: Settings, hoverColor: "text-neutral-900" }
+    { tab: "home" as const, label: "Home Dashboard", icon: Home, hoverColor: "text-indigo-600", keyChar: "h" },
+    { tab: "learn" as const, label: "Study Theory & Docs", icon: BookOpen, hoverColor: "text-indigo-600", keyChar: "l" },
+    { tab: "tracker" as const, label: "Problem Tracker", icon: Code2, hoverColor: "text-emerald-600", keyChar: "t" },
+    { tab: "tracks" as const, label: "Roadmap Tracks", icon: Map, hoverColor: "text-purple-600", keyChar: "r" },
+    { tab: "settings" as const, label: "Settings", icon: Settings, hoverColor: "text-neutral-900", keyChar: "s" }
   ], []);
 
   // Reset focus index when items change
@@ -114,6 +116,40 @@ export default function CommandPalette({
   }, [focusedIndex]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.altKey) {
+      const key = e.key.toLowerCase();
+      if (key === "h") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNavigate("home");
+        return;
+      }
+      if (key === "l") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNavigate("learn");
+        return;
+      }
+      if (key === "t") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNavigate("tracker");
+        return;
+      }
+      if (key === "r") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNavigate("tracks");
+        return;
+      }
+      if (key === "s") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleOpenSettings();
+        return;
+      }
+    }
+
     if (items.length === 0) return;
 
     if (e.key === "ArrowDown") {
@@ -165,12 +201,12 @@ export default function CommandPalette({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
-        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs md:flex items-start justify-center hidden pt-[10vh]"
+        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs md:flex items-center justify-center hidden"
         onClick={onClose}
       />
 
       {/* Main Container */}
-      <div className="fixed inset-0 z-[60] pointer-events-none md:flex items-start justify-center hidden pt-[10vh]">
+      <div className="fixed inset-0 z-[60] pointer-events-none md:flex items-center justify-center hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: -20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -268,7 +304,7 @@ export default function CommandPalette({
                 className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-sm"
               />
               <div className="flex items-center gap-1 shrink-0 ml-2">
-                <kbd className="px-1.5 py-0.5 bg-neutral-100 border border-neutral-200 rounded text-[9px] font-mono text-neutral-400">ESC</kbd>
+                <kbd className="px-1 py-[1px] bg-neutral-100 border border-neutral-200 rounded text-[8px] font-mono text-neutral-400">ESC</kbd>
               </div>
             </div>
 
@@ -381,6 +417,12 @@ export default function CommandPalette({
                             }`}>
                               {item.label}
                             </span>
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0 ml-2">
+                            <kbd className="px-1 py-[1px] bg-neutral-100/80 border border-neutral-200/50 rounded text-[8px] font-mono text-neutral-400 group-hover:text-neutral-500 transition-colors uppercase">
+                              {altKeyLabel}+{item.keyChar}
+                            </kbd>
                           </div>
                         </button>
                       </React.Fragment>

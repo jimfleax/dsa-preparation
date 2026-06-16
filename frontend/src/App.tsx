@@ -621,18 +621,18 @@ export default function App() {
               <Tooltip content="use this keyboard shortcut to open control panel">
                 <button
                   onClick={togglePalette}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-50 hover:bg-indigo-50/50 border border-neutral-200/80 hover:border-indigo-200/80 rounded-xl text-neutral-400 hover:text-indigo-600 transition-all cursor-pointer active:scale-95 text-[10px] font-bold tracking-wide"
+                  className="flex items-center gap-1 px-2.5 py-1 bg-neutral-50 hover:bg-indigo-50/50 border border-neutral-200/80 hover:border-indigo-200/80 rounded-xl text-neutral-400 hover:text-indigo-600 transition-all cursor-pointer active:scale-95 text-[9px] font-bold tracking-wide"
                 >
                   {isMac ? (
                     <>
-                      <kbd className="font-sans font-semibold">⌘</kbd>
-                      <kbd className="font-sans font-semibold">K</kbd>
+                      <kbd className="font-sans font-medium">⌘</kbd>
+                      <kbd className="font-sans font-medium">K</kbd>
                     </>
                   ) : (
                     <>
-                      <kbd className="font-sans font-semibold">Ctrl</kbd>
+                      <kbd className="font-sans font-medium">Ctrl</kbd>
                       <span className="text-neutral-300 font-normal">+</span>
-                      <kbd className="font-sans font-semibold">K</kbd>
+                      <kbd className="font-sans font-medium">K</kbd>
                     </>
                   )}
                 </button>
