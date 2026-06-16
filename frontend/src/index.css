@@ -159,3 +159,12 @@
   --animation-direction: normal;
   border-radius: 8px; /* Slightly softer borders for inline elements */
 }
+
+/* Hide scrollbar for horizontally scrollable tags strip */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

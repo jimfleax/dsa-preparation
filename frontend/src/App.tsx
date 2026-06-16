@@ -20,7 +20,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
-import StatsGrid from "./components/StatsGrid";
 import DocumentCard from "./components/DocumentCard";
 import PreviewPanel from "./components/PreviewPanel";
 import TrackerTab from "./components/TrackerTab";
@@ -791,9 +790,6 @@ export default function App() {
                 className="w-full flex-1 flex flex-col gap-6"
               >
                 <div className="flex flex-col gap-6">
-                  {/* Loaded Documents Dynamic Stats Strip */}
-                  <StatsGrid documents={documents} />
-
                   {/* Filtration Control Panel Box */}
                   <div
                     id="filter-control-panel-container"
@@ -833,19 +829,19 @@ export default function App() {
                     {allTags.length > 0 && (
                       <div
                         id="filter-tags-strip"
-                        className="pt-3 border-t border-neutral-100 flex flex-wrap items-center gap-2"
+                        className="pt-3 border-t border-neutral-100 flex items-center gap-3 w-full overflow-hidden"
                       >
-                        <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider mr-1">
+                        <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider shrink-0">
                           Filter by Tags:
                         </span>
-                        <div className="flex flex-wrap gap-1.5 flex-1">
+                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1 flex-1">
                           {allTags.map((tag) => {
                             const isSelected = selectedTags.includes(tag);
                             return (
                               <button
                                 key={tag}
                                 onClick={() => handleToggleTag(tag)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border active:scale-95 ${
+                                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border active:scale-95 shrink-0 ${
                                   isSelected
                                     ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
                                     : "bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100"
@@ -859,7 +855,7 @@ export default function App() {
                         {selectedTags.length > 0 && (
                           <button
                             onClick={() => setSelectedTags([])}
-                            className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-bold active:scale-95 transition-all cursor-pointer border border-transparent hover:border-rose-100 bg-rose-50/50 hover:bg-rose-50 px-2.5 py-1 rounded-lg"
+                            className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-bold active:scale-95 transition-all cursor-pointer border border-transparent hover:border-rose-100 bg-rose-50/50 hover:bg-rose-50 px-2.5 py-1 rounded-lg shrink-0"
                           >
                             <X className="w-3.5 h-3.5" /> Clear Tags
                           </button>
