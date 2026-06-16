@@ -134,7 +134,7 @@ export default function TrackCard({
           )}
           <div>
             <p
-              className={`text-sm font-bold ${isSolved ? "text-neutral-500 line-through decoration-neutral-300" : "text-neutral-800 group-hover:text-indigo-700 transition-colors"}`}
+              className={`text-xs font-bold ${isSolved ? "text-neutral-500 line-through decoration-neutral-300" : "text-neutral-800 group-hover:text-indigo-700 transition-colors"}`}
             >
               {problem.title}
             </p>
@@ -175,7 +175,7 @@ export default function TrackCard({
       >
         <div className="flex-1 pr-6 min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-lg font-bold text-neutral-900 truncate max-w-full">
+            <h3 className="text-base font-bold text-neutral-900 truncate max-w-full">
               {track.title}
             </h3>
             {isActive && (
@@ -190,7 +190,7 @@ export default function TrackCard({
               </span>
             )}
           </div>
-          <p className={`text-sm text-neutral-500 mt-1 font-medium ${expanded ? "" : "line-clamp-2"}`}>
+          <p className={`text-xs text-neutral-500 mt-1 font-medium ${expanded ? "" : "line-clamp-2"}`}>
             {track.description}
           </p>
           <div className="mt-4 flex items-center gap-4">
@@ -222,7 +222,7 @@ export default function TrackCard({
               </div>
             )}
             <span
-              className={`text-xs font-bold ${isCompleted ? "text-emerald-600" : "text-neutral-600"}`}
+              className={`text-[11px] font-bold ${isCompleted ? "text-emerald-600" : "text-neutral-600"}`}
             >
               <AnimatedNumber value={completedCount} /> / <AnimatedNumber value={totalProblems} /> (<AnimatedNumber value={progressPercent} />%)
             </span>
@@ -270,9 +270,9 @@ export default function TrackCard({
                           <Circle className="w-4 h-4 text-neutral-300 shrink-0" />
                         )}
                         <div>
-                          <h4 className={`text-sm font-bold ${isPartExpanded ? 'text-indigo-900' : 'text-neutral-800'}`}>{part.title}</h4>
+                          <h4 className={`text-xs font-bold ${isPartExpanded ? 'text-indigo-900' : 'text-neutral-800'}`}>{part.title}</h4>
                           {part.description && (
-                            <p className="text-[11px] text-neutral-500 font-medium">{part.description}</p>
+                            <p className="text-[10px] text-neutral-500 font-medium">{part.description}</p>
                           )}
                         </div>
                       </div>
