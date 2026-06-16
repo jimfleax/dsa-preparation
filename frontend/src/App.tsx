@@ -484,7 +484,7 @@ export default function App() {
             >
               <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div className="hidden sm:block">
+            <div>
               <h1
                 id="navbar-main-heading"
                 className="text-base font-bold text-neutral-905 tracking-tight leading-tight"
