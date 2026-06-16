@@ -1,15 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   X,
-  Copy,
-  Check,
   FileText,
-  ArrowRightLeft,
   BookOpen,
-  Terminal,
   Code,
-  Maximize2,
-  Minimize2,
   Loader2,
 } from "lucide-react";
 import Markdown from "react-markdown";
@@ -35,7 +29,6 @@ export default function PreviewPanel({
 }: PreviewPanelProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DocumentDetail | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEscapeKey(isOpen, onClose, 50, "preview-panel");
@@ -71,8 +64,6 @@ export default function PreviewPanel({
     };
 
     fetchDocument();
-    // Reset copy state and maximize state when switching documents
-    setCopied(false);
   }, [activeDoc]);
 
   // Lock root page scroll when a modal overlay is active on smaller screens
@@ -105,13 +96,6 @@ export default function PreviewPanel({
     }
   }, [isOpen, setIsMaximized]);
 
-  const handleCopy = () => {
-    if (!data) return;
-    navigator.clipboard.writeText(data.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <>
       {/* Backdrop overlay - visible on mobile/tablet, or when maximized, captures clicks to dismiss panel */}
@@ -142,63 +126,23 @@ export default function PreviewPanel({
           id="preview-panel-header"
           className="h-16 border-b border-neutral-100 flex items-center justify-between px-6 bg-white shrink-0"
         >
-          <div id="header-meta-group" className="flex items-center gap-2.5">
+          <div id="header-meta-group" className="flex items-center gap-2.5 min-w-0 flex-1 mr-4">
             <div
               id="item-icon-wrapper"
-              className="p-2 border border-indigo-100 bg-indigo-50/50 text-indigo-700 rounded-lg"
+              className="p-2 border border-indigo-100 bg-indigo-50/50 text-indigo-700 rounded-lg shrink-0"
             >
               <BookOpen className="w-4 h-4 text-indigo-600" />
             </div>
-            <div>
-              <h4
-                id="header-meta-title"
-                className="text-xs text-indigo-600 font-bold uppercase tracking-widest leading-none mb-1"
-              >
-                Theory Module
-              </h4>
-              <p
-                id="header-meta-filename"
-                className="text-[11px] font-mono text-neutral-500 leading-none"
-              >
-                theory/{activeDoc?.filename}
-              </p>
-            </div>
+            <h4
+              id="header-meta-title"
+              className="text-sm font-semibold text-neutral-850 truncate"
+              title={activeDoc?.title}
+            >
+              {activeDoc?.title}
+            </h4>
           </div>
 
-          <div id="header-action-group" className="flex items-center gap-1">
-            {data && (
-              <button
-                id="copy-text-btn"
-                onClick={handleCopy}
-                title="Copy original raw markdown content"
-                className="p-2 hover:bg-indigo-50/50 rounded-lg text-neutral-500 hover:text-indigo-700 active:scale-95 transition-all cursor-pointer"
-              >
-                {copied ? (
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-650">
-                    <Check className="w-4 h-4" /> Copied
-                  </span>
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </button>
-            )}
-            {/* Maximize/Minimize Toggle Button */}
-            <button
-              id="maximize-sidebar-btn"
-              onClick={() => setIsMaximized(!isMaximized)}
-              title={
-                isMaximized
-                  ? "Minimize Preview"
-                  : "Maximize Preview (Full Screen)"
-              }
-              className="p-2 hover:bg-neutral-50 rounded-lg text-neutral-500 hover:text-neutral-850 active:scale-95 transition-all cursor-pointer"
-            >
-              {isMaximized ? (
-                <Minimize2 className="w-4.5 h-4.5 text-indigo-600" />
-              ) : (
-                <Maximize2 className="w-4.5 h-4.5" />
-              )}
-            </button>
+          <div id="header-action-group" className="flex items-center shrink-0">
             <button
               id="close-sidebar-btn"
               onClick={onClose}
@@ -280,8 +224,6 @@ export default function PreviewPanel({
                   {data.metadata.title}
                 </h1>
 
-
-
                 {/* Tag List */}
                 {data.metadata.tags.length > 0 && (
                   <div
@@ -313,27 +255,6 @@ export default function PreviewPanel({
             </div>
           ) : null}
         </div>
-
-        {/* Floating Action Hint */}
-        {data && (
-          <div
-            id="preview-action-footer"
-            className="p-4 border-t border-neutral-50 bg-white flex items-center justify-between shrink-0"
-          >
-            <p id="footer-actions-tip" className="text-[11px] text-neutral-400">
-              Editing this content? Just modify files inside `/content`
-              directory!
-            </p>
-            <button
-              id="footer-copy-btn"
-              onClick={handleCopy}
-              className="px-5 py-2.5 bg-indigo-650 hover:bg-indigo-700 text-white rounded-full text-xs font-bold flex items-center gap-2 active:scale-95 shadow-md shadow-indigo-100 hover:shadow-lg hover:shadow-indigo-200 transition-all cursor-pointer"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              Copy Solution Code
-            </button>
-          </div>
-        )}
       </div>
     </>
   );
