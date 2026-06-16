@@ -622,17 +622,17 @@ export default function App() {
               <Tooltip content="use this keyboard shortcut to open control panel">
                 <button
                   onClick={togglePalette}
-                  className="flex items-center gap-0.5 p-0.5 bg-neutral-100 hover:bg-neutral-200/60 border border-neutral-200/50 rounded-lg transition-all cursor-pointer active:scale-95 select-none"
+                  className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all cursor-pointer active:scale-95 select-none p-1 rounded-xl"
                 >
                   {isMac ? (
                     <>
-                      <kbd className="bg-white px-2 py-1 rounded text-[9px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none">⌘</kbd>
-                      <kbd className="bg-white px-2 py-1 rounded text-[9px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none">K</kbd>
+                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">⌘</kbd>
+                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">K</kbd>
                     </>
                   ) : (
                     <>
-                      <kbd className="bg-white px-2 py-1 rounded text-[9px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none">Ctrl</kbd>
-                      <kbd className="bg-white px-2 py-1 rounded text-[9px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none">K</kbd>
+                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">Ctrl</kbd>
+                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">K</kbd>
                     </>
                   )}
                 </button>
