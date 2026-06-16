@@ -12,8 +12,6 @@ export default function DocumentCard({
   isActive,
   onSelect,
 }: DocumentCardProps) {
-  const isTheory = doc.type === "theory";
-
   return (
     <button
       id={`doc-card-${doc.id}`}
@@ -25,36 +23,8 @@ export default function DocumentCard({
       }`}
     >
       <div id={`doc-card-top-${doc.id}`} className="space-y-3 w-full">
-        {/* Collection Type Badge */}
-        <div
-          id={`doc-card-badges-${doc.id}`}
-          className="flex items-center justify-between w-full"
-        >
-          <span
-            id={`badge-type-${doc.id}`}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-              isTheory
-                ? "bg-indigo-50 text-indigo-700"
-                : "bg-indigo-600 text-white"
-            }`}
-          >
-            {isTheory ? (
-              <BookOpen className="w-3.5 h-3.5" />
-            ) : (
-              <Terminal className="w-3.5 h-3.5" />
-            )}
-            {isTheory ? "Theory" : "Problemsheet"}
-          </span>
-        </div>
-
-        {/* Category & Title */}
+        {/* Title */}
         <div id={`doc-card-title-sec-${doc.id}`}>
-          <p
-            id={`doc-card-category-${doc.id}`}
-            className="text-[11px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1"
-          >
-            {doc.category}
-          </p>
           <h3
             id={`doc-card-title-${doc.id}`}
             className={`text-base font-bold leading-snug group-hover:text-indigo-600 line-clamp-2 transition-colors ${

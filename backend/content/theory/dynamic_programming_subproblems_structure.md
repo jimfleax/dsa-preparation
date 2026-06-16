@@ -1,7 +1,5 @@
 ---
 title: Dynamic Programming - Overlapping Subproblems & Optimal Substructure
-category: Algorithms
-difficulty: Medium
 tags: dynamic-programming, recursion, memoization, tabulation, algorithms
 ---
 

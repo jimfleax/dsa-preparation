@@ -54,7 +54,7 @@ export default function PreviewPanel({
           (import.meta as any).env.VITE_API_URL ||
           "https://dsa-preparation-788547842951.asia-south1.run.app";
         const response = await fetch(
-          `${apiBase}/api/document?type=${activeDoc.type}&filename=${activeDoc.filename}`,
+          `${apiBase}/api/document?filename=${activeDoc.filename}`,
         );
         const result = await response.json();
         if (result.success) {
@@ -147,27 +147,20 @@ export default function PreviewPanel({
               id="item-icon-wrapper"
               className="p-2 border border-indigo-100 bg-indigo-50/50 text-indigo-700 rounded-lg"
             >
-              {activeDoc?.type === "theory" ? (
-                <BookOpen className="w-4 h-4 text-indigo-600" />
-              ) : (
-                <Terminal className="w-4 h-4 text-indigo-750" />
-              )}
+              <BookOpen className="w-4 h-4 text-indigo-600" />
             </div>
             <div>
               <h4
                 id="header-meta-title"
                 className="text-xs text-indigo-600 font-bold uppercase tracking-widest leading-none mb-1"
               >
-                {activeDoc?.type === "theory"
-                  ? "Theory Module"
-                  : "Problem Sheet"}
+                Theory Module
               </h4>
               <p
                 id="header-meta-filename"
                 className="text-[11px] font-mono text-neutral-500 leading-none"
               >
-                {activeDoc?.type === "theory" ? "theory" : "problemsheets"}/
-                {activeDoc?.filename}
+                theory/{activeDoc?.filename}
               </p>
             </div>
           </div>
@@ -238,7 +231,7 @@ export default function PreviewPanel({
                 id="no-active-doc-desc"
                 className="text-xs text-neutral-450 max-w-xs mt-1"
               >
-                Select any theory module or problemsheet from the grid workspace
+                Select any theory module from the grid workspace
                 to render the preview here.
               </p>
             </div>
@@ -287,19 +280,7 @@ export default function PreviewPanel({
                   {data.metadata.title}
                 </h1>
 
-                <div
-                  id="meta-pills-row"
-                  className="flex flex-wrap gap-2 items-center text-xs"
-                >
-                  {/* Category Pill */}
-                  <div
-                    id="meta-pill-cat"
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-indigo-100 text-indigo-750 rounded-md font-medium"
-                  >
-                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-                    {data.metadata.category}
-                  </div>
-                </div>
+
 
                 {/* Tag List */}
                 {data.metadata.tags.length > 0 && (

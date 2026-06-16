@@ -39,10 +39,6 @@ export default function App() {
   const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [collectionFilter, setCollectionFilter] = useState<
-    "all" | "theory" | "problemsheets"
-  >("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [activeDoc, setActiveDoc] = useState<DocumentMetadata | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
@@ -408,43 +404,22 @@ export default function App() {
     };
   }, [backendStatus, checkBackendStatus]);
 
-  // Filter Categories dynamically from currently loaded files
-  const availableCategories = useMemo(() => {
-    const categories = new Set<string>();
-    documents.forEach((doc) => {
-      if (doc.category) categories.add(doc.category);
-    });
-    return ["All", ...Array.from(categories)];
-  }, [documents]);
-
-  // Combined search and multi-facet filtering selection
+  // Combined search and filtering selection
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
-      // 1. Filter by collection type
-      if (collectionFilter !== "all" && doc.type !== collectionFilter) {
-        return false;
-      }
-
-      // 2. Filter by category
-      if (categoryFilter !== "All" && doc.category !== categoryFilter) {
-        return false;
-      }
-
-      // 3. Filter by search query
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase().trim();
         const matchesTitle = doc.title.toLowerCase().includes(query);
-        const matchesCategory = doc.category.toLowerCase().includes(query);
         const matchesTags = doc.tags.some((tag) =>
           tag.toLowerCase().includes(query),
         );
 
-        return matchesTitle || matchesCategory || matchesTags;
+        return matchesTitle || matchesTags;
       }
 
       return true;
     });
-  }, [documents, searchQuery, collectionFilter, categoryFilter]);
+  }, [documents, searchQuery]);
 
   const handleSelectDocument = (doc: DocumentMetadata) => {
     setActiveDoc(doc);
@@ -453,8 +428,6 @@ export default function App() {
 
   const handleClearFilters = () => {
     setSearchQuery("");
-    setCollectionFilter("all");
-    setCategoryFilter("All");
   };
 
   return (
@@ -817,7 +790,7 @@ export default function App() {
                             id="search-input-field"
                             ref={searchInputRef}
                             type="text"
-                            placeholder="Search by title, category, or tags..."
+                            placeholder="Search by title or tags..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
@@ -833,98 +806,6 @@ export default function App() {
                           </button>
                         )}
                       </div>
-
-                      {/* Collection Type Selector Segment */}
-                      <div
-                        id="collection-tabs-row"
-                        className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 flex gap-1 self-stretch sm:self-start lg:self-auto shrink-0 overflow-x-auto scrollbar-none"
-                      >
-                        <button
-                          id="tab-collection-all"
-                          onClick={() => setCollectionFilter("all")}
-                          className={`flex-1 sm:flex-initial text-center px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                            collectionFilter === "all"
-                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                              : "text-neutral-500 hover:text-neutral-900"
-                          }`}
-                        >
-                          All Collections
-                        </button>
-                        <button
-                          id="tab-collection-theory"
-                          onClick={() => setCollectionFilter("theory")}
-                          className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                            collectionFilter === "theory"
-                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                              : "text-neutral-500 hover:text-neutral-900"
-                          }`}
-                        >
-                          <BookOpen className="w-3.5 h-3.5 text-indigo-650" />
-                          Theory Mode
-                        </button>
-                        <button
-                          id="tab-collection-sheets"
-                          onClick={() => setCollectionFilter("problemsheets")}
-                          className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                            collectionFilter === "problemsheets"
-                              ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                              : "text-neutral-500 hover:text-neutral-900"
-                          }`}
-                        >
-                          <Terminal className="w-3.5 h-3.5" />
-                          Problemsheets
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      id="filter-row-secondary"
-                      className="flex flex-wrap items-center gap-4 pt-3 border-t border-neutral-50 text-xs"
-                    >
-                      <div
-                        id="multi-facet-filters-box"
-                        className="flex flex-wrap items-center gap-3 flex-1"
-                      >
-                        {/* Category Filter Pills segment */}
-                        <div
-                          id="filter-category-select-wrapper"
-                          className="flex items-center gap-2"
-                        >
-                          <span
-                            id="lbl-category-select"
-                            className="text-neutral-400 font-medium flex items-center gap-1.5"
-                          >
-                            <Layers className="w-3.5 h-3.5 text-indigo-500" />{" "}
-                            Filter Category:
-                          </span>
-                          <select
-                            id="category-dropdown"
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-755 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                          >
-                            {availableCategories.map((cat, i) => (
-                              <option key={i} value={cat}>
-                                {cat}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Active filters summary indicator */}
-                      {(searchQuery ||
-                        collectionFilter !== "all" ||
-                        categoryFilter !== "All") && (
-                        <button
-                          id="clear-all-filters-btn"
-                          onClick={handleClearFilters}
-                          className="text-neutral-550 hover:text-indigo-650 font-semibold flex items-center gap-1 py-1 px-2 hover:bg-indigo-50/50 rounded-lg cursor-pointer select-none"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          Clear Active Filters
-                        </button>
-                      )}
                     </div>
                   </div>
 

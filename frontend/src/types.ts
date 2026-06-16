@@ -1,10 +1,7 @@
 export interface DocumentMetadata {
   id: string;
-  type: "theory" | "problemsheets";
   filename: string;
   title: string;
-  category: string;
-  difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
 }
 

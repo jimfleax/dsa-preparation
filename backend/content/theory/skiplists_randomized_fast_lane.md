@@ -1,7 +1,5 @@
 ---
 title: SkipLists: The Randomized Fast Lane
-category: Data Structures
-difficulty: Hard
 tags: skiplists, search, randomized-algorithms, trees, complexity
 ---
 

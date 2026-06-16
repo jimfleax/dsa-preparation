@@ -77,7 +77,6 @@ export default function CommandPalette({
     
     const docs = documents.filter(doc => 
       doc.title.toLowerCase().includes(query) || 
-      doc.category.toLowerCase().includes(query) ||
       doc.tags.some(t => t.toLowerCase().includes(query))
     ).slice(0, 5); // limit to 5
 
@@ -365,7 +364,6 @@ export default function CommandPalette({
                             </div>
                             <div>
                               <p className={`text-sm font-semibold transition-colors ${isFocused ? "text-indigo-950" : "text-neutral-900"}`}>{doc.title}</p>
-                              <p className={`text-[11px] transition-colors ${isFocused ? "text-indigo-700/80" : "text-neutral-500"}`}>{doc.category}</p>
                             </div>
                           </button>
                         );

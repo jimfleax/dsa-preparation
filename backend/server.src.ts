@@ -14,11 +14,8 @@ import { scrapeLeetCodeTitle } from "./src/controllers/trackerController.ts";
 
 interface DocumentMetadata {
   id: string;
-  type: "theory" | "problemsheets";
   filename: string;
   title: string;
-  category: string;
-  difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
 }
 
@@ -76,13 +73,11 @@ app.use(express.json());
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const THEORY_DIR = path.join(CONTENT_DIR, "theory");
-const PROBLEMSHEETS_DIR = path.join(CONTENT_DIR, "problemsheets");
 
 // Ensure directories exist
 function ensureDirs() {
   if (!fs.existsSync(CONTENT_DIR)) fs.mkdirSync(CONTENT_DIR);
   if (!fs.existsSync(THEORY_DIR)) fs.mkdirSync(THEORY_DIR);
-  if (!fs.existsSync(PROBLEMSHEETS_DIR)) fs.mkdirSync(PROBLEMSHEETS_DIR);
 }
 
 ensureDirs();
@@ -91,15 +86,11 @@ ensureDirs();
 function parseFrontmatter(
   content: string,
   filename: string,
-  type: "theory" | "problemsheets",
 ): DocumentMetadata {
   const meta: DocumentMetadata = {
-    id: `${type}-${filename.replace(/\.md$/, "")}`,
-    type,
+    id: `theory-${filename.replace(/\.md$/, "")}`,
     filename,
     title: filename.replace(/\.md$/, "").replace(/-/g, " "),
-    category: type === "theory" ? "Theory Reference" : "Problem Sheet",
-    difficulty: "Medium",
     tags: [],
   };
 
@@ -113,10 +104,6 @@ function parseFrontmatter(
         const value = line.slice(idx + 1).trim();
         if (key === "title") {
           meta.title = value.replace(/^['"]|['"]$/g, ""); // strip optional quotes
-        } else if (key === "category") {
-          meta.category = value.replace(/^['"]|['"]$/g, "");
-        } else if (key === "difficulty") {
-          meta.difficulty = value.replace(/^['"]|['"]$/g, "") as any;
         } else if (key === "tags") {
           meta.tags = value
             .split(",")
@@ -148,19 +135,7 @@ app.get("/api/documents", (req, res) => {
       for (const file of theoryFiles) {
         const filePath = path.join(THEORY_DIR, file);
         const content = fs.readFileSync(filePath, "utf-8");
-        result.push(parseFrontmatter(content, file, "theory"));
-      }
-    }
-
-    // Read Problemsheets Directory
-    if (fs.existsSync(PROBLEMSHEETS_DIR)) {
-      const sheetFiles = fs
-        .readdirSync(PROBLEMSHEETS_DIR)
-        .filter((file) => file.endsWith(".md"));
-      for (const file of sheetFiles) {
-        const filePath = path.join(PROBLEMSHEETS_DIR, file);
-        const content = fs.readFileSync(filePath, "utf-8");
-        result.push(parseFrontmatter(content, file, "problemsheets"));
+        result.push(parseFrontmatter(content, file));
       }
     }
 
@@ -173,15 +148,15 @@ app.get("/api/documents", (req, res) => {
 
 // API endpoint to fetch details / content of a single document
 app.get("/api/document", (req, res) => {
-  const { type, filename } = req.query;
-  if (!type || !filename || (type !== "theory" && type !== "problemsheets")) {
+  const { filename } = req.query;
+  if (!filename) {
     return res
       .status(400)
-      .json({ success: false, error: "Invalid type or filename parameters." });
+      .json({ success: false, error: "Invalid filename parameter." });
   }
 
   try {
-    const targetDir = path.resolve(type === "theory" ? THEORY_DIR : PROBLEMSHEETS_DIR);
+    const targetDir = path.resolve(THEORY_DIR);
     // Security check to prevent Directory Traversal attacks
     const safeFilename = String(filename).replace(/[^a-zA-Z0-9.\-_]/g, "");
     const filePath = path.resolve(targetDir, safeFilename);
@@ -207,7 +182,7 @@ app.get("/api/document", (req, res) => {
 
     res.json({
       success: true,
-      metadata: parseFrontmatter(rawContent, safeFilename, type),
+      metadata: parseFrontmatter(rawContent, safeFilename),
       content: clientContent,
     });
   } catch (error: any) {

@@ -1,6 +1,5 @@
 ---
 title: Master Sorting Algorithms
-category: Algorithms
 tags: Sorting
 ---
 

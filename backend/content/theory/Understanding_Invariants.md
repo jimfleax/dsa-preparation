@@ -1,6 +1,5 @@
 ---
 title: Understanding Invariants
-category: Algorithms
 tags: dsa, invariant, loop-invariant, algorithm-correctness, mathematical-induction
 ---
 

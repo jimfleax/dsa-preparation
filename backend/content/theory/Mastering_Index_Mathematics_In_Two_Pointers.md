@@ -1,6 +1,5 @@
 ---
 title: Mastering Boundary Mathematics for Two Pointers & Sliding Window
-category: Algorithms
 tags: two-pointers, sliding-window, index-mathematics, boundary-conditions, off-by-one-errors, loop-invariants, interview-prep
 ---
 

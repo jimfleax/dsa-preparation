@@ -1,7 +1,5 @@
 ---
 title: The Hashing Mechanics: Functions, Collisions, and Resolutions
-category: Data Structures
-difficulty: Medium
 tags: hashing, hashtable, hashmap, collisions, chaining, open-addressing
 ---
 

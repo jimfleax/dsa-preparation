@@ -1,7 +1,5 @@
 ---
 title: Demystifying Memory, Bits, Bytes, and Words
-category: Computer Science Foundations
-difficulty: Easy
 tags: memory, hardware, bits, bytes, words, pointers, computer-architecture
 ---
 
