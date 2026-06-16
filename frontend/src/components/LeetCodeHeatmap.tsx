@@ -56,7 +56,7 @@ export default function LeetCodeHeatmap({
       const dayOfWeek = currDate.getDay();
       
       // Track month changes for labels
-      if (dayOfWeek === 0 && currDate.getMonth() !== currentMonth) {
+      if (currDate.getDate() === 1 || currentMonth === -1) {
         months.push({
           label: currDate.toLocaleString("default", { month: "short" }),
           weekIndex: weekIndex
@@ -77,6 +77,11 @@ export default function LeetCodeHeatmap({
       currDate.setDate(currDate.getDate() + 1);
     }
 
+    // Remove the first month label if it's too close to the second one to prevent overlapping
+    if (months.length > 1 && months[1].weekIndex - months[0].weekIndex < 3) {
+      months.shift();
+    }
+
     return { grid: gridLayout, monthLabels: months };
   }, [submissionCalendar, weeksToShow]);
 
@@ -93,7 +98,8 @@ export default function LeetCodeHeatmap({
   const labelHeight = 20;
   const labelWidth = 30;
 
-  const totalWidth = labelWidth + (weeksToShow * (cellSize + cellGap));
+  // Add 15px extra padding to the right so the last month label doesn't get cut off
+  const totalWidth = labelWidth + (weeksToShow * (cellSize + cellGap)) + 15;
   const totalHeight = labelHeight + (7 * (cellSize + cellGap));
 
   return (
