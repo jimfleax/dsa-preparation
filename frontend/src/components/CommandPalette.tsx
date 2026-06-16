@@ -310,8 +310,8 @@ export default function CommandPalette({
                 placeholder="Search problems, articles, or commands..."
                 className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-sm"
               />
-              <div className="flex items-center gap-1 shrink-0 ml-2">
-                <kbd className="px-1 py-[1px] bg-neutral-100 border border-neutral-200 rounded text-[8px] font-mono text-neutral-400">ESC</kbd>
+              <div className="flex items-center gap-0.5 p-0.5 bg-neutral-100 border border-neutral-200/50 rounded-lg shrink-0 ml-2 select-none">
+                <kbd className="bg-white px-1.5 py-0.5 rounded text-[8px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none">ESC</kbd>
               </div>
             </div>
 
@@ -426,9 +426,12 @@ export default function CommandPalette({
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-1 shrink-0 ml-2">
-                            <kbd className="px-1 py-[1px] bg-neutral-100/80 border border-neutral-200/50 rounded text-[8px] font-mono text-neutral-400 group-hover:text-neutral-500 transition-colors uppercase">
-                              {altKeyLabel}+{item.keyChar}
+                          <div className="flex items-center gap-0.5 p-0.5 bg-neutral-100/80 border border-neutral-200/50 rounded-lg shrink-0 ml-2 select-none">
+                            <kbd className="bg-white px-1.5 py-0.5 rounded text-[8px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none uppercase">
+                              {altKeyLabel}
+                            </kbd>
+                            <kbd className="bg-white px-1.5 py-0.5 rounded text-[8px] font-mono text-neutral-500 font-semibold shadow-[0_1px_1.5px_rgba(0,0,0,0.08)] leading-none uppercase">
+                              {item.keyChar}
                             </kbd>
                           </div>
                         </button>
