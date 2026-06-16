@@ -59,7 +59,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           </button>
           
           <a
-            href="https://github.com"
+            href="https://github.com/jimfleax/dsa-preparation"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-4 bg-white border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-700 rounded-xl text-base font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer shadow-sm w-full sm:w-auto"
