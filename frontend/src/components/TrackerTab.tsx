@@ -275,7 +275,7 @@ export default function ProblemsTab({
             <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider mb-1">
               Problems Solved
             </p>
-            <p className="text-4xl font-extrabold text-neutral-800">
+            <p className="text-3xl sm:text-4xl font-extrabold text-neutral-800">
               <AnimatedNumber value={problems.length} />
             </p>
           </div>
@@ -351,9 +351,9 @@ export default function ProblemsTab({
                   }
                 }}
                 disabled={problems.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-[11px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-indigo-200/50 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Smart Revisit
               </button>
             </Tooltip>
@@ -361,9 +361,9 @@ export default function ProblemsTab({
               <button
                 id="add-problem-btn"
                 onClick={onOpenAddModal}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] sm:text-xs font-bold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-indigo-100"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Add Problem
               </button>
             </Tooltip>
@@ -430,13 +430,13 @@ export default function ProblemsTab({
       {filteredProblems.length === 0 ? (
         <div
           id="problems-empty-state"
-          className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto"
+          className="bg-white border border-neutral-100 rounded-2xl p-8 sm:p-12 text-center max-w-lg mx-auto"
         >
-          <Inbox className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-neutral-800">
+          <Inbox className="w-10 h-10 sm:w-12 sm:h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
+          <h3 className="text-sm sm:text-base font-bold text-neutral-800">
             No Problems Tracked Yet
           </h3>
-          <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed">
+          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed">
             {problems.length === 0
               ? "Start tracking your DSA journey! Add a problem you've solved."
               : "No problems match your search. Try a different query."}

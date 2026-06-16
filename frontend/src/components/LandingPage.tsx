@@ -27,7 +27,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-5xl md:text-7xl font-extrabold text-neutral-900 tracking-tight leading-tight max-w-4xl mb-6"
+          className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-neutral-900 tracking-tight leading-tight max-w-4xl mb-6"
         >
           Master Data Structures <br className="hidden md:block" />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
@@ -39,7 +39,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg md:text-xl text-neutral-500 mb-10 max-w-2xl leading-relaxed"
+          className="text-base sm:text-lg md:text-xl text-neutral-500 mb-10 max-w-2xl leading-relaxed"
         >
           Track your problem-solving journey, organize study materials, follow structured roadmaps, and auto-sync your LeetCode progress — all in one unified workspace.
         </motion.p>
@@ -120,7 +120,7 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
       <div className="p-3 bg-neutral-50 rounded-xl mb-5 border border-neutral-100">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-neutral-900 mb-3">{title}</h3>
+      <h3 className="text-lg sm:text-xl font-bold text-neutral-900 mb-3">{title}</h3>
       <p className="text-neutral-500 leading-relaxed text-sm">
         {description}
       </p>

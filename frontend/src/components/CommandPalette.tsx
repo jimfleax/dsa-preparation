@@ -261,7 +261,7 @@ export default function CommandPalette({
                             <Trophy className="w-4 h-4 text-amber-500" />
                             <span className="text-xs font-medium">Global Rank</span>
                           </div>
-                          <p className="text-2xl font-bold text-neutral-900">
+                          <p className="text-xl sm:text-2xl font-bold text-neutral-900">
                             <AnimatedNumber value={calendarData.ranking} formatter={(val) => val.toLocaleString()} />
                           </p>
                         </div>
@@ -272,8 +272,8 @@ export default function CommandPalette({
                           <Flame className="w-4 h-4 text-orange-500" />
                           <span className="text-xs font-medium">Current Streak</span>
                         </div>
-                        <p className="text-2xl font-bold text-neutral-900">
-                          <AnimatedNumber value={calendarData.streak} /> <span className="text-sm font-normal text-neutral-500">days</span>
+                        <p className="text-xl sm:text-2xl font-bold text-neutral-900">
+                          <AnimatedNumber value={calendarData.streak} /> <span className="text-xs sm:text-sm font-normal text-neutral-500">days</span>
                         </p>
                       </div>
                       
@@ -282,7 +282,7 @@ export default function CommandPalette({
                           <CalendarDays className="w-4 h-4 text-indigo-500" />
                           <span className="text-xs font-medium">Active Days</span>
                         </div>
-                        <p className="text-xl font-bold text-neutral-900">
+                        <p className="text-lg sm:text-xl font-bold text-neutral-900">
                           <AnimatedNumber value={calendarData.totalActiveDays} />
                         </p>
                       </div>

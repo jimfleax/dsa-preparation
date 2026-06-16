@@ -267,10 +267,10 @@ export default function TracksTab() {
             </ResponsiveContainer>
           </div>
           <div className="flex-1 text-center md:text-left">
-            <h3 className="text-lg font-bold text-neutral-800">
+            <h3 className="text-base sm:text-lg font-bold text-neutral-800">
               Overall Progress
             </h3>
-            <p className="text-neutral-500 text-sm mt-1">
+            <p className="text-neutral-500 text-xs sm:text-sm mt-1">
               You have completed{" "}
               <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
@@ -284,7 +284,7 @@ export default function TracksTab() {
                   <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
                     Problems Solved
                   </p>
-                  <p className="text-xl font-extrabold text-emerald-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
                     <AnimatedNumber value={totalSolved} />
                   </p>
                 </div>
@@ -293,7 +293,7 @@ export default function TracksTab() {
                   <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
                     Tracks Mastered
                   </p>
-                  <p className="text-xl font-extrabold text-emerald-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
                     <AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} />
                   </p>
                 </div>
@@ -303,7 +303,7 @@ export default function TracksTab() {
                   <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
                     Problems Left
                   </p>
-                  <p className="text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
                     <AnimatedNumber value={totalProblems - totalSolved} />
                   </p>
                 </div>
@@ -312,7 +312,7 @@ export default function TracksTab() {
                   <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
                     Tracks Left
                   </p>
-                  <p className="text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
                     <AnimatedNumber value={incompleteTracks.length} />
                   </p>
                 </div>

@@ -18,9 +18,9 @@ export default function StatsGrid({ documents }: StatsGridProps) {
       >
         <div
           id="icon-theory"
-          className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600 animate-pulse-subtle"
+          className="bg-indigo-50 p-2 sm:p-2.5 rounded-xl text-indigo-600 animate-pulse-subtle"
         >
-          <BookOpen className="w-5 h-5" />
+          <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <p
@@ -31,7 +31,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
           </p>
           <p
             id="val-theory"
-            className="text-2xl font-extrabold text-neutral-850"
+            className="text-xl sm:text-2xl font-extrabold text-neutral-850"
           >
             <AnimatedNumber value={theoryCount} />
           </p>
@@ -44,9 +44,9 @@ export default function StatsGrid({ documents }: StatsGridProps) {
       >
         <div
           id="icon-tags"
-          className="bg-indigo-50 p-2.5 rounded-xl text-indigo-700"
+          className="bg-indigo-50 p-2 sm:p-2.5 rounded-xl text-indigo-700"
         >
-          <Layers className="w-5 h-5" />
+          <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <p
@@ -57,7 +57,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
           </p>
           <p
             id="val-tags"
-            className="text-2xl font-extrabold text-neutral-850"
+            className="text-xl sm:text-2xl font-extrabold text-neutral-850"
           >
             <AnimatedNumber value={uniqueTagsCount} />
           </p>

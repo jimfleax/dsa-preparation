@@ -124,7 +124,7 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
       {/* Header Section */}
       <div className="max-w-2xl">
         <h1
-          className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-[0_5px_15px_rgba(139,92,246,0.4)]"
+          className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-[0_5px_15px_rgba(139,92,246,0.4)]"
           style={{ fontFamily: "'SN Pro', sans-serif" }}
         >
           {greeting}
@@ -155,7 +155,7 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
       {/* Sleek Metrics Section */}
       <div className="mt-8 md:mt-12 w-full flex justify-center md:justify-end">
         <div
-          className="text-center md:text-right text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
+          className="text-center md:text-right text-sm sm:text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           <p>
@@ -196,18 +196,18 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                <BookOpen className="w-5 h-5" />
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-neutral-900 group-hover:text-indigo-700 transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-neutral-900 group-hover:text-indigo-700 transition-colors">
                   Study Theory
                 </h3>
-                <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                <p className="text-[10px] sm:text-xs text-neutral-500 font-medium mt-0.5">
                   Explore docs & guides
                 </p>
               </div>
             </div>
-            <MoveRight className="w-5 h-5 text-neutral-300 group-hover:text-indigo-500 transition-colors group-hover:translate-x-1" />
+            <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-indigo-500 transition-colors group-hover:translate-x-1" />
           </div>
         </button>
 
@@ -219,18 +219,18 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                <Code2 className="w-5 h-5" />
+                <Code2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-neutral-900 group-hover:text-emerald-700 transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-neutral-900 group-hover:text-emerald-700 transition-colors">
                   Problem Tracker
                 </h3>
-                <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                <p className="text-[10px] sm:text-xs text-neutral-500 font-medium mt-0.5">
                   Log new solutions
                 </p>
               </div>
             </div>
-            <MoveRight className="w-5 h-5 text-neutral-300 group-hover:text-emerald-500 transition-colors group-hover:translate-x-1" />
+            <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-emerald-500 transition-colors group-hover:translate-x-1" />
           </div>
         </button>
 
@@ -242,18 +242,18 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
-                <Map className="w-5 h-5" />
+                <Map className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-neutral-900 group-hover:text-purple-700 transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-neutral-900 group-hover:text-purple-700 transition-colors">
                   Roadmap Tracks
                 </h3>
-                <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                <p className="text-[10px] sm:text-xs text-neutral-500 font-medium mt-0.5">
                   Follow curated paths
                 </p>
               </div>
             </div>
-            <MoveRight className="w-5 h-5 text-neutral-300 group-hover:text-purple-500 transition-colors group-hover:translate-x-1" />
+            <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-purple-500 transition-colors group-hover:translate-x-1" />
           </div>
         </button>
       </div>
