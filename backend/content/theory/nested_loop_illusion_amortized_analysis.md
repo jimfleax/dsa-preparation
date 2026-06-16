@@ -1,6 +1,6 @@
 ---
-title: Master Sorting Algorithms
-tags: Sorting
+title: The Nested Loop Illusion & Amortized Analysis
+tags: amortized-analysis, complexity, big-o, loops, pointers
 ---
 
 # The Nested Loop Illusion & Amortized Analysis
