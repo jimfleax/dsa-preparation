@@ -16,7 +16,7 @@ export default defineConfig(() => {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"], // Cache all safe static assets
           runtimeCaching: [
             {
-              urlPattern: /^\/api\//,
+              urlPattern: /\/api\//,
               handler: "NetworkFirst",
               options: {
                 cacheName: "api-data-cache",
