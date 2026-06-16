@@ -970,7 +970,7 @@ export default function App() {
         </nav>
       </SignedIn>
 
-      {/* Settings Modal */}
+      {/* Footer Info Hub */}
       <SignedIn>
         <footer
         id="dsa-footer"
