@@ -96,6 +96,7 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
   const [showAboutMeModal, setShowAboutMeModal] = useState<boolean>(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
 
   // Sync state
   const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
@@ -644,29 +645,42 @@ export default function App() {
               </div>
 
               {/* Native Logout / User Info */}
-              <div className="relative group">
+              <div className="relative">
                 <button
-                  className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-xs sm:text-sm"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-xs sm:text-sm relative z-50"
                   title="Account"
                 >
                   {user?.username?.charAt(0).toUpperCase() || "U"}
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-lg rounded-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  <div className="p-3 border-b border-neutral-50 bg-neutral-50/50">
-                    <p className="text-sm font-bold text-neutral-900 truncate">
-                      {user?.username}
-                    </p>
-                    <p className="text-xs text-neutral-500 truncate">
-                      {user?.email}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => logout()}
-                    className="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-semibold cursor-pointer"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                {userDropdownOpen && (
+                  <>
+                    {/* Backdrop to close when clicking outside */}
+                    <div 
+                      className="fixed inset-0 z-40 cursor-default" 
+                      onClick={() => setUserDropdownOpen(false)} 
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-lg rounded-xl overflow-hidden z-50 transition-all">
+                      <div className="p-3 border-b border-neutral-50 bg-neutral-50/50">
+                        <p className="text-sm font-bold text-neutral-900 truncate">
+                          {user?.username}
+                        </p>
+                        <p className="text-xs text-neutral-500 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          logout();
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 font-semibold cursor-pointer"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </SignedIn>
 

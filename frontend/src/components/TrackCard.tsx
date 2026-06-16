@@ -190,7 +190,7 @@ export default function TrackCard({
               </span>
             )}
           </div>
-          <p className="text-sm text-neutral-500 mt-1 font-medium">
+          <p className={`text-sm text-neutral-500 mt-1 font-medium ${expanded ? "" : "line-clamp-2"}`}>
             {track.description}
           </p>
           <div className="mt-4 flex items-center gap-4">
