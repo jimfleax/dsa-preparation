@@ -63,14 +63,16 @@ export default function NoteModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problem._id}/notes`, {
-        method: "PATCH",
+      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          notes: notes.trim() === "" ? null : notes.trim() 
+          notes: notes.trim() === "" ? null : notes.trim(),
+          url: problem.url,
+          attemptCount: problem.attemptCount
         }),
       });
       const data = await response.json();
@@ -102,13 +104,17 @@ export default function NoteModal({
       setSaving(true);
       try {
         const token = await getToken();
-        const response = await fetch(`${apiBase}/api/tracker/${problem._id}/notes`, {
-          method: "PATCH",
+        const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ notes: null }),
+          body: JSON.stringify({ 
+            notes: null,
+            url: problem.url,
+            attemptCount: problem.attemptCount
+          }),
         });
         const data = await response.json();
 
