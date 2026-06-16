@@ -37,6 +37,8 @@ import ScheduleReviewModal from "./ScheduleReviewModal";
 import NoteModal from "./NoteModal";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import Tooltip from "./Tooltip";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import TrackerSkeleton from "./skeletons/TrackerSkeleton";
 
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
@@ -65,6 +67,10 @@ export default function ProblemsTab({
 }: ProblemsTabProps) {
   const [problems, setProblems] = useState<TrackedProblem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(
@@ -98,22 +104,54 @@ export default function ProblemsTab({
     "delete-problem-confirm",
   );
 
-  const fetchProblems = async () => {
+  const fetchProblems = async (pageNum: number = 1) => {
+    if (pageNum > 1) {
+      setIsFetchingMore(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker`, {
+      const response = await fetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (data.success) {
-        setProblems(data.problems);
+        if (pageNum === 1) {
+          setProblems(data.problems);
+        } else {
+          setProblems((prev) => [...prev, ...data.problems]);
+        }
+        
+        if (data.pagination) {
+          setTotalCount(data.pagination.total);
+          setHasMore(pageNum < data.pagination.pages);
+        } else {
+          // Fallback if backend doesn't send pagination object
+          setTotalCount(data.problems.length);
+          setHasMore(false);
+        }
+        
+        setPage(pageNum);
       }
     } catch (err) {
       console.error("Error fetching problems:", err);
     } finally {
       setLoading(false);
+      setIsFetchingMore(false);
     }
   };
+
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: () => {
+      if (!isFetchingMore && hasMore) {
+        fetchProblems(page + 1);
+      }
+    },
+    hasMore,
+    isLoading: loading || isFetchingMore,
+  });
 
   /**
    * Records a revisit: increments attemptCount, updates lastAttemptedDate to now.
@@ -166,7 +204,7 @@ export default function ProblemsTab({
   };
 
   useEffect(() => {
-    fetchProblems();
+    fetchProblems(1);
   }, [refreshKey]);
 
   // Client-side filtering and sorting
@@ -213,13 +251,10 @@ export default function ProblemsTab({
       : []),
   ].filter((d) => d.value > 0);
 
-  if (loading) {
+  if (loading && problems.length === 0) {
     return (
-      <div
-        id="problems-loading"
-        className="h-64 flex flex-col items-center justify-center text-center"
-      >
-        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+      <div id="problems-tab-root">
+        <TrackerSkeleton />
       </div>
     );
   }
@@ -735,8 +770,20 @@ export default function ProblemsTab({
 
           {/* Table footer */}
           <div className="px-5 py-3 border-t border-neutral-50 bg-neutral-50/30 text-[11px] text-neutral-400 font-medium">
-            Showing {filteredProblems.length} of {problems.length} problems
+            Showing {filteredProblems.length} of {totalCount || problems.length} problems
           </div>
+        </div>
+      )}
+
+      {/* Infinite Scroll Sentinel */}
+      {hasMore && (
+        <div ref={sentinelRef} className="py-4 flex justify-center items-center h-16">
+          {isFetchingMore && (
+            <div className="flex items-center gap-2 text-neutral-400 text-sm font-medium">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading more...
+            </div>
+          )}
         </div>
       )}
 
@@ -746,14 +793,14 @@ export default function ProblemsTab({
           setIsEditModalOpen(false);
           setEditingProblem(null);
         }}
-        onUpdated={fetchProblems}
+        onUpdated={() => fetchProblems(1)}
         problem={editingProblem}
       />
 
       <UntrackedProblemsModal
         isOpen={isUntrackedModalOpen}
         onClose={() => setIsUntrackedModalOpen(false)}
-        onTracked={fetchProblems}
+        onTracked={() => fetchProblems(1)}
       />
 
       <ScheduleReviewModal
@@ -762,7 +809,7 @@ export default function ProblemsTab({
           setIsScheduleModalOpen(false);
           setSchedulingProblem(null);
         }}
-        onUpdated={fetchProblems}
+        onUpdated={() => fetchProblems(1)}
         problem={schedulingProblem}
       />
 
@@ -773,7 +820,7 @@ export default function ProblemsTab({
           setSmartRevisitProblem(null);
         }}
         problem={smartRevisitProblem}
-        onRevisited={fetchProblems}
+        onRevisited={() => fetchProblems(1)}
       />
 
       <NoteModal
@@ -782,7 +829,7 @@ export default function ProblemsTab({
           setIsNoteModalOpen(false);
           setNoteProblem(null);
         }}
-        onUpdated={fetchProblems}
+        onUpdated={() => fetchProblems(1)}
         problem={noteProblem}
       />
 

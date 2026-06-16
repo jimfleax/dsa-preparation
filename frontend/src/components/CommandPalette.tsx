@@ -99,19 +99,17 @@ export default function CommandPalette({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -20 }}
           transition={{ duration: 0.2, type: "spring", stiffness: 300, damping: 30 }}
-          className={`bg-white rounded-2xl shadow-2xl border border-neutral-200 flex transition-all duration-300 pointer-events-auto overflow-hidden
-            ${isSearchMode ? "w-[600px]" : "w-[850px]"}
-          `}
+          className="flex gap-4 pointer-events-auto items-stretch"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Left Panel - Stats (Hidden in search mode) */}
           <AnimatePresence>
             {!isSearchMode && (
               <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 220 }}
-                exit={{ opacity: 0, width: 0 }}
-                className="bg-neutral-50 border-r border-neutral-100 flex flex-col overflow-hidden shrink-0"
+                initial={{ opacity: 0, width: 0, scale: 0.9 }}
+                animate={{ opacity: 1, width: 220, scale: 1 }}
+                exit={{ opacity: 0, width: 0, scale: 0.9 }}
+                className="bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-xl flex flex-col overflow-hidden shrink-0"
               >
                 <div className="p-5 flex-1 w-[220px]">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">
@@ -157,15 +155,20 @@ export default function CommandPalette({
                         </p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="text-sm text-neutral-500">
-                      <p className="mb-3">Connect your LeetCode account to see your stats here.</p>
+                  ) : !leetcodeUsername ? (
+                    <div className="flex flex-col items-center justify-center text-center py-4 text-neutral-500 h-full">
+                      <p className="text-sm font-medium text-neutral-700 mb-2">Username Not Set</p>
+                      <p className="text-xs mb-4">Connect your LeetCode account to view stats.</p>
                       <button 
                         onClick={handleOpenSettings}
-                        className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                        className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold transition-all active:scale-95 w-full border border-indigo-100"
                       >
-                        Connect Account →
+                        Set Username
                       </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-neutral-500">
+                      <p>No stats available.</p>
                     </div>
                   )}
                 </div>
@@ -174,7 +177,7 @@ export default function CommandPalette({
           </AnimatePresence>
 
           {/* Center Box - Search & List */}
-          <div className="flex-1 flex flex-col min-w-[400px]">
+          <div className={`bg-white border border-neutral-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${isSearchMode ? "w-[600px]" : "w-[400px]"}`}>
             {/* Search Input */}
             <div className="relative px-4 py-4 border-b border-neutral-100 flex items-center">
               <Search className="w-5 h-5 text-neutral-400 shrink-0" />
@@ -184,7 +187,7 @@ export default function CommandPalette({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search problems, articles, or commands..."
-                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-base"
+                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-neutral-900 placeholder-neutral-400 ml-3 text-sm"
               />
               <div className="flex items-center gap-1 shrink-0 ml-2">
                 <kbd className="px-2 py-1 bg-neutral-100 border border-neutral-200 rounded text-[10px] font-mono text-neutral-500">ESC</kbd>
@@ -302,10 +305,10 @@ export default function CommandPalette({
           <AnimatePresence>
             {!isSearchMode && (
               <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 230 }}
-                exit={{ opacity: 0, width: 0 }}
-                className="bg-neutral-50 border-l border-neutral-100 flex flex-col overflow-hidden shrink-0"
+                initial={{ opacity: 0, width: 0, scale: 0.9 }}
+                animate={{ opacity: 1, width: 230, scale: 1 }}
+                exit={{ opacity: 0, width: 0, scale: 0.9 }}
+                className="bg-white/85 backdrop-blur-md border border-neutral-200/60 rounded-2xl shadow-xl flex flex-col overflow-hidden shrink-0"
               >
                 <div className="p-5 flex-1 w-[230px] flex flex-col justify-center">
                   <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">
@@ -318,6 +321,18 @@ export default function CommandPalette({
                     </div>
                   ) : calendarData?.submissionCalendar ? (
                     <LeetCodeHeatmap submissionCalendar={calendarData.submissionCalendar} weeksToShow={16} />
+                  ) : !leetcodeUsername ? (
+                    <div className="flex flex-col items-center justify-center text-center py-6 text-neutral-500">
+                      <CalendarDays className="w-8 h-8 mb-3 opacity-30 text-indigo-500" />
+                      <p className="text-sm font-medium text-neutral-700 mb-2">Username Not Set</p>
+                      <p className="text-xs mb-4">Set your LeetCode username to see your activity heatmap here.</p>
+                      <button 
+                        onClick={handleOpenSettings}
+                        className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold transition-all active:scale-95 border border-indigo-100"
+                      >
+                        Set Username
+                      </button>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center py-6 text-neutral-400">
                       <FileText className="w-8 h-8 mb-2 opacity-50" />

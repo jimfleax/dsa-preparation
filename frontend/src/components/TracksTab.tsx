@@ -13,6 +13,8 @@ import {
 import { ChevronDown, ChevronUp, CheckCircle, Loader2 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import TracksSkeleton from "./skeletons/TracksSkeleton";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -20,6 +22,10 @@ export default function TracksTab() {
     Record<string, TrackedProblem>
   >({});
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [totalTrackCount, setTotalTrackCount] = useState<number>(0);
   const [showCompleted, setShowCompleted] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string | null>(
     localStorage.getItem("activeTrackId")
@@ -46,37 +52,67 @@ export default function TracksTab() {
     "https://dsa-preparation-788547842951.asia-south1.run.app";
 
   useEffect(() => {
-    fetchTracksAndProgress();
+    fetchTracksAndProgress(1);
   }, []);
 
-  const fetchTracksAndProgress = async () => {
-    setLoading(true);
+  const fetchTracksAndProgress = async (pageNum: number = 1) => {
+    if (pageNum > 1) {
+      setIsFetchingMore(true);
+    } else {
+      setLoading(true);
+    }
+    
     try {
       const token = await getToken();
-      const [tracksRes, progressRes] = await Promise.all([
-        fetch(`${apiBase}/api/tracks`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${apiBase}/api/tracker`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
+      
+      const tracksPromise = fetch(`${apiBase}/api/tracks?page=${pageNum}&limit=6`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      const tracksData = await tracksRes.json();
-      const progressData = await progressRes.json();
+      let tracksRes;
+      let progressRes;
 
-      if (tracksData.success) {
-        setTracks(tracksData.tracks);
+      if (pageNum === 1) {
+        // Fetch tracks and progress map together on initial load
+        const progressPromise = fetch(`${apiBase}/api/tracker`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        [tracksRes, progressRes] = await Promise.all([tracksPromise, progressPromise]);
+      } else {
+        // Just fetch more tracks
+        tracksRes = await tracksPromise;
       }
 
-      if (progressData.success) {
-        const progressMap: Record<string, TrackedProblem> = {};
-        progressData.problems.forEach((p: TrackedProblem) => {
-          if (p.titleSlug) {
-            progressMap[p.titleSlug] = p;
-          }
-        });
-        setTrackedProblems(progressMap);
+      const tracksData = await tracksRes.json();
+      
+      if (tracksData.success) {
+        if (pageNum === 1) {
+          setTracks(tracksData.tracks);
+        } else {
+          setTracks(prev => [...prev, ...tracksData.tracks]);
+        }
+        
+        if (tracksData.pagination) {
+          setTotalTrackCount(tracksData.pagination.total);
+          setHasMore(pageNum < tracksData.pagination.pages);
+        } else {
+          setTotalTrackCount(tracksData.tracks.length);
+          setHasMore(false);
+        }
+        setPage(pageNum);
+      }
+
+      if (pageNum === 1 && progressRes) {
+        const progressData = await progressRes.json();
+        if (progressData.success) {
+          const progressMap: Record<string, TrackedProblem> = {};
+          progressData.problems.forEach((p: TrackedProblem) => {
+            if (p.titleSlug) {
+              progressMap[p.titleSlug] = p;
+            }
+          });
+          setTrackedProblems(progressMap);
+        }
       }
 
       // Refresh active track from localStorage when data is updated
@@ -93,15 +129,22 @@ export default function TracksTab() {
       console.error("Error fetching tracks", err);
     } finally {
       setLoading(false);
+      setIsFetchingMore(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-      </div>
-    );
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: () => {
+      if (!isFetchingMore && hasMore) {
+        fetchTracksAndProgress(page + 1);
+      }
+    },
+    hasMore,
+    isLoading: loading || isFetchingMore,
+  });
+
+  if (loading && tracks.length === 0) {
+    return <TracksSkeleton />;
   }
 
   // Calculate overall metrics
@@ -300,6 +343,18 @@ export default function TracksTab() {
           </div>
         )}
       </div>
+
+      {/* Infinite Scroll Sentinel */}
+      {hasMore && (
+        <div ref={sentinelRef} className="py-4 flex justify-center items-center h-16">
+          {isFetchingMore && (
+            <div className="flex items-center gap-2 text-neutral-400 text-sm font-medium">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading more tracks...
+            </div>
+          )}
+        </div>
+      )}
 
       {completedTracks.length > 0 && (
         <div className="mt-12 bg-emerald-50/50 border border-emerald-100 rounded-2xl overflow-hidden shadow-sm">

@@ -152,3 +152,10 @@
   font-variant-numeric: tabular-nums;
   transition: color 0.2s ease;
 }
+
+/* Skeleton loader custom overrides for aesthetic consistency */
+.react-loading-skeleton {
+  --animation-duration: 2s;
+  --animation-direction: normal;
+  border-radius: 8px; /* Slightly softer borders for inline elements */
+}

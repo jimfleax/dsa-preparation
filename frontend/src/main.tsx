@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { AuthProvider } from "./context/AuthContext";
+import { SkeletonTheme } from "react-loading-skeleton";
 import App from "./App.tsx";
 import "./index.css";
 import { registerSW } from "virtual:pwa-register";
@@ -18,7 +19,9 @@ const updateSW = registerSW({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <App />
+      <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
+        <App />
+      </SkeletonTheme>
     </AuthProvider>
   </StrictMode>,
 );
