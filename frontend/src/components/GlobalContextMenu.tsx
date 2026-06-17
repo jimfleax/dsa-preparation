@@ -15,6 +15,8 @@ interface PopoverElement extends HTMLDivElement {
 export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: GlobalContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
+  const gotoBtnRef = useRef<HTMLButtonElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
@@ -82,6 +84,7 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
       window.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("mousedown", handleGlobalMouseDown, { capture: true });
       window.removeEventListener("keydown", handleKeyDown, { capture: true });
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     };
   }, []);
 
@@ -106,13 +109,53 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
     closeMenu();
   };
 
+  const openSubmenu = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    
+    const submenuEl = submenuRef.current as PopoverElement | null;
+    const gotoBtnEl = gotoBtnRef.current;
+    
+    if (submenuEl && gotoBtnEl && !submenuEl.matches(':popover-open')) {
+      const rect = gotoBtnEl.getBoundingClientRect();
+      const spaceOnRight = window.innerWidth - rect.right;
+      const submenuWidth = 160; // Approximate width for w-40 (40 * 4 = 160px)
+      
+      if (spaceOnRight >= submenuWidth + 10) {
+        submenuEl.style.left = `${rect.right + 5}px`;
+      } else {
+        submenuEl.style.left = `${rect.left - submenuWidth - 5}px`;
+      }
+      submenuEl.style.top = `${rect.top}px`;
+      
+      try {
+        submenuEl.showPopover();
+      } catch (e) {
+        console.error("Popover error", e);
+      }
+    }
+  };
+
+  const closeSubmenuDeferred = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      const submenuEl = submenuRef.current as PopoverElement | null;
+      if (submenuEl?.matches(':popover-open')) {
+        try {
+          submenuEl.hidePopover();
+        } catch (e) {}
+      }
+    }, 150);
+  };
+
+  const keepSubmenuOpen = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+
   return (
     <>
       <div 
         id="global-context-menu" 
         ref={menuRef} 
         popover="manual" 
-        // Removed 'flex flex-col' from the outer container so it doesn't override browser's default display: none for closed popovers
         className="fixed m-0 bg-white border border-neutral-200 shadow-xl rounded-xl w-56 p-1.5 z-[9999]"
         style={{ inset: "auto" }} // overrides native popover centering
       >
@@ -141,9 +184,10 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
           
           <div className="h-px bg-neutral-200 my-1 mx-2" />
           
-          {/* Anchor for the nested popover */}
           <button 
-            popoverTarget="context-goto-submenu"
+            ref={gotoBtnRef}
+            onMouseEnter={openSubmenu}
+            onMouseLeave={closeSubmenuDeferred}
             className="context-goto-btn flex items-center justify-between w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -169,9 +213,11 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
       <div 
         id="context-goto-submenu" 
         ref={submenuRef}
-        popover="auto" 
-        // Removed 'flex flex-col' from the outer container
+        popover="manual" 
+        onMouseEnter={keepSubmenuOpen}
+        onMouseLeave={closeSubmenuDeferred}
         className="context-goto-submenu fixed m-0 bg-white border border-neutral-200 shadow-xl rounded-xl w-40 p-1.5 z-[10000]"
+        style={{ inset: "auto" }}
       >
         <div className="flex flex-col">
           <button 
