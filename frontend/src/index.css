@@ -185,9 +185,24 @@ code {
   scrollbar-width: none;  /* Firefox */
 }
 
-/* Hide Recharts native legend on mobile — it uses inline styles so !important is required */
 @media (max-width: 639px) {
   .hide-legend-mobile .recharts-legend-wrapper {
     display: none !important;
   }
+}
+
+/* Context Menu Anchor styles */
+.context-goto-btn {
+  anchor-name: --context-goto-anchor;
+}
+
+.context-goto-submenu {
+  position-anchor: --context-goto-anchor;
+  bottom: auto;
+  right: auto;
+  top: anchor(top);
+  left: anchor(right);
+  position-try-fallbacks: flip-inline;
+  margin: 0;
+  inset: auto;
 }
