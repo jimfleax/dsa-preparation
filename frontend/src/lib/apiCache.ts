@@ -26,8 +26,7 @@ export const getApiCacheDb = async () => {
   if (!dbPromise) {
     dbPromise = createRxDatabase({
       name: 'apicachedb',
-      storage: getRxStorageDexie(),
-      ignoreDuplicate: true
+      storage: getRxStorageDexie()
     }).then(async (db) => {
       await db.addCollections({
         apicache: {
