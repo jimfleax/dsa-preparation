@@ -547,4 +547,47 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /api/tracker/metrics
+ * Returns global metrics for the user's tracked problems (total count, difficulty distribution).
+ */
+export const getTrackerMetrics = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const problems = await TrackedProblem.find(
+      { userId, notrack: { $ne: true } }
+    ).select('difficulty').lean();
+
+    let easy = 0, medium = 0, hard = 0, unrated = 0;
+    
+    problems.forEach((p: any) => {
+      if (p.difficulty === "Easy") easy++;
+      else if (p.difficulty === "Medium") medium++;
+      else if (p.difficulty === "Hard") hard++;
+      else unrated++;
+    });
+
+    res.json({
+      success: true,
+      metrics: {
+        totalSolved: problems.length,
+        difficulty: {
+          Easy: easy,
+          Medium: medium,
+          Hard: hard,
+          Unrated: unrated
+        }
+      }
+    });
+  } catch (error: unknown) {
+    console.error("Error getting tracker metrics:", error);
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
 

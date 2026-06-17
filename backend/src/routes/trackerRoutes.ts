@@ -7,9 +7,13 @@ import {
   deleteProblem,
   updateProblem,
   toggleTrackProblem,
+  getTrackerMetrics
 } from "../controllers/trackerController.ts";
 
 const router = Router();
+
+// GET /api/tracker/metrics - Get global metrics for tracker
+router.get("/metrics", getTrackerMetrics);
 
 // GET /api/tracker — List all tracked problems
 router.get("/", listProblems);

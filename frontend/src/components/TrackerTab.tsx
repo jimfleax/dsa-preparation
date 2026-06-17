@@ -60,6 +60,7 @@ export default function ProblemsTab({
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [globalMetrics, setGlobalMetrics] = useState<any>(null);
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(
@@ -102,10 +103,24 @@ export default function ProblemsTab({
 
     try {
       const token = await getToken();
-      const response = await apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
+      
+      const promises: Promise<Response>[] = [
+        apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ];
+
+      if (pageNum === 1) {
+        promises.push(
+          apiFetch(`${apiBase}/api/tracker/metrics`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        );
+      }
+
+      const responses = await Promise.all(promises);
+      const data = await responses[0].json();
+      
       if (data.success) {
         if (pageNum === 1) {
           setProblems(data.problems);
@@ -123,6 +138,13 @@ export default function ProblemsTab({
         }
         
         setPage(pageNum);
+      }
+
+      if (pageNum === 1 && responses[1]) {
+        const metricsData = await responses[1].json();
+        if (metricsData.success && metricsData.metrics) {
+          setGlobalMetrics(metricsData.metrics);
+        }
       }
     } catch (err) {
       console.error("Error fetching problems:", err);
@@ -226,10 +248,10 @@ export default function ProblemsTab({
   }, [problems, searchQuery, sortBy]);
 
   // Calculate stats
-  const easyCount = problems.filter((p) => p.difficulty === "Easy").length;
-  const mediumCount = problems.filter((p) => p.difficulty === "Medium").length;
-  const hardCount = problems.filter((p) => p.difficulty === "Hard").length;
-  const unratedCount = problems.length - (easyCount + mediumCount + hardCount);
+  const easyCount = globalMetrics?.difficulty?.Easy ?? problems.filter((p) => p.difficulty === "Easy").length;
+  const mediumCount = globalMetrics?.difficulty?.Medium ?? problems.filter((p) => p.difficulty === "Medium").length;
+  const hardCount = globalMetrics?.difficulty?.Hard ?? problems.filter((p) => p.difficulty === "Hard").length;
+  const unratedCount = globalMetrics?.difficulty?.Unrated ?? (problems.length - (easyCount + mediumCount + hardCount));
 
   const difficultyData = [
     { name: "Easy", value: easyCount, color: "#10b981" },
@@ -265,7 +287,7 @@ export default function ProblemsTab({
               Problems Solved
             </p>
             <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-neutral-800">
-              <AnimatedNumber value={problems.length} />
+              <AnimatedNumber value={globalMetrics?.totalSolved || totalCount || problems.length} />
             </p>
           </div>
         </div>
