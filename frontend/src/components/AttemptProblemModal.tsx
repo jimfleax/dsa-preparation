@@ -6,6 +6,8 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface AttemptProblemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -42,7 +44,7 @@ export default function AttemptProblemModal({
 
       if (trackedProblem) {
         // PATCH existing
-        const res = await fetch(
+        const res = await apiFetch(
           `${apiBase}/api/tracker/${trackedProblem._id}/revisit`,
           {
             method: "PATCH",
@@ -56,7 +58,7 @@ export default function AttemptProblemModal({
         if (!data.success) throw new Error(data.error);
       } else {
         // POST new
-        const res = await fetch(`${apiBase}/api/tracker`, {
+        const res = await apiFetch(`${apiBase}/api/tracker`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

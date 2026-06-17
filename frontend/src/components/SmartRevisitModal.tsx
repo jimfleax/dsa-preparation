@@ -12,6 +12,8 @@ import {
 import { TrackedProblem } from "../types";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 /**
  * Weighted Spaced-Repetition Algorithm
  *
@@ -115,7 +117,7 @@ export default function SmartRevisitModal({
     setIsMarking(true);
     try {
       const token = await getToken();
-      const response = await fetch(
+      const response = await apiFetch(
         `${apiBase}/api/tracker/${problem._id}/revisit`,
         {
           method: "PATCH",

@@ -14,23 +14,6 @@ export default defineConfig(() => {
         manifest: false, // We already have a public/manifest.json, so we just use that directly
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"], // Cache all safe static assets
-          runtimeCaching: [
-            {
-              urlPattern: /\/api\//,
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "api-data-cache",
-                expiration: {
-                  maxEntries: 200,
-                  maxAgeSeconds: 60 * 60 * 24, // 24 hours
-                },
-                networkTimeoutSeconds: 5,
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-          ],
         },
       }),
     ],

@@ -5,6 +5,8 @@ import { TrackedProblem } from "../types";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -64,7 +66,7 @@ export default function NoteModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +107,7 @@ export default function NoteModal({
       setSaving(true);
       try {
         const token = await getToken();
-        const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+        const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

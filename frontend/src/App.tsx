@@ -37,6 +37,8 @@ import CommandPalette from "./components/CommandPalette";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import LandingPage from "./components/LandingPage";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 export default function App() {
   const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const { isOffline } = useNetworkStatus();
@@ -134,7 +136,7 @@ export default function App() {
       const fetchProblems = async () => {
         try {
           const token = await getToken();
-          const res = await fetch(`${apiBase}/api/tracker`, {
+          const res = await apiFetch(`${apiBase}/api/tracker`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const data = await res.json();
@@ -150,7 +152,7 @@ export default function App() {
   const checkLeetCodeSync = useCallback(async () => {
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/sync/check`, {
+      const response = await apiFetch(`${apiBase}/api/sync/check`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -176,7 +178,7 @@ export default function App() {
       // Sync new submissions
       if (newSubmissions.length > 0) {
         promises.push(
-          fetch(`${apiBase}/api/sync/track`, {
+          apiFetch(`${apiBase}/api/sync/track`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -191,7 +193,7 @@ export default function App() {
       if (revisitedSubmissions.length > 0) {
         revisitedSubmissions.forEach(sub => {
           promises.push(
-            fetch(`${apiBase}/api/tracker/${sub.problemId}/revisit`, {
+            apiFetch(`${apiBase}/api/tracker/${sub.problemId}/revisit`, {
               method: "PATCH",
               headers: { 
                 Authorization: `Bearer ${token}`,
@@ -221,7 +223,7 @@ export default function App() {
       
       // Only dismiss new submissions by tracking them with notrack=true
       if (newSubmissions.length > 0) {
-        await fetch(`${apiBase}/api/sync/track`, {
+        await apiFetch(`${apiBase}/api/sync/track`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -248,7 +250,7 @@ export default function App() {
     if (!isSignedIn) return;
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/user/settings`, {
+      const response = await apiFetch(`${apiBase}/api/user/settings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 401) {
@@ -292,7 +294,7 @@ export default function App() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/documents`);
+      const response = await apiFetch(`${apiBase}/api/documents`);
       const data = await response.json();
       if (data.success) {
         setDocuments(data.documents);
@@ -320,7 +322,7 @@ export default function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-      const response = await fetch(`${apiBase}/api/health`, {
+      const response = await apiFetch(`${apiBase}/api/health`, {
         signal: controller.signal,
         cache: "no-store",
       });

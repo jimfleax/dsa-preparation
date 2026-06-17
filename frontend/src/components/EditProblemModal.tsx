@@ -10,6 +10,8 @@ import { TrackedProblem } from "../types";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface EditProblemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -73,7 +75,7 @@ export default function EditProblemModal({
       setDifficultyPreview("");
 
       try {
-        const response = await fetch(`${apiBase}/api/problems/scrape-title`, {
+        const response = await apiFetch(`${apiBase}/api/problems/scrape-title`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: value.trim() }),
@@ -128,7 +130,7 @@ export default function EditProblemModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -173,7 +175,7 @@ export default function EditProblemModal({
     setError(null);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problem._id}`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

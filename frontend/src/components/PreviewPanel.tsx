@@ -12,6 +12,8 @@ import "github-markdown-css/github-markdown-light.css";
 import { DocumentMetadata, DocumentDetail } from "../types";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface PreviewPanelProps {
   activeDoc: DocumentMetadata | null;
   isOpen: boolean;
@@ -46,7 +48,7 @@ export default function PreviewPanel({
         const apiBase =
           (import.meta as any).env.VITE_API_URL ||
           "https://dsa-preparation-788547842951.asia-south1.run.app";
-        const response = await fetch(
+        const response = await apiFetch(
           `${apiBase}/api/document?filename=${activeDoc.filename}`,
         );
         const result = await response.json();

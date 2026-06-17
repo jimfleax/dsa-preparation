@@ -16,6 +16,8 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import TracksSkeleton from "./skeletons/TracksSkeleton";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 export default function TracksTab() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [trackedProblems, setTrackedProblems] = useState<
@@ -65,7 +67,7 @@ export default function TracksTab() {
     try {
       const token = await getToken();
       
-      const tracksPromise = fetch(`${apiBase}/api/tracks?page=${pageNum}&limit=6`, {
+      const tracksPromise = apiFetch(`${apiBase}/api/tracks?page=${pageNum}&limit=6`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -74,7 +76,7 @@ export default function TracksTab() {
 
       if (pageNum === 1) {
         // Fetch tracks and progress map together on initial load
-        const progressPromise = fetch(`${apiBase}/api/tracker`, {
+        const progressPromise = apiFetch(`${apiBase}/api/tracker`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         [tracksRes, progressRes] = await Promise.all([tracksPromise, progressPromise]);

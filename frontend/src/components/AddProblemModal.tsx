@@ -4,6 +4,8 @@ import { Link2, Loader2 } from "lucide-react";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface AddProblemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,7 +49,7 @@ export default function AddProblemModal({
 
       try {
         // Fetch real title from LeetCode via a utility endpoint
-        const response = await fetch(`${apiBase}/api/problems/scrape-title`, {
+        const response = await apiFetch(`${apiBase}/api/problems/scrape-title`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -105,7 +107,7 @@ export default function AddProblemModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker`, {
+      const response = await apiFetch(`${apiBase}/api/tracker`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

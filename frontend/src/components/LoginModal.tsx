@@ -4,6 +4,8 @@ import { User, Lock, LogIn, Loader2 } from "lucide-react";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,7 +32,7 @@ export default function LoginModal({
       const apiBase =
         (import.meta as any).env.VITE_API_URL ||
         "https://dsa-preparation-788547842951.asia-south1.run.app";
-      const res = await fetch(`${apiBase}/api/auth/login`, {
+      const res = await apiFetch(`${apiBase}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

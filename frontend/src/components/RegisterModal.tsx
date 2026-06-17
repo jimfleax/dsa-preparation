@@ -4,6 +4,8 @@ import { Mail, Lock, UserPlus, User, Loader2, CheckCircle2, XCircle, Check } fro
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -46,7 +48,7 @@ export default function RegisterModal({
       const apiBase =
         (import.meta as any).env.VITE_API_URL ||
         "https://dsa-preparation-788547842951.asia-south1.run.app";
-      const res = await fetch(`${apiBase}/api/auth/register`, {
+      const res = await apiFetch(`${apiBase}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),

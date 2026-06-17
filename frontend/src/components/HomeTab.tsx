@@ -13,6 +13,8 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import { TrackedProblem } from "../types";
 import { CalendarClock, X } from "lucide-react";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface HomeTabProps {
   totalDocuments: number;
   onNavigate: (tab: "learn" | "tracker" | "tracks") => void;
@@ -46,10 +48,10 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
         const token = await getToken();
         // Fetch tracks and tracker in parallel
         const [trackerRes, tracksRes] = await Promise.all([
-          fetch(`${apiBase}/api/tracker`, {
+          apiFetch(`${apiBase}/api/tracker`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`${apiBase}/api/tracks`, {
+          apiFetch(`${apiBase}/api/tracks`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);

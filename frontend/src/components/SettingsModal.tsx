@@ -4,6 +4,8 @@ import { Settings, Loader2, AlertCircle } from "lucide-react";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -58,7 +60,7 @@ export default function SettingsModal({
     setSaving(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/user/settings`, {
+      const response = await apiFetch(`${apiBase}/api/user/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

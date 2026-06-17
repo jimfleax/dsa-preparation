@@ -40,6 +40,8 @@ import Tooltip from "./Tooltip";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import TrackerSkeleton from "./skeletons/TrackerSkeleton";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
   refreshKey?: number;
@@ -113,7 +115,7 @@ export default function ProblemsTab({
 
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
+      const response = await apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -160,7 +162,7 @@ export default function ProblemsTab({
     setRevisitingId(problemId);
     try {
       const token = await getToken();
-      const response = await fetch(
+      const response = await apiFetch(
         `${apiBase}/api/tracker/${problemId}/revisit`,
         {
           method: "PATCH",
@@ -187,7 +189,7 @@ export default function ProblemsTab({
     setDeletingId(problemId);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problemId}`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/${problemId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

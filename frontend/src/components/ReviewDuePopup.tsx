@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { X, CalendarClock, RotateCcw, Loader2, BookOpen } from "lucide-react";
 import { TrackedProblem } from "../types";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface ReviewDuePopupProps {
   onRevisited?: () => void;
   refreshKey?: number;
@@ -28,7 +30,7 @@ export function ReviewActionCard({
     setRevisitingId(problem._id);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/${problem._id}/revisit`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}/revisit`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +145,7 @@ export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePop
     if (!isSignedIn) return;
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker`, {
+      const response = await apiFetch(`${apiBase}/api/tracker`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();

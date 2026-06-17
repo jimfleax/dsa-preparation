@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 export interface LeetCodeCalendarData {
   activeYears: number[];
   streak: number;
@@ -41,7 +43,7 @@ export function useCommandPalette(leetcodeUsername?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${apiBase}/api/leetcode/calendar/${leetcodeUsername}`);
+      const res = await apiFetch(`${apiBase}/api/leetcode/calendar/${leetcodeUsername}`);
       const result = await res.json();
       
       if (result.success && result.data) {

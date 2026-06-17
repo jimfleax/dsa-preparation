@@ -4,6 +4,8 @@ import { EyeOff, Loader2, RefreshCcw } from "lucide-react";
 import { TrackedProblem } from "../types";
 import BaseModal from "./BaseModal";
 
+import { apiFetch } from "@/src/lib/apiFetch";
+
 interface UntrackedProblemsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,7 +36,7 @@ export default function UntrackedProblemsModal({
     setLoading(true);
     try {
       const token = await getToken();
-      const response = await fetch(`${apiBase}/api/tracker/untracked`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/untracked`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -52,7 +54,7 @@ export default function UntrackedProblemsModal({
     setTogglingId(id);
     try {
       const token = await getToken();
-      const response = await fetch(
+      const response = await apiFetch(
         `${apiBase}/api/tracker/${id}/toggle-track`,
         {
           method: "PATCH",

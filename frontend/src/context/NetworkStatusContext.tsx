@@ -1,3 +1,4 @@
+import { apiFetch } from "@/src/lib/apiFetch";
 import {
   createContext,
   useContext,
@@ -43,7 +44,7 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);
-      const response = await fetch(`${apiBase}/api/health`, {
+      const response = await apiFetch(`${apiBase}/api/health`, {
         signal: controller.signal,
         cache: "no-store",
       });
