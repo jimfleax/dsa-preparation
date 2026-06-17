@@ -214,6 +214,7 @@ export default function CommandPalette({
     <>
       {/* Backdrop */}
       <motion.div
+        id="command-palette-backdrop"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -225,6 +226,7 @@ export default function CommandPalette({
       {/* Main Container */}
       <div className="fixed inset-0 z-[60] pointer-events-none flex p-4 items-center justify-center">
         <motion.div
+          id="command-palette-container"
           initial={{ opacity: 0, scale: 0.95, y: -20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -20 }}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   FileText,
@@ -33,7 +33,41 @@ export default function PreviewPanel({
   const [data, setData] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
   useEscapeKey(isOpen, onClose, 50, "preview-panel");
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(target)
+      ) {
+        // Ignore clicks inside Document Cards
+        if (target.closest('[id^="doc-card-"]')) {
+          return;
+        }
+        // Ignore clicks inside Command Palette
+        if (
+          target.closest('#command-palette-container') ||
+          target.closest('#command-palette-backdrop')
+        ) {
+          return;
+        }
+
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!activeDoc) {
@@ -114,6 +148,7 @@ export default function PreviewPanel({
       />
 
       <div
+        ref={sidebarRef}
         id="preview-sidebar-container"
         className={`fixed inset-y-0 right-0 z-50 bg-white border-l border-neutral-100 shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
