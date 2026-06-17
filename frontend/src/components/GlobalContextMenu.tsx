@@ -45,8 +45,44 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
       }
     };
 
+    const handleGlobalMouseDown = (e: MouseEvent) => {
+      const menuEl = menuRef.current as PopoverElement | null;
+      const submenuEl = submenuRef.current as PopoverElement | null;
+      
+      // If the menu is open, and we click outside of both the main menu and submenu, close it
+      if (menuEl?.matches(':popover-open')) {
+        const target = e.target as Node;
+        if (!menuEl.contains(target) && (!submenuEl || !submenuEl.contains(target))) {
+          menuEl.hidePopover();
+          if (submenuEl?.matches(':popover-open')) {
+            submenuEl.hidePopover();
+          }
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const menuEl = menuRef.current as PopoverElement | null;
+        const submenuEl = submenuRef.current as PopoverElement | null;
+        
+        if (submenuEl?.matches(':popover-open')) {
+          submenuEl.hidePopover();
+        } else if (menuEl?.matches(':popover-open')) {
+          menuEl.hidePopover();
+        }
+      }
+    };
+
     window.addEventListener("contextmenu", handleContextMenu);
-    return () => window.removeEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("mousedown", handleGlobalMouseDown, { capture: true });
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    
+    return () => {
+      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("mousedown", handleGlobalMouseDown, { capture: true });
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    };
   }, []);
 
   const closeMenu = () => {
@@ -75,7 +111,7 @@ export default function GlobalContextMenu({ onNavigate, onOpenShortcuts }: Globa
       <div 
         id="global-context-menu" 
         ref={menuRef} 
-        popover="auto" 
+        popover="manual" 
         // Removed 'flex flex-col' from the outer container so it doesn't override browser's default display: none for closed popovers
         className="fixed m-0 bg-white border border-neutral-200 shadow-xl rounded-xl w-56 p-1.5 z-[9999]"
         style={{ inset: "auto" }} // overrides native popover centering
