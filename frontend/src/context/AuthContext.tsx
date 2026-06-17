@@ -67,6 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return token;
   }, [token]);
 
+  const authValue = useMemo(
+    () => ({ user, token, isSignedIn: !!token, login, logout, getToken }),
+    [user, token, login, logout, getToken]
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
@@ -74,11 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       </div>
     );
   }
-
-  const authValue = useMemo(
-    () => ({ user, token, isSignedIn: !!token, login, logout, getToken }),
-    [user, token, login, logout, getToken]
-  );
 
   return (
     <AuthContext.Provider value={authValue}>
