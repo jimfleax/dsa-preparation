@@ -28,6 +28,7 @@ export default function TracksTab() {
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [totalTrackCount, setTotalTrackCount] = useState<number>(0);
+  const [globalMetrics, setGlobalMetrics] = useState<any>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string | null>(
     localStorage.getItem("activeTrackId")
@@ -73,13 +74,17 @@ export default function TracksTab() {
 
       let tracksRes;
       let progressRes;
+      let metricsRes;
 
       if (pageNum === 1) {
         // Fetch tracks and progress map together on initial load
-        const progressPromise = apiFetch(`${apiBase}/api/tracker`, {
+        const progressPromise = apiFetch(`${apiBase}/api/tracker?limit=all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        [tracksRes, progressRes] = await Promise.all([tracksPromise, progressPromise]);
+        const metricsPromise = apiFetch(`${apiBase}/api/tracks/metrics`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        [tracksRes, progressRes, metricsRes] = await Promise.all([tracksPromise, progressPromise, metricsPromise]);
       } else {
         // Just fetch more tracks
         tracksRes = await tracksPromise;
@@ -117,6 +122,13 @@ export default function TracksTab() {
         }
       }
 
+      if (pageNum === 1 && metricsRes) {
+        const metricsData = await metricsRes.json();
+        if (metricsData.success && metricsData.metrics) {
+          setGlobalMetrics(metricsData.metrics);
+        }
+      }
+
       // Refresh active track from localStorage when data is updated
       const savedActiveId = localStorage.getItem("activeTrackId");
       if (savedActiveId !== activeTrackId) {
@@ -150,23 +162,10 @@ export default function TracksTab() {
   }
 
   // Calculate overall metrics
-  let totalProblems = 0;
-  let totalSolved = 0;
-
-  tracks.forEach((track) => {
-    const allProblems = [
-      ...(track.problems || []),
-      ...(track.parts?.flatMap((p) => p.problems) || []),
-    ];
-
-    allProblems.forEach((problem) => {
-      totalProblems++;
-      const slug = extractTitleSlug(problem.url);
-      if (slug && trackedProblems[slug]) {
-        totalSolved++;
-      }
-    });
-  });
+  const totalProblems = globalMetrics?.totalProblems || 0;
+  const totalSolved = globalMetrics?.totalSolved || 0;
+  const totalGlobalTracks = globalMetrics?.totalTracks || 0;
+  const masteredTracksCount = globalMetrics?.masteredTracks || 0;
 
   const chartData = [
     { name: "Solved", value: totalSolved, color: "#10b981" },
@@ -180,20 +179,7 @@ export default function TracksTab() {
   // Categorize tracks into incomplete and completed
   const categorizedTracks = tracks.reduce(
     (acc, track) => {
-      const allProblems = [
-        ...(track.problems || []),
-        ...(track.parts?.flatMap((p) => p.problems) || []),
-      ];
-
-      let completedCount = 0;
-      allProblems.forEach((problem) => {
-        const slug = extractTitleSlug(problem.url);
-        if (slug && trackedProblems[slug]) {
-          completedCount++;
-        }
-      });
-      const isCompleted =
-        allProblems.length > 0 && completedCount === allProblems.length;
+      const isCompleted = globalMetrics?.completedTrackIds?.includes(track._id) || false;
       
       const isActive = track._id === activeTrackId;
       if (isActive) {
@@ -277,8 +263,8 @@ export default function TracksTab() {
               <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
               <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
               track problems, mastering{" "}
-              <strong className="text-purple-600"><AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} /></strong> out of{" "}
-              <strong className="text-neutral-800"><AnimatedNumber value={tracks.length} /></strong> tracks.
+              <strong className="text-purple-600"><AnimatedNumber value={masteredTracksCount} /></strong> out of{" "}
+              <strong className="text-neutral-800"><AnimatedNumber value={totalGlobalTracks} /></strong> tracks.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
               <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-4">
@@ -296,7 +282,7 @@ export default function TracksTab() {
                     Tracks Mastered
                   </p>
                   <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
-                    <AnimatedNumber value={completedTracks.length + (isActiveCompleted ? 1 : 0)} />
+                    <AnimatedNumber value={masteredTracksCount} />
                   </p>
                 </div>
               </div>
@@ -315,7 +301,7 @@ export default function TracksTab() {
                     Tracks Left
                   </p>
                   <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
-                    <AnimatedNumber value={incompleteTracks.length} />
+                    <AnimatedNumber value={Math.max(0, totalGlobalTracks - masteredTracksCount)} />
                   </p>
                 </div>
               </div>

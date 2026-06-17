@@ -150,10 +150,11 @@ export const listProblems = async (req: Request, res: Response) => {
 
     const { search, sort } = req.query;
     
+    const isLimitAll = req.query.limit === "all";
     // Pagination parameters
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
-    const skip = (page - 1) * limit;
+    const limit = isLimitAll ? 0 : Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
+    const skip = isLimitAll ? 0 : (page - 1) * limit;
 
     // Always scope to the authenticated user — prevents IDOR
     // Exclude problems marked as notrack
@@ -169,13 +170,14 @@ export const listProblems = async (req: Request, res: Response) => {
     else if (sort === "attempts") sortCriteria = { attemptCount: -1 };
     else if (sort === "date") sortCriteria = { lastAttemptedDate: -1 };
 
+    let query = TrackedProblem.find(filter).sort(sortCriteria);
+    if (!isLimitAll) {
+      query = query.skip(skip).limit(limit);
+    }
+
     // Execute queries in parallel for performance
     const [problems, totalCount] = await Promise.all([
-      TrackedProblem.find(filter)
-        .sort(sortCriteria)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      query.lean(),
       TrackedProblem.countDocuments(filter)
     ]);
 
@@ -183,7 +185,7 @@ export const listProblems = async (req: Request, res: Response) => {
       success: true, 
       problems, 
       count: problems.length,
-      pagination: {
+      pagination: isLimitAll ? null : {
         total: totalCount,
         page,
         limit,
