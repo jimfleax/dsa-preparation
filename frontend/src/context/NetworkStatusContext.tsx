@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
   useRef,
   type ReactNode,
 } from "react";
@@ -100,8 +101,10 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
     };
   }, [isOffline, verifyConnection]);
 
+  const contextValue = useMemo(() => ({ isOffline }), [isOffline]);
+
   return (
-    <NetworkStatusContext.Provider value={{ isOffline }}>
+    <NetworkStatusContext.Provider value={contextValue}>
       {children}
     </NetworkStatusContext.Provider>
   );

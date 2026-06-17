@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
 import { useNetworkStatus } from "./context/NetworkStatusContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,9 +23,10 @@ import {
 } from "lucide-react";
 import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
 import DocumentCard from "./components/DocumentCard";
-import PreviewPanel from "./components/PreviewPanel";
-import TrackerTab from "./components/TrackerTab";
 import TracksTab from "./components/TracksTab";
+
+const PreviewPanel = lazy(() => import("./components/PreviewPanel"));
+const TrackerTab = lazy(() => import("./components/TrackerTab"));
 import AddProblemModal from "./components/AddProblemModal";
 import SettingsModal from "./components/SettingsModal";
 import SyncToast from "./components/SyncToast";
@@ -816,10 +817,12 @@ export default function App() {
                 }}
                 className="w-full flex-1 flex flex-col gap-6"
               >
-                <TrackerTab
-                  onOpenAddModal={() => setShowAddModal(true)}
-                  refreshKey={problemsRefreshKey}
-                />
+                <Suspense fallback={<div className="h-64 flex flex-col items-center justify-center text-center"><Loader2 className="w-8 h-8 animate-spin text-neutral-400" /></div>}>
+                  <TrackerTab
+                    onOpenAddModal={() => setShowAddModal(true)}
+                    refreshKey={problemsRefreshKey}
+                  />
+                </Suspense>
               </motion.div>
             )}
 
@@ -1116,16 +1119,20 @@ export default function App() {
           onSelectDocument={handleSelectDocument}
           onOpenSettings={() => setShowSettingsModal(true)}
         />
-        <PreviewPanel
-          activeDoc={activeDoc}
-          isOpen={isPreviewOpen}
-          onClose={() => {
-            setIsPreviewOpen(false);
-            setActiveDoc(null);
-          }}
-          isMaximized={isPreviewMaximized}
-          setIsMaximized={setIsPreviewMaximized}
-        />
+        {isPreviewOpen && (
+          <Suspense fallback={null}>
+            <PreviewPanel
+              activeDoc={activeDoc}
+              isOpen={isPreviewOpen}
+              onClose={() => {
+                setIsPreviewOpen(false);
+                setActiveDoc(null);
+              }}
+              isMaximized={isPreviewMaximized}
+              setIsMaximized={setIsPreviewMaximized}
+            />
+          </Suspense>
+        )}
         {showSyncToast && (
           <SyncToast
             count={newSubmissionsCount}
@@ -1135,49 +1142,59 @@ export default function App() {
             isProcessing={isSyncing}
           />
         )}
-        <AddProblemModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAdded={() => setProblemsRefreshKey((k) => k + 1)}
-        />
-        <SettingsModal
-          isOpen={showSettingsModal}
-          onClose={() => setShowSettingsModal(false)}
-          currentUsername={userSettings?.leetcodeUsername || ""}
-          onSaved={(username) => {
-            setUserSettings((prev) =>
-              prev ? { ...prev, leetcodeUsername: username } : prev,
-            );
-            setShowSettingsModal(false);
-            if (username) {
-              checkLeetCodeSync();
-            }
-          }}
-        />
+        {showAddModal && (
+          <AddProblemModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onAdded={() => setProblemsRefreshKey((k) => k + 1)}
+          />
+        )}
+        {showSettingsModal && (
+          <SettingsModal
+            isOpen={showSettingsModal}
+            onClose={() => setShowSettingsModal(false)}
+            currentUsername={userSettings?.leetcodeUsername || ""}
+            onSaved={(username) => {
+              setUserSettings((prev) =>
+                prev ? { ...prev, leetcodeUsername: username } : prev,
+              );
+              setShowSettingsModal(false);
+              if (username) {
+                checkLeetCodeSync();
+              }
+            }}
+          />
+        )}
       </SignedIn>
       <SignedOut>
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onSwitchToRegister={() => {
-            setShowLoginModal(false);
-            setShowRegisterModal(true);
-          }}
-        />
-        <RegisterModal
-          isOpen={showRegisterModal}
-          onClose={() => setShowRegisterModal(false)}
-          onSwitchToLogin={() => {
-            setShowRegisterModal(false);
-            setShowLoginModal(true);
-          }}
-        />
+        {showLoginModal && (
+          <LoginModal
+            isOpen={showLoginModal}
+            onClose={() => setShowLoginModal(false)}
+            onSwitchToRegister={() => {
+              setShowLoginModal(false);
+              setShowRegisterModal(true);
+            }}
+          />
+        )}
+        {showRegisterModal && (
+          <RegisterModal
+            isOpen={showRegisterModal}
+            onClose={() => setShowRegisterModal(false)}
+            onSwitchToLogin={() => {
+              setShowRegisterModal(false);
+              setShowLoginModal(true);
+            }}
+          />
+        )}
       </SignedOut>
 
-      <AboutMeModal
-        isOpen={showAboutMeModal}
-        onClose={() => setShowAboutMeModal(false)}
-      />
+      {showAboutMeModal && (
+        <AboutMeModal
+          isOpen={showAboutMeModal}
+          onClose={() => setShowAboutMeModal(false)}
+        />
+      )}
     </div>
   );
 }

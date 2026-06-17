@@ -3,6 +3,8 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
+  useMemo,
   ReactNode,
 } from "react";
 import { Loader2 } from "lucide-react";
@@ -47,23 +49,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = useCallback((newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-  };
+  }, []);
 
-  const getToken = async () => {
+  const getToken = useCallback(async () => {
     return token;
-  };
+  }, [token]);
 
   if (loading) {
     return (
@@ -73,10 +75,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  const authValue = useMemo(
+    () => ({ user, token, isSignedIn: !!token, login, logout, getToken }),
+    [user, token, login, logout, getToken]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{ user, token, isSignedIn: !!token, login, logout, getToken }}
-    >
+    <AuthContext.Provider value={authValue}>
       {children}
     </AuthContext.Provider>
   );
