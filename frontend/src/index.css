@@ -6,6 +6,22 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection in editable elements, code blocks, and markdown content */
+input,
+textarea,
+[contenteditable="true"],
+.markdown-body,
+pre,
+code {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* Disable outlines globally */
 *,
 *::before,
