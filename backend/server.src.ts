@@ -9,15 +9,9 @@ import userRoutes from "./src/routes/userRoutes.ts";
 import syncRoutes from "./src/routes/syncRoutes.ts";
 import trackRoutes from "./src/routes/trackRoutes.ts";
 import authRoutes from "./src/routes/authRoutes.ts";
+import documentRoutes from "./src/routes/documentRoutes.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
-import { scrapeLeetCodeTitle } from "./src/controllers/trackerController.ts";
-
-interface DocumentMetadata {
-  id: string;
-  filename: string;
-  title: string;
-  tags: string[];
-}
+import { scrapeLeetCodeTitle, getLeetCodeCalendar } from "./src/controllers/trackerController.ts";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -71,136 +65,12 @@ app.options("*", cors() as any);
 
 app.use(express.json());
 
-const CONTENT_DIR = path.join(process.cwd(), "content");
-const THEORY_DIR = path.join(CONTENT_DIR, "theory");
-
-// Ensure directories exist
-function ensureDirs() {
-  if (!fs.existsSync(CONTENT_DIR)) fs.mkdirSync(CONTENT_DIR);
-  if (!fs.existsSync(THEORY_DIR)) fs.mkdirSync(THEORY_DIR);
-}
-
-ensureDirs();
-
-// Helper to parse frontmatter from markdown files
-function parseFrontmatter(
-  content: string,
-  filename: string,
-): DocumentMetadata {
-  const meta: DocumentMetadata = {
-    id: `theory-${filename.replace(/\.md$/, "")}`,
-    filename,
-    title: filename.replace(/\.md$/, "").replace(/-/g, " "),
-    tags: [],
-  };
-
-  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (frontmatterMatch) {
-    const lines = frontmatterMatch[1].split("\n");
-    for (const line of lines) {
-      const idx = line.indexOf(":");
-      if (idx !== -1) {
-        const key = line.slice(0, idx).trim().toLowerCase();
-        const value = line.slice(idx + 1).trim();
-        if (key === "title") {
-          meta.title = value.replace(/^['"]|['"]$/g, ""); // strip optional quotes
-        } else if (key === "tags") {
-          meta.tags = value
-            .split(",")
-            .map((t) => t.trim().replace(/^['"]|['"]$/g, ""))
-            .filter(Boolean);
-        }
-      }
-    }
-  }
-
-  return meta;
-}
-
 // ──────────────────────────────────────────────────────────
 //  PUBLIC ENDPOINTS (no auth required)
-// ���─────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────
 
-// API endpoint to retrieve all listed documents
-app.get("/api/documents", async (req, res) => {
-  try {
-    ensureDirs();
-    const result: DocumentMetadata[] = [];
-
-    // Read Theory Directory
-    if (fs.existsSync(THEORY_DIR)) {
-      const theoryFiles = (await fs.promises.readdir(THEORY_DIR))
-        .filter((file) => file.endsWith(".md"));
-      
-      const filePromises = theoryFiles.map(async (file) => {
-        const filePath = path.join(THEORY_DIR, file);
-        const content = await fs.promises.readFile(filePath, "utf-8");
-        return parseFrontmatter(content, file);
-      });
-      
-      const parsedDocs = await Promise.all(filePromises);
-      result.push(...parsedDocs);
-    }
-
-    res.json({ success: true, documents: result });
-  } catch (error: any) {
-    console.error("Error reading documents directory:", error);
-    res.status(500).json({ success: false, error: "Failed to list documents", message: error.message });
-  }
-});
-
-// API endpoint to fetch details / content of a single document
-app.get("/api/document", async (req, res) => {
-  const { filename } = req.query;
-  if (!filename) {
-    return res
-      .status(400)
-      .json({ success: false, error: "Invalid filename parameter." });
-  }
-
-  try {
-    const targetDir = path.resolve(THEORY_DIR);
-    // Security check to prevent Directory Traversal attacks
-    const safeFilename = String(filename).replace(/[^a-zA-Z0-9.\-_]/g, "");
-    const filePath = path.resolve(targetDir, safeFilename);
-
-    if (!filePath.startsWith(targetDir)) {
-      return res.status(403).json({ success: false, error: "Access denied." });
-    }
-
-    let fileStat;
-    try {
-      fileStat = await fs.promises.stat(filePath);
-    } catch {
-      fileStat = null;
-    }
-
-    if (!fileStat || !fileStat.isFile()) {
-      return res.status(404).json({
-        success: false,
-        error: "Document not found",
-        message: `The document ${safeFilename} could not be located on the server.`,
-      });
-    }
-
-    const rawContent = await fs.promises.readFile(filePath, "utf-8");
-
-    // Strip the YAML frontmatter for rendering pure markdown
-    const clientContent = rawContent
-      .replace(/^---\r?\n[\s\S]*?\r?\n---/, "")
-      .trim();
-
-    res.json({
-      success: true,
-      metadata: parseFrontmatter(rawContent, safeFilename),
-      content: clientContent,
-    });
-  } catch (error: any) {
-    console.error("Error loading document:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error", message: error.message });
-  }
-});
-
+// Mount Document API routes (public)
+app.use("/api", documentRoutes);
 // Added lightweight /api/health endpoint for separate hosting connectivity checks
 app.get("/api/health", (req, res) => {
   res.json({
@@ -224,69 +94,7 @@ app.post("/api/problems/scrape-title", scrapeLimiter, scrapeLeetCodeTitle);
 
 // PUBLIC UTILITY: LeetCode profile calendar proxy (no auth required)
 // Used by the Command Palette to render user heatmaps
-app.get("/api/leetcode/calendar/:username", scrapeLimiter, async (req, res) => {
-  try {
-    const { username } = req.params;
-    const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined;
-    
-    if (!username) {
-      return res.status(400).json({ success: false, error: "Username is required" });
-    }
-
-    const graphqlQuery = {
-      operationName: "userProfileCalendar",
-      variables: {
-        username,
-        ...(year && { year })
-      },
-      query: `query userProfileCalendar($username: String!, $year: Int) {
-        matchedUser(username: $username) {
-          profile {
-            ranking
-          }
-          userCalendar(year: $year) {
-            activeYears
-            streak
-            totalActiveDays
-            submissionCalendar
-          }
-        }
-      }`
-    };
-
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      body: JSON.stringify(graphqlQuery),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.errors) {
-      console.error("[LeetCode Scraper] GraphQL error (userProfileCalendar):", data.errors);
-      return res.status(400).json({ success: false, error: "LeetCode API returned an error" });
-    }
-
-    const userCalendar = data.data?.matchedUser?.userCalendar || null;
-    const ranking = data.data?.matchedUser?.profile?.ranking || null;
-
-    if (userCalendar) {
-      userCalendar.ranking = ranking;
-    }
-
-    res.json({ success: true, data: userCalendar });
-  } catch (error: any) {
-    console.error("[LeetCode Scraper] Error fetching calendar:", error.message);
-    res.status(500).json({ success: false, error: "Failed to fetch calendar from LeetCode" });
-  }
-});
+app.get("/api/leetcode/calendar/:username", scrapeLimiter, getLeetCodeCalendar);
 
 // Native Auth routes
 app.use("/api/auth", authRoutes);

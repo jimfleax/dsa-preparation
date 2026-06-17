@@ -116,52 +116,62 @@ export const trackSubmissions = async (req: Request, res: Response) => {
         .json({ success: false, error: "Invalid submissions payload" });
     }
 
-    const results = [];
-
-    for (const sub of submissions) {
-      // Ensure we don't insert duplicates
-      const existing = await TrackedProblem.findOne({
-        userId,
-        titleSlug: sub.titleSlug,
-      });
-      if (existing) continue;
-
-      // Create a problem URL to fetch info
-      const url = `https://leetcode.com/problems/${sub.titleSlug}/`;
-
-      // Attempt to fetch difficulty
-      let difficulty = undefined;
-      try {
-        const info = await getLeetCodeProblemInfo(url);
-        if (info && info.difficulty) {
-          difficulty = info.difficulty;
-        }
-      } catch (err) {
-        console.warn(
-          `Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`,
-        );
-      }
-
-      // Create new record
-      const progress = new TrackedProblem({
-        userId,
-        titleSlug: sub.titleSlug,
-        title: sub.title,
-        url,
-        difficulty,
-        attemptCount: 1,
-        notrack: !!notrack,
-        lastAttemptedDate: new Date(Number(sub.timestamp) * 1000), // Convert from epoch seconds if applicable
-      });
-
-      // Handle potentially invalid timestamps safely
-      if (isNaN(progress.lastAttemptedDate.getTime())) {
-        progress.lastAttemptedDate = new Date();
-      }
-
-      await progress.save();
-      results.push(progress);
+    if (submissions.length === 0) {
+      return res.json({ success: true, message: "No submissions to process.", added: 0 });
     }
+
+    // 1. Fetch all existing records in a single query
+    const titleSlugs = submissions.map((sub: any) => sub.titleSlug);
+    const existingRecords = await TrackedProblem.find({
+      userId,
+      titleSlug: { $in: titleSlugs },
+    }).select("titleSlug").lean();
+
+    const existingSet = new Set(existingRecords.map((r) => r.titleSlug));
+
+    // Filter out already tracked problems
+    const newSubmissions = submissions.filter((sub: any) => !existingSet.has(sub.titleSlug));
+
+    if (newSubmissions.length === 0) {
+      return res.json({ success: true, message: "Processed 0 submissions.", added: 0 });
+    }
+
+    // 2. Fetch LeetCode details in parallel
+    const enrichedSubmissions = await Promise.all(
+      newSubmissions.map(async (sub: any) => {
+        const url = `https://leetcode.com/problems/${sub.titleSlug}/`;
+        let difficulty = undefined;
+        try {
+          const info = await getLeetCodeProblemInfo(url);
+          if (info && info.difficulty) {
+            difficulty = info.difficulty;
+          }
+        } catch (err) {
+          console.warn(
+            `Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`
+          );
+        }
+
+        let lastAttemptedDate = new Date(Number(sub.timestamp) * 1000);
+        if (isNaN(lastAttemptedDate.getTime())) {
+          lastAttemptedDate = new Date();
+        }
+
+        return {
+          userId,
+          titleSlug: sub.titleSlug,
+          title: sub.title,
+          url,
+          difficulty,
+          attemptCount: 1,
+          notrack: !!notrack,
+          lastAttemptedDate,
+        };
+      })
+    );
+
+    // 3. Batch insert new tracked problems
+    const results = await TrackedProblem.insertMany(enrichedSubmissions);
 
     res.json({
       success: true,

@@ -68,6 +68,75 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
 };
 
 /**
+ * GET /api/leetcode/calendar/:username
+ * Public endpoint to fetch LeetCode user calendar.
+ */
+export const getLeetCodeCalendar = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+    const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined;
+    
+    if (!username) {
+      return res.status(400).json({ success: false, error: "Username is required" });
+    }
+
+    const graphqlQuery = {
+      operationName: "userProfileCalendar",
+      variables: {
+        username,
+        ...(year && { year })
+      },
+      query: `query userProfileCalendar($username: String!, $year: Int) {
+        matchedUser(username: $username) {
+          profile {
+            ranking
+          }
+          userCalendar(year: $year) {
+            activeYears
+            streak
+            totalActiveDays
+            submissionCalendar
+          }
+        }
+      }`
+    };
+
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      body: JSON.stringify(graphqlQuery),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.errors) {
+      console.error("[LeetCode Scraper] GraphQL error (userProfileCalendar):", data.errors);
+      return res.status(400).json({ success: false, error: "LeetCode API returned an error" });
+    }
+
+    const userCalendar = data.data?.matchedUser?.userCalendar || null;
+    const ranking = data.data?.matchedUser?.profile?.ranking || null;
+
+    if (userCalendar) {
+      userCalendar.ranking = ranking;
+    }
+
+    res.json({ success: true, data: userCalendar });
+  } catch (error: any) {
+    console.error("[LeetCode Scraper] Error fetching calendar:", error.message);
+    res.status(500).json({ success: false, error: "Failed to fetch calendar from LeetCode" });
+  }
+};
+
+
+/**
  * GET /api/problems
  * Lists all tracked problems for the authenticated user, with optional search filtering and pagination.
  * Query params: ?search=<text>&sort=title|attempts|date&page=<number>&limit=<number>
