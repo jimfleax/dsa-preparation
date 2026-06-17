@@ -48,9 +48,11 @@ export const checkSync = async (req: Request, res: Response) => {
     const dedupedSubmissions = Array.from(uniqueSlugs.values());
 
     // Fetch existing slugs and dates for this user
-    const existingRecords = await TrackedProblem.find({ userId }).select(
-      "titleSlug lastAttemptedDate _id"
-    ).lean();
+    const slugs = dedupedSubmissions.map((s) => s.titleSlug);
+    const existingRecords = await TrackedProblem.find({
+      userId,
+      titleSlug: { $in: slugs }
+    }).select("titleSlug lastAttemptedDate _id").lean();
     
     const existingMap = new Map();
     existingRecords.forEach((r) => existingMap.set(r.titleSlug, r));

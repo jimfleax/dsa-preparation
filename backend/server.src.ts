@@ -122,21 +122,24 @@ function parseFrontmatter(
 // ���─────────────────────────────────────────────────────────
 
 // API endpoint to retrieve all listed documents
-app.get("/api/documents", (req, res) => {
+app.get("/api/documents", async (req, res) => {
   try {
     ensureDirs();
     const result: DocumentMetadata[] = [];
 
     // Read Theory Directory
     if (fs.existsSync(THEORY_DIR)) {
-      const theoryFiles = fs
-        .readdirSync(THEORY_DIR)
+      const theoryFiles = (await fs.promises.readdir(THEORY_DIR))
         .filter((file) => file.endsWith(".md"));
-      for (const file of theoryFiles) {
+      
+      const filePromises = theoryFiles.map(async (file) => {
         const filePath = path.join(THEORY_DIR, file);
-        const content = fs.readFileSync(filePath, "utf-8");
-        result.push(parseFrontmatter(content, file));
-      }
+        const content = await fs.promises.readFile(filePath, "utf-8");
+        return parseFrontmatter(content, file);
+      });
+      
+      const parsedDocs = await Promise.all(filePromises);
+      result.push(...parsedDocs);
     }
 
     res.json({ success: true, documents: result });
@@ -147,7 +150,7 @@ app.get("/api/documents", (req, res) => {
 });
 
 // API endpoint to fetch details / content of a single document
-app.get("/api/document", (req, res) => {
+app.get("/api/document", async (req, res) => {
   const { filename } = req.query;
   if (!filename) {
     return res
@@ -165,7 +168,14 @@ app.get("/api/document", (req, res) => {
       return res.status(403).json({ success: false, error: "Access denied." });
     }
 
-    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    let fileStat;
+    try {
+      fileStat = await fs.promises.stat(filePath);
+    } catch {
+      fileStat = null;
+    }
+
+    if (!fileStat || !fileStat.isFile()) {
       return res.status(404).json({
         success: false,
         error: "Document not found",
@@ -173,7 +183,7 @@ app.get("/api/document", (req, res) => {
       });
     }
 
-    const rawContent = fs.readFileSync(filePath, "utf-8");
+    const rawContent = await fs.promises.readFile(filePath, "utf-8");
 
     // Strip the YAML frontmatter for rendering pure markdown
     const clientContent = rawContent
