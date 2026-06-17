@@ -81,6 +81,8 @@ TrackedProblemSchema.index({ userId: 1, titleSlug: 1 }, { unique: true });
 
 // Index for sorting by last attempted date
 TrackedProblemSchema.index({ lastAttemptedDate: -1 });
+TrackedProblemSchema.index({ userId: 1, notrack: 1, lastAttemptedDate: -1 });
+TrackedProblemSchema.index({ title: "text" });
 
 export default mongoose.model<ITrackedProblem>(
   "TrackedProblem",
