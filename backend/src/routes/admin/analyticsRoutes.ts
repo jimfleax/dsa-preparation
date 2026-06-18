@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { getAnalytics } from "../../controllers/admin/analyticsController";
-import { requireAdminAuth } from "../../middleware/adminAuthMiddleware";
+import { getAnalytics } from "../../controllers/admin/analyticsController.js";
+import { requireAdminAuth } from "../../middleware/adminAuthMiddleware.js";
 
 const router = Router();
 
-router.get("/", requireAdminAuth, getAnalytics);
+router.use(requireAdminAuth);
+
+router.get("/", getAnalytics);
 
 export default router;

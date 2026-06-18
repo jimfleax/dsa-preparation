@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Track from "../../models/Track";
+import Track from "../../models/Track.js";
 
 export const getTracks = async (req: Request, res: Response) => {
   try {

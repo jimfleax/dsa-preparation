@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getTracks, createTrack, updateTrack, deleteTrack } from "../../controllers/admin/trackController";
-import { requireAdminAuth } from "../../middleware/adminAuthMiddleware";
+import { getTracks, createTrack, updateTrack, deleteTrack } from "../../controllers/admin/trackController.js";
+import { requireAdminAuth } from "../../middleware/adminAuthMiddleware.js";
 
 const router = Router();
 
