@@ -13,7 +13,7 @@ export default function AdminLogin() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/admin/auth/google", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: credentialResponse.credential }),
