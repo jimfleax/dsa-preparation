@@ -1,63 +1,103 @@
-# Directory Structure
+# Folder Structure
 
-The `dsa-preparation` codebase is organized as a monorepo containing both the frontend and backend applications, along with shared utility scripts and deployment configurations.
+The repository is organized into two primary workspaces: `backend` and `frontend`, with top-level configurations and scripts handling full-stack tasks.
 
 ## Root Directory
 
-The root level contains configuration files for deployment and project management.
+```text
+/home/reetabratabhandari/Projects/dsa-preparation/
+├── backend/          # Node.js + Express API server
+├── frontend/         # React + Vite Client Application
+├── scripts/          # Node.js scripts for DB management, batch fetching, validation
+├── _dev/             # Development notes, mock files
+├── backups/          # Database backups and bulk exports
+├── docs/             # Project documentation
+├── feature_plans/    # Planning documents for future features
+├── .planning/        # AI Agent context and generated codebase maps
+├── README.md         # Main project documentation
+├── Dockerfile        # Containerization configuration
+└── Procfile          # Production execution commands
+```
 
-- `.agent/`, `.github/`, `.planning/`: IDE configuration, GitHub Actions, and Agent/Planning context.
-- `frontend/`: The Vite + React single-page application.
-- `backend/`: The Node.js + Express API server and static content host.
-- `scripts/`: Shared data scripts (e.g., seeding data into the database).
-- `Dockerfile`, `Procfile`, `project.toml`: Configuration for various deployment platforms (Docker, Heroku-style buildpacks, Google Cloud).
-- `README.md`, `CODEBASE_AUDIT.md`: Project documentation and audit logs.
+## Key Modules Breakdown
 
----
+### 1. Backend (`/backend`)
 
-## `/frontend`
-The client-side application built with React, Vite, and TypeScript.
+The backend follows an MVC-inspired structured layout.
 
-- **`src/`**: The core source code.
-  - **`components/`**: React functional components. Contains shared UI components (`Tooltip`, `BaseModal`), view tabs (`HomeTab`, `TrackerTab`, `TracksTab`), and specific modals for interaction (`AddProblemModal`, `LoginModal`).
-  - **`context/`**: React Context providers for global state management (`AuthContext.tsx` for user sessions, `NetworkStatusContext.tsx` for online/offline detection).
-  - **`hooks/`**: Custom React hooks (`useCommandPalette.ts`, `useInfiniteScroll.ts`) encapsulating complex component logic.
-  - **`lib/`**: Utility functions and networking tools. Includes `apiFetch.ts` for unified API requests, and caching implementations.
-  - **`App.tsx`**: Main application router and shell layout. Handles tab switching and global modals.
-  - **`main.tsx`**: React entry point and Service Worker registration.
-  - **`types.ts`**: TypeScript interfaces defining frontend data models.
+```text
+backend/
+├── server.src.ts           # Main Express application entry point, mounts routes & middleware
+├── package.json            # Backend dependencies
+├── content/
+│   └── theory/             # Markdown files representing learning resources
+└── src/
+    ├── controllers/        # Request handlers (Business Logic)
+    │   ├── authController.ts      # Handles Google OAuth & JWT generation
+    │   ├── syncController.ts      # LeetCode synchronization logic
+    │   ├── trackerController.ts   # Problem tracking and revisit algorithms
+    │   ├── documentController.ts  # Parses and serves local markdown theory files
+    │   ├── trackController.ts     # Manages predefined DSA learning tracks
+    │   └── userController.ts      # User preferences and settings
+    ├── models/             # Mongoose Schemas (Data Access Layer)
+    │   ├── User.ts                # User profiles and LeetCode usernames
+    │   ├── TrackedProblem.ts      # Instances of problems solved by users
+    │   ├── Track.ts               # Track metadata and sub-problems
+    │   └── LearningDoc.ts         # Optional model for indexed learning resources
+    ├── routes/             # Express Route Definitions mapping to controllers
+    │   ├── admin/                 # Protected admin-level endpoints
+    │   └── ...                    # auth, tracker, sync, user, etc.
+    ├── middleware/         # Express Middlewares
+    │   └── authMiddleware.ts      # JWT Validation
+    └── lib/                # Utility functions and Core configurations
+        ├── db.ts                  # MongoDB connection logic
+        └── leetcodeScraperUtil.ts # Functions to scrape LeetCode GraphQL APIs
+```
 
-- **`public/`**: Static assets that are served directly by Vite without compilation.
+### 2. Frontend (`/frontend`)
 
----
+The frontend is a classic React application initialized with Vite.
 
-## `/backend`
-The server-side application built with Node.js, Express, and Mongoose.
+```text
+frontend/
+├── index.html              # HTML Entry Point
+├── package.json            # Frontend dependencies
+├── vite.config.ts          # Vite bundler configuration
+├── public/                 # Static assets (icons, manifest)
+└── src/
+    ├── App.tsx             # Main Application Component and Route/Tab layout
+    ├── main.tsx            # React DOM mounting
+    ├── components/         # Reusable UI Components
+    │   ├── Admin/                 # Admin specific components
+    │   ├── CommandPalette.tsx     # Global Ctrl+K search and quick-actions
+    │   ├── TrackerTab.tsx         # Problem tracking view
+    │   ├── TracksTab.tsx          # Predefined tracks view
+    │   └── ...                    # Modals, tooltips, cards, alerts
+    ├── pages/              # Top level views
+    │   └── admin/                 # Admin Dashboard pages
+    ├── context/            # React Context Providers
+    │   ├── AuthContext.tsx        # Provides user state across the app
+    │   └── NetworkStatusContext.ts# Tracks online/offline status
+    ├── hooks/              # Custom React Hooks
+    │   ├── useCommandPalette.ts   # Logic for the command palette
+    │   ├── useDocuments.ts        # Data fetching logic for markdown docs
+    │   └── ...
+    └── lib/                # Frontend utilities
+        ├── apiFetch.ts            # Custom fetch wrapper handling RxDB caching
+        └── apiCache.ts            # RxDB configuration for offline support
+```
 
-- **`server.src.ts`**: The main Express server entry point. Configures middleware, connects routes, serves markdown content, and handles global error processing.
-- **`content/theory/`**: A directory storing markdown files (`*.md`). These files contain DSA theory content with YAML frontmatter, dynamically served by the backend to the frontend.
+### 3. Scripts (`/scripts`)
 
-- **`src/`**: The main backend logic.
-  - **`controllers/`**: Request handlers grouped by business domains.
-    - `authController.ts`: Registration and JWT login.
-    - `syncController.ts`: LeetCode synchronization logic.
-    - `trackerController.ts`: Problem tracking CRUD logic.
-    - `trackController.ts`: Fetching and serving organized tracks.
-    - `userController.ts`: User settings and profile handling.
-  - **`models/`**: Mongoose schemas enforcing MongoDB structure.
-    - `User.ts`: User credentials and preferences.
-    - `Track.ts`: Curated problem lists/tracks.
-    - `TrackedProblem.ts`: Individual user progress on specific problems.
-  - **`routes/`**: Express Router definitions, mapping HTTP endpoints to their respective controllers.
-  - **`middleware/`**: Request interceptors. Contains `authMiddleware.ts` for validating JWT Bearer tokens.
-  - **`lib/`**: Backend utility modules.
-    - `db.ts`: MongoDB connection logic and graceful shutdown handling.
-    - `leetcodeScraperUtil.ts`: Helper utilities for scraping the LeetCode GraphQL API.
+Top-level management scripts primarily intended for automated and CLI usage.
 
----
-
-## `/scripts`
-Utility scripts primarily used for administrative tasks, database migrations, and data seeding.
-
-- **`data/`**: Raw JSON data files representing curated DSA tracks (e.g., `striver_track.json`).
-- **`seedTracks.ts`**: Script to ingest track JSON files and push them into the MongoDB Atlas database.
+```text
+scripts/
+├── manage_tracks.js     # Imports/Upserts JSON tracks into the DB
+├── fetch_problem.js     # Fetches title/difficulty from LeetCode for a single problem
+├── fetch_batch.js       # Batch fetches LeetCode metadata from a markdown list
+├── validate_track.js    # Validates track JSON files against the strict schema
+├── db_audit.js          # MongoDB health and duplicate tracking
+├── db_deduplicate.js    # Removes duplicated problem entries
+└── db_bulk_export.js    # Backs up the entire database to JSON
+```

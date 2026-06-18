@@ -1,17 +1,18 @@
-# External Integrations and APIs
+# Integrations
 
-## 1. LeetCode GraphQL API
-- **Purpose:** Core integration for syncing problems, fetching problem metadata, and tracking user activity.
-- **Implementation:** 
-  - The backend queries `https://leetcode.com/graphql` directly (e.g., via `backend/src/lib/leetcodeScraperUtil.ts`).
-  - **Problem Data:** Extracts accurate titles, difficulty levels, and slugs when a user adds a LeetCode URL to their tracker.
-  - **User Activity:** Fetches recent accepted submissions and the user's public profile calendar to synchronize off-platform progress.
-- **Authentication:** Uses the public, unauthenticated layers of the GraphQL API.
+This document outlines the major databases, external APIs, and services integrated into the project.
 
-## 2. Google Gemini SDK (`@google/genai`)
-- **Purpose:** Artificial intelligence integrations.
-- **Implementation:** The Google GenAI SDK (`@google/genai` v2.4+) is included in the backend dependencies (`package.json`). While it appears to be a planned integration (potentially for AI-driven problem hints, roadmap generation, or explanations), it represents a core third-party AI integration within the project's ecosystem.
+## Databases
+- **MongoDB**: The primary backend database for storing users, tracked problems, tracks, and application state. Integrated via the Mongoose ORM.
+- **IndexedDB (Dexie / RxDB)**: Used on the frontend for local-first data storage, offline capabilities, and caching.
 
-## 3. MongoDB Atlas
-- **Purpose:** Cloud-hosted NoSQL database.
-- **Implementation:** The application connects to a MongoDB Atlas cluster to store application state including Users, TrackedProblems, and curated DSA Tracks. The integration is managed natively via the `mongoose` ODM with compound indexing for efficient multi-tenant queries.
+## External APIs & Services
+- **LeetCode GraphQL API**: 
+  - **Endpoint**: `https://leetcode.com/graphql`
+  - **Purpose**: Fetches real-time problem metadata (title, difficulty) directly from LeetCode. It is also used to fetch user profile calendar and heatmap data via the `userProfileCalendar` operation for frontend visualisations.
+- **Google OAuth / Authentication**:
+  - **Frontend**: `@react-oauth/google` for user login flows.
+  - **Backend**: `google-auth-library` to verify OAuth tokens and authenticate users securely against Google Identity Services.
+- **Google GenAI (Gemini API)**:
+  - **Library**: `@google/genai`
+  - **Purpose**: The project lists `MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API` in its capabilities and includes the Gemini API SDK in its backend dependencies, indicating integration for AI-powered features.

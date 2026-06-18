@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { Map, Plus, Edit2, Trash2, Hash } from "lucide-react";
 
 export default function TracksPage() {
   const { adminToken } = useAdminAuth();
@@ -41,51 +42,80 @@ export default function TracksPage() {
     }
   };
 
-  if (loading) return <div className="text-gray-500">Loading tracks...</div>;
-
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Tracks</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <div className="flex flex-col flex-1 min-h-[500px] pt-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-neutral-900 tracking-tight mb-2">
+            Curriculum Tracks
+          </h1>
+          <p className="text-base text-neutral-500 font-medium">
+            Manage the learning paths and problem sequences.
+          </p>
+        </div>
+        <button className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-max">
+          <Plus className="w-4 h-4" />
           Add Track
         </button>
       </div>
 
-      <div className="bg-white shadow sm:rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tracks.map((track) => (
-                <tr key={track._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{track.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{track.description}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{track.order || "N/A"}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-gray-600 hover:text-blue-600 mr-4">Edit</button>
-                    <button onClick={() => handleDelete(track._id)} className="text-red-600 hover:text-red-900">Delete</button>
-                  </td>
-                </tr>
-              ))}
-              {tracks.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
-                    No tracks found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {loading ? (
+        <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center text-neutral-400 font-medium animate-pulse">
+          Loading tracks...
         </div>
-      </div>
+      ) : tracks.length === 0 ? (
+        <div className="bg-white border border-neutral-100 rounded-2xl p-16 flex flex-col items-center text-center">
+          <Map className="w-12 h-12 text-neutral-200 mb-4" />
+          <h3 className="text-lg font-bold text-neutral-900">No tracks found</h3>
+          <p className="text-sm text-neutral-500 mt-1 max-w-sm">
+            You haven't created any learning tracks yet. Create your first track to start guiding users.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tracks.map((track) => (
+            <div 
+              key={track._id} 
+              className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 flex flex-col relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-indigo-50/80 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity -z-0" />
+              
+              <div className="relative z-10 flex items-start justify-between mb-4">
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <Map className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 group-hover:border-indigo-100 group-hover:bg-white transition-colors">
+                  <Hash className="w-3 h-3" />
+                  Order: {track.order || "N/A"}
+                </div>
+              </div>
+
+              <div className="relative z-10 flex-1">
+                <h3 className="text-lg font-bold text-neutral-900 mb-2 line-clamp-1 group-hover:text-indigo-950 transition-colors">
+                  {track.title}
+                </h3>
+                <p className="text-sm text-neutral-500 font-medium line-clamp-2 leading-relaxed">
+                  {track.description}
+                </p>
+              </div>
+
+              <div className="relative z-10 flex items-center justify-end gap-3 mt-6 pt-4 border-t border-neutral-100 group-hover:border-indigo-50 transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-neutral-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                  <Edit2 className="w-3.5 h-3.5" />
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(track._id)} 
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

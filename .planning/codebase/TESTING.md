@@ -1,32 +1,34 @@
-# Testing Strategy: DSA Preparation
+# Codebase Testing Strategy: DSA Preparation
 
-This document outlines the testing infrastructure, framework usage, and testing methodologies for the `dsa-preparation` codebase.
+This document outlines how tests are written, organized, and executed within the `dsa-preparation` codebase.
 
-## 1. Testing Frameworks
-*   **No Standard Frameworks**: The project currently **does not** utilize standard Javascript/Typescript testing frameworks like Jest, Mocha, Vitest, Cypress, or Playwright. None of these are present in the `devDependencies` of either the frontend or backend.
-*   **Custom Test Scripts**: Testing is driven by ad-hoc, standalone Node.js scripts leveraging TypeScript execution (`tsx`) and the native `fetch` API.
+## 1. Frontend Testing
 
-## 2. Test Locations
-All tests are located in the dedicated `_dev/tests/` directory at the root level of the project.
-Key files include:
-*   `_test_api_endpoints.ts`: A comprehensive integration test script that hits various API endpoints (e.g., health check, list problems, add problem, toggle solved status, delete problem).
-*   `_test_db_connection.ts`: Utility test to ensure Mongoose can establish a connection with the configured MongoDB URI.
-*   `_test_auth_middleware.ts`: Script verifying JWT authorization behaviors.
-*   `_test_sync_endpoints.ts`: Script testing LeetCode synchronization APIs.
-*   `test_lc_api.js`: Ad-hoc script testing the LeetCode scraping logic.
+### Framework & Organization
+*   **Framework**: The frontend uses standard industry tools: **Vitest** along with **React Testing Library** (`@testing-library/react`).
+*   **Location**: Test files are housed in `frontend/src/tests/`.
+*   **Naming Convention**: Files adhere to the `*.test.tsx` naming convention (e.g., `AdminApp.test.tsx`, `userAuth.test.tsx`).
+*   **Configuration**: Configured via `vitest.config.ts`. (Note: Execution scripts are not currently bound to `package.json`'s `"test"` command, requiring manual execution via `npx vitest`).
 
-## 3. Testing Methodology
-*   **Integration/E2E API Testing**: The tests strictly perform black-box API integration testing. They assume the backend development server is already running. The scripts make live HTTP requests to `localhost:3000` (or `process.env.API_URL`) and utilize basic `assert` functions to validate HTTP status codes and JSON response bodies.
-*   **Execution**: Tests are executed manually via the terminal, e.g., `npx tsx _dev/tests/_test_api_endpoints.ts`.
-*   **Pass/Fail Output**: The custom runner scripts output `✅ PASS` or `❌ FAIL` to standard out based on whether assertions throw exceptions.
+### How Tests are Written
+*   **Structure**: Frontend tests leverage standard BDD syntax with `describe`, `it`/`test`, `beforeEach`, and `expect` imported directly from `vitest`.
+*   **Behavior**: They render React components in a JSDOM environment, mock browser primitives like `window.localStorage` and `matchMedia`, and simulate user routing/interactions using React Testing Library's `render` and `waitFor`.
 
-## 4. Test Coverage
-*   **No Coverage Tools**: There are no coverage tools (such as Istanbul/nyc) configured.
-*   **Untracked**: The exact test coverage percentage of the codebase is unknown and untracked. Tests mostly cover the "happy paths" of the core CRUD and Auth APIs.
+## 2. Backend Testing
 
-## 5. Future Recommendations
-Given the findings, introducing a structured test runner (like **Vitest** or **Jest**) is highly recommended. This would bring benefits like:
-1.  In-memory execution and mocking (avoiding the need for a manually running external server).
-2.  Standardized assertions (`expect()`).
-3.  Automated test coverage reporting.
-4.  Easier integration into CI/CD pipelines.
+### Framework & Organization
+*   **Framework**: While `jest`, `ts-jest`, and `supertest` are present in `devDependencies`, they are **not actively used** by the existing test files. There is no `jest.config.js` or `npm test` script.
+*   **Approach**: Testing relies entirely on custom, ad-hoc execution scripts written in TypeScript. 
+*   **Location**: Backend tests are scattered at the root of the backend directory (e.g., `backend/test-admin.ts`, `backend/test-analytics-integrity.ts`) or in the root-level `_dev/tests/` folder (e.g., `_dev/tests/_test_api_endpoints.ts`).
+*   **Naming Convention**: Files usually use the `test-*.ts` or `_test_*.ts` prefix.
+
+### How Tests are Written
+*   **Execution**: Scripts are manually executed via `npx tsx <filename>`.
+*   **Mocking & Database**: Scripts utilizing the database spin up an in-memory MongoDB instance using `mongodb-memory-server` and connect Mongoose directly to it.
+*   **Controller Invocation**: Instead of hitting an active Express server via `supertest`, tests often manually construct mocked Express Request (`req`) and Response (`res`) objects (e.g., intercepting `.json()` or `.status()`), and invoke controller functions directly.
+*   **Assertions**: Assertions are manual. They rely on standard `if (!condition) throw new Error("message")` logic or custom `assert()` wrapper functions.
+*   **Output**: Tests log success or failure directly to standard output (e.g., printing `✅ PASS` or `❌ FAIL`).
+
+## 3. Coverage
+*   **Tracking**: There are no code coverage configurations (e.g., Istanbul/NYC or Vitest coverage) in place for either the frontend or backend.
+*   **Scope**: Existing tests primarily focus on "happy paths", ensuring the database hooks up properly, user authentication workflows complete successfully, and basic controller integrations remain intact.

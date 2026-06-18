@@ -1,31 +1,37 @@
-# Tech Stack Documentation
+# Technology Stack
+
+This document outlines the major frameworks, libraries, APIs, and databases used in the project.
 
 ## Frontend
-- **Framework:** React 19 with Vite
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS 4, `github-markdown-css`
-- **UI Components:** `lucide-react` (icons), `react-loading-skeleton`
-- **Animations:** `motion` (Framer Motion)
-- **Data Visualization:** `recharts`
-- **Data Management & Offline Support:** 
-  - `dexie` (IndexedDB wrapper)
-  - `rxdb` & `rxjs` (Reactive database handling)
-- **Markdown Rendering:** `react-markdown` with `remark-gfm`
-- **PWA Capabilities:** `vite-plugin-pwa`, `workbox-core`, `workbox-window`
+- **Framework**: React 19.0
+- **Routing**: React Router DOM (`react-router-dom`)
+- **Build Tool / Bundler**: Vite
+- **PWA Capabilities**: Vite PWA plugin (`vite-plugin-pwa`), Workbox (`workbox-core`, `workbox-window`)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`, `tailwindcss`), Github Markdown CSS (`github-markdown-css`)
+- **Animations / UI**: Framer Motion (`motion`), Lucide React (`lucide-react`)
+- **Charts / Visualization**: Recharts (`recharts`)
+- **Markdown Rendering**: React Markdown (`react-markdown`), Remark GFM (`remark-gfm`)
+- **State Management & Local DB**: Dexie (IndexedDB), RxDB, RxJS
+- **Authentication**: React OAuth Google (`@react-oauth/google`)
+- **Testing**: Vitest, React Testing Library (`@testing-library/react`), JSDOM
 
 ## Backend
-- **Environment:** Node.js (v20 target)
-- **Framework:** Express.js
-- **Language:** TypeScript (built with `esbuild` for production, `tsx` for dev)
-- **Database ODM:** Mongoose (for MongoDB)
-- **Security & Validation:**
-  - `zod` for robust input and schema validation
-  - `bcryptjs` for password hashing
-  - `cors` and `express-rate-limit` for secure cross-origin requests and rate limiting
-- **Authentication:** `jsonwebtoken` for stateless JWT-based session management
+- **Framework**: Express (Node.js)
+- **Language**: TypeScript
+- **Build Tool / Runner**: ESBuild, TSX
+- **Database ORM**: Mongoose (`mongoose`)
+- **Authentication & Security**: 
+  - JWT (`jsonwebtoken`)
+  - Password Hashing (`bcryptjs`)
+  - Rate Limiting (`express-rate-limit`)
+  - CORS (`cors`)
+- **Validation**: Zod
+- **External Integration Libraries**: 
+  - Google GenAI (`@google/genai`)
+  - Google Auth Library (`google-auth-library`)
+- **Testing**: Jest, Supertest, MongoDB Memory Server (`mongodb-memory-server`)
 
-## Infrastructure & Deployment
-- **Containerization:** Docker (multi-stage `Dockerfile` using `node:20-alpine`)
-- **Cloud & Hosting:** Google Cloud Buildpacks configured via `project.toml` and `.gcloudignore`, targeting Google Cloud Run or App Engine.
-- **Database Hosting:** MongoDB Atlas cluster (identified via `mongodb+srv://` connection strings in utility scripts).
-- **Process Management:** Procfile defined for production web processes.
+## Infrastructure / Deployment
+- **Containerization**: Docker (Multi-stage build)
+- **Hosting Strategy**: Configured via `project.toml` and `Procfile` for Google Cloud PaaS (e.g. Google Cloud Run or App Engine). Serves both API and (potentially) static assets via Express.
