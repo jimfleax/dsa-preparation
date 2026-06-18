@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -12,7 +12,7 @@ import AnalyticsPage from "./pages/admin/AnalyticsPage";
 function AdminApp() {
   return (
     <AdminAuthProvider>
-      <BrowserRouter basename="/admin">
+      <HashRouter>
         <Routes>
           <Route path="/login" element={<AdminLogin />} />
           <Route element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
@@ -25,7 +25,7 @@ function AdminApp() {
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AdminAuthProvider>
   );
 }

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import AdminApp from '../AdminApp';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Mock localStorage
 const localStorageMock = (function () {
@@ -45,15 +46,19 @@ describe('AdminApp integration', () => {
   beforeEach(() => {
     window.localStorage.clear();
     // Simulate /admin route
-    window.history.pushState({}, 'Test', '/admin');
+    window.location.hash = '';
   });
 
   it('renders login page when not authenticated', async () => {
-    render(<AdminApp />);
+    render(
+      <GoogleOAuthProvider clientId="test-client-id">
+        <AdminApp />
+      </GoogleOAuthProvider>
+    );
     
     await waitFor(() => {
       // It should redirect to /login
-      expect(screen.getByText(/Admin Login/i) || screen.getByText(/Sign In/i)).toBeDefined();
+      expect(screen.getByText(/Admin Login/i)).toBeDefined();
     });
   });
 
@@ -61,10 +66,15 @@ describe('AdminApp integration', () => {
     window.localStorage.setItem('admin_token', 'fake-token');
     window.localStorage.setItem('admin_user', JSON.stringify({ id: '1', username: 'admin' }));
     
-    render(<AdminApp />);
+    render(
+      <GoogleOAuthProvider clientId="test-client-id">
+        <AdminApp />
+      </GoogleOAuthProvider>
+    );
     
     await waitFor(() => {
-      expect(screen.getByText(/Admin Panel/i)).toBeDefined();
+      // AdminLayout has 'Admin' title, AdminDashboard has 'Dashboard' quick link
+      expect(screen.getByText(/Dashboard/i)).toBeDefined();
     });
   });
 });
