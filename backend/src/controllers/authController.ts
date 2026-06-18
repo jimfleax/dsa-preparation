@@ -44,9 +44,19 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     let user = await User.findOne({ email });
 
     if (user) {
+      let changed = false;
       // Update googleId if they had an account but no googleId yet
       if (!user.googleId) {
         user.googleId = googleId;
+        changed = true;
+      }
+      // Migrate name field for existing users created under the old 'username' schema
+      if (!user.name) {
+        user.name = name;
+        changed = true;
+      }
+      
+      if (changed) {
         await user.save();
       }
     } else {
