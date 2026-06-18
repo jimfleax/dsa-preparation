@@ -22,20 +22,18 @@ const isAdminRoute = window.location.pathname.startsWith("/admin");
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {isAdminRoute ? (
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+      {isAdminRoute ? (
         <AdminApp />
-      </GoogleOAuthProvider>
-    ) : (
-      <NetworkStatusProvider>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+      ) : (
+        <NetworkStatusProvider>
           <AuthProvider>
             <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
               <App />
             </SkeletonTheme>
           </AuthProvider>
-        </GoogleOAuthProvider>
-      </NetworkStatusProvider>
-    )}
+        </NetworkStatusProvider>
+      )}
+    </GoogleOAuthProvider>
   </StrictMode>,
 );
