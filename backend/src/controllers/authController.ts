@@ -63,6 +63,12 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         changed = true;
       }
       
+      // Migrate tokenVersion if missing for older users
+      if (user.tokenVersion === undefined) {
+        user.tokenVersion = 0;
+        changed = true;
+      }
+      
       if (changed) {
         await user.save();
       }
@@ -75,7 +81,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       });
     }
 
-    const jwtToken = generateToken(user._id.toString(), user.tokenVersion);
+    const jwtToken = generateToken(user._id.toString(), user.tokenVersion || 0);
 
     res.json({
       success: true,

@@ -35,8 +35,9 @@ export const requireAuth = async (
         return;
       }
 
+      const dbTokenVersion = user.tokenVersion || 0;
       const tokenVersion = decoded.tokenVersion || 0;
-      if (user.tokenVersion !== tokenVersion) {
+      if (dbTokenVersion !== tokenVersion) {
         res.status(401).json({ error: "Not authorized, session revoked" });
         return;
       }
