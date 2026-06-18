@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } fro
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
 import { useNetworkStatus } from "./context/NetworkStatusContext";
 import { motion, AnimatePresence } from "framer-motion";
-import LoginModal from "./components/LoginModal";
-import RegisterModal from "./components/RegisterModal";
+import AuthModal from "./components/AuthModal";
 import {
   Search,
   BookOpen,
@@ -119,8 +118,7 @@ export default function App() {
   // User settings state
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
-  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
-  const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [showAboutMeModal, setShowAboutMeModal] = useState<boolean>(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
 
@@ -626,7 +624,7 @@ export default function App() {
                   className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-100 text-indigo-700 font-bold border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer text-sm sm:text-base relative z-50"
                   title="Account"
                 >
-                  {user?.username?.charAt(0).toUpperCase() || "U"}
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </button>
                 {userDropdownOpen && (
                   <>
@@ -638,7 +636,7 @@ export default function App() {
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-lg rounded-xl overflow-hidden z-50 transition-all">
                       <div className="p-3 border-b border-neutral-50 bg-neutral-50/50">
                         <p className="text-sm font-bold text-neutral-900 truncate">
-                          {user?.username}
+                          {user?.name}
                         </p>
                         <p className="text-xs text-neutral-500 truncate">
                           {user?.email}
@@ -661,8 +659,7 @@ export default function App() {
 
             <SignedOut>
               <button
-                id="sign-in-btn"
-                onClick={() => setShowLoginModal(true)}
+                onClick={() => setShowAuthModal(true)}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -698,9 +695,7 @@ export default function App() {
 
       {/* === SIGNED OUT: Landing Page === */}
       <SignedOut>
-        <main className="flex-1 w-full flex flex-col overflow-x-hidden">
-          <LandingPage onSignIn={() => setShowLoginModal(true)} />
-        </main>
+          <LandingPage onSignIn={() => setShowAuthModal(true)} />
       </SignedOut>
 
       {/* Main Workspace Frame container */}
@@ -1104,24 +1099,10 @@ export default function App() {
         )}
       </SignedIn>
       <SignedOut>
-        {showLoginModal && (
-          <LoginModal
-            isOpen={showLoginModal}
-            onClose={() => setShowLoginModal(false)}
-            onSwitchToRegister={() => {
-              setShowLoginModal(false);
-              setShowRegisterModal(true);
-            }}
-          />
-        )}
-        {showRegisterModal && (
-          <RegisterModal
-            isOpen={showRegisterModal}
-            onClose={() => setShowRegisterModal(false)}
-            onSwitchToLogin={() => {
-              setShowRegisterModal(false);
-              setShowLoginModal(true);
-            }}
+        {showAuthModal && (
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
           />
         )}
       </SignedOut>

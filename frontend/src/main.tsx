@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { NetworkStatusProvider } from "./context/NetworkStatusContext";
 import { AuthProvider } from "./context/AuthContext";
 import { SkeletonTheme } from "react-loading-skeleton";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App.tsx";
 import "./index.css";
 import { registerSW } from "virtual:pwa-register";
@@ -20,11 +21,13 @@ const updateSW = registerSW({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <NetworkStatusProvider>
-      <AuthProvider>
-        <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
-          <App />
-        </SkeletonTheme>
-      </AuthProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+        <AuthProvider>
+          <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
+            <App />
+          </SkeletonTheme>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </NetworkStatusProvider>
   </StrictMode>,
 );

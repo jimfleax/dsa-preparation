@@ -1,23 +1,9 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.ts";
-import { z } from "zod";
+import { OAuth2Client } from "google-auth-library";
 
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email format"),
-  password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
-});
-
-const loginSchema = z.object({
-  username: z.string().min(3, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET;
@@ -31,99 +17,61 @@ const generateToken = (userId: string): string => {
   });
 };
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const parseResult = registerSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      res.status(400).json({
-        success: false,
-        message: parseResult.error.issues[0].message,
-        errors: parseResult.error.issues,
-      });
+    const { token } = req.body;
+    if (!token) {
+      res.status(400).json({ success: false, message: "Token is required" });
       return;
     }
 
-    const { username, email, password } = parseResult.data;
-
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
-    if (userExists) {
-      res.status(400).json({
-        success: false,
-        message: "User with that email or username already exists",
-      });
-      return;
-    }
-
-    const user = await User.create({
-      username,
-      email,
-      passwordHash: password, // Will be hashed by pre-save hook
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
+    const payload = ticket.getPayload();
 
-    const token = generateToken(user._id as unknown as string);
+    if (!payload || !payload.email) {
+      res.status(400).json({ success: false, message: "Invalid Google token payload" });
+      return;
+    }
 
-    res.status(201).json({
-      success: true,
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        leetcodeUsername: user.leetcodeUsername,
-      },
-      token,
-    });
-  } catch (error: unknown) {
-    console.error("Registration Error:", error);
-    const message = error instanceof Error ? error.message : "Server error during registration";
-    res.status(500).json({
-      success: false,
-      message,
-    });
-  }
-};
+    const email = payload.email.toLowerCase();
+    const googleId = payload.sub;
+    const name = payload.name || email.split('@')[0];
 
-export const login = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const parseResult = loginSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      res.status(400).json({
-        success: false,
-        message: parseResult.error.issues[0].message,
-        errors: parseResult.error.issues,
+    // Find or create user
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Update googleId if they had an account but no googleId yet
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Create new user
+      user = await User.create({
+        name,
+        email,
+        googleId,
       });
-      return;
     }
 
-    const { username, password } = parseResult.data;
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-      return;
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-      return;
-    }
-
-    const token = generateToken(user._id as unknown as string);
+    const jwtToken = generateToken(user._id as unknown as string);
 
     res.json({
       success: true,
       user: {
         _id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email,
         leetcodeUsername: user.leetcodeUsername,
       },
-      token,
+      token: jwtToken,
     });
   } catch (error) {
-    console.error("Login Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error during login" });
+    console.error("Google Login Error:", error);
+    res.status(500).json({ success: false, message: "Server error during Google login" });
   }
 };
