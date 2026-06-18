@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await fetch("/api/admin/analytics", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/analytics`, {
           headers: { Authorization: `Bearer ${adminToken}` }
         });
         const json = await res.json();

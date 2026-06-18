@@ -12,23 +12,23 @@ export default function DocsPage() {
   const [filename, setFilename] = useState("");
   const [content, setContent] = useState("");
 
-  useEffect(() => {
-    fetchDocs();
-  }, [adminToken]);
-
   const fetchDocs = async () => {
     try {
-      const res = await fetch("/api/admin/docs", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
       const json = await res.json();
-      setDocs(json || []);
+      setDocs(Array.isArray(json) ? json : []);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDocs();
+  }, [adminToken]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,7 +52,7 @@ export default function DocsPage() {
     const tagArray = tags.split(",").map(t => t.trim()).filter(Boolean);
 
     try {
-      const res = await fetch("/api/admin/docs", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export default function DocsPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this document?")) return;
     try {
-      await fetch(`/api/admin/docs/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${adminToken}` }
       });
@@ -90,7 +90,7 @@ export default function DocsPage() {
     }
   };
 
-  if (loading) return <div>Loading docs...</div>;
+  if (loading) return <div className="text-gray-500">Loading docs...</div>;
 
   return (
     <div>
@@ -136,18 +136,44 @@ export default function DocsPage() {
         </form>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {Array.isArray(docs) && docs.map((doc: any) => (
-            <li key={doc._id} className="px-4 py-4 sm:px-6 flex justify-between items-center">
-              <div>
-                <h4 className="text-lg font-medium text-gray-900">{doc.title}</h4>
-                <p className="text-sm text-gray-500">{doc.filename}</p>
-              </div>
-              <button onClick={() => handleDelete(doc._id)} className="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
-            </li>
-          ))}
-        </ul>
+      <div className="bg-white shadow sm:rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filename</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {docs.map((doc: any) => (
+                <tr key={doc._id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{doc.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{doc.filename}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {doc.tags?.join(", ") || "None"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(doc.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button onClick={() => handleDelete(doc._id)} className="text-red-600 hover:text-red-900">Delete</button>
+                  </td>
+                </tr>
+              ))}
+              {docs.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                    No documents found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
