@@ -10,6 +10,7 @@ import syncRoutes from "./src/routes/syncRoutes.ts";
 import trackRoutes from "./src/routes/trackRoutes.ts";
 import authRoutes from "./src/routes/authRoutes.ts";
 import documentRoutes from "./src/routes/documentRoutes.ts";
+import adminRoutes from "./src/routes/admin/index.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
 import { scrapeLeetCodeTitle, getLeetCodeCalendar } from "./src/controllers/trackerController.ts";
 
@@ -114,6 +115,9 @@ app.use("/api/sync", requireAuth, syncRoutes);
 
 // Mount Tracks API routes (requires authentication)
 app.use("/api/tracks", requireAuth, trackRoutes);
+
+// Mount Admin API routes
+app.use("/api/admin", adminRoutes);
 
 // ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER

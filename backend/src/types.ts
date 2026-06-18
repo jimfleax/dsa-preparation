@@ -37,6 +37,9 @@ declare global {
       user?: {
         id: string;
       };
+      admin?: {
+        id: string;
+      };
     }
   }
 }
