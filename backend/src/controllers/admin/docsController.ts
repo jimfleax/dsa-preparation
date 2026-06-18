@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import LearningDoc from '../../models/LearningDoc.ts';
+import LearningDoc from '../../models/LearningDoc.js';
 
 export const getDocs = async (req: Request, res: Response) => {
   try {

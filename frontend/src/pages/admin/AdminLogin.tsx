@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { Lock, User } from "lucide-react";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -35,9 +36,37 @@ export default function AdminLogin() {
       navigate("/");
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+      const data = await response.json();
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to authenticate with Google");
+      }
+      
+      adminLogin(data.token, data.admin);
+      navigate("/");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "An error occurred during authentication");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google Sign-In was unsuccessful. Try again later.");
   };
 
   return (
@@ -111,6 +140,30 @@ export default function AdminLogin() {
               >
                 {isLoading ? "Signing in..." : "Sign in"}
               </button>
+            </div>
+            
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  theme="outline"
+                  size="large"
+                  shape="rectangular"
+                  width="300"
+                />
+              </div>
             </div>
           </form>
         </div>

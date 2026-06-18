@@ -34,4 +34,5 @@ const LearningDocSchema = new Schema<ILearningDoc>(
   { timestamps: true }
 );
 
-export default mongoose.models.LearningDoc || mongoose.model<ILearningDoc>("LearningDoc", LearningDocSchema);
+export const LearningDoc = (mongoose.models.LearningDoc as mongoose.Model<ILearningDoc>) || mongoose.model<ILearningDoc>("LearningDoc", LearningDocSchema);
+export default LearningDoc;

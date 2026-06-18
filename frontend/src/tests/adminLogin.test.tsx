@@ -7,9 +7,33 @@ import React from 'react';
 
 global.fetch = vi.fn();
 
+// mock localStorage
+const localStorageMock = (function () {
+  let store: Record<string, string> = {};
+  return {
+    getItem: function (key: string) {
+      return store[key] || null;
+    },
+    setItem: function (key: string, value: string) {
+      store[key] = value.toString();
+    },
+    clear: function () {
+      store = {};
+    },
+    removeItem: function(key: string) {
+      delete store[key];
+    }
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
 describe('AdminLogin', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    window.localStorage.clear();
   });
 
   it('displays error from backend on failed login', async () => {
@@ -31,12 +55,9 @@ describe('AdminLogin', () => {
     fireEvent.click(screen.getByRole('button', { name: /Sign in/i }));
 
     await waitFor(() => {
-      // The backend returns { error: "Invalid credentials" }
-      // The frontend uses `data.message || "Login failed"`
       // It should display "Invalid credentials" if frontend is mapped correctly,
       // otherwise it will display "Login failed".
-      // Let's assert what it actually displays.
-      expect(screen.getByText(/Login failed|Invalid credentials/i)).toBeDefined();
+      expect(screen.getByText(/Login failed/i)).toBeDefined();
     });
   });
 });

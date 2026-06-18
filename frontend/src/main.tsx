@@ -23,7 +23,9 @@ const isAdminRoute = window.location.pathname.startsWith("/admin");
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {isAdminRoute ? (
-      <AdminApp />
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+        <AdminApp />
+      </GoogleOAuthProvider>
     ) : (
       <NetworkStatusProvider>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>

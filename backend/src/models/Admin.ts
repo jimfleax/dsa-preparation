@@ -1,8 +1,21 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-const adminSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+export interface IAdmin extends Document {
+  name?: string;
+  email: string;
+  password?: string;
+  googleId?: string;
+  tokenVersion: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const adminSchema = new Schema<IAdmin>({
+  name: { type: String, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+  password: { type: String, required: false },
+  googleId: { type: String, required: false, unique: true, sparse: true },
+  tokenVersion: { type: Number, default: 0 },
 }, { timestamps: true });
 
-export const Admin = mongoose.model("Admin", adminSchema);
+export const Admin = mongoose.model<IAdmin>("Admin", adminSchema);
