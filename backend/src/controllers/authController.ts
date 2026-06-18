@@ -5,14 +5,14 @@ import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const generateToken = (userId: string): string => {
+const generateToken = (userId: string, tokenVersion: number): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error(
       "JWT_SECRET environment variable is not set. Cannot sign tokens.",
     );
   }
-  return jwt.sign({ userId }, secret, {
+  return jwt.sign({ userId, tokenVersion }, secret, {
     expiresIn: "30d",
   });
 };
@@ -25,10 +25,17 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (verifyError: any) {
+      console.warn("Token verification failed:", verifyError.message);
+      res.status(401).json({ success: false, message: "Invalid or expired Google token" });
+      return;
+    }
     const payload = ticket.getPayload();
 
     if (!payload || !payload.email) {
@@ -68,7 +75,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       });
     }
 
-    const jwtToken = generateToken(user._id as unknown as string);
+    const jwtToken = generateToken(user._id.toString(), user.tokenVersion);
 
     res.json({
       success: true,

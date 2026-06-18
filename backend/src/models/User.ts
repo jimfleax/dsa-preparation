@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   googleId?: string;
   leetcodeUsername?: string;
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,10 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: false,
       trim: true,
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },

@@ -1,17 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+import User from "../models/User.ts";
+
 interface DecodedToken {
   userId: string;
+  tokenVersion?: number;
   iat: number;
   exp: number;
 }
 
-export const requireAuth = (
+export const requireAuth = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   let token;
 
   if (
@@ -25,6 +28,18 @@ export const requireAuth = (
         token,
         process.env.JWT_SECRET as string,
       ) as DecodedToken;
+
+      const user = await User.findById(decoded.userId).select("tokenVersion");
+      if (!user) {
+        res.status(401).json({ error: "Not authorized, user not found" });
+        return;
+      }
+
+      const tokenVersion = decoded.tokenVersion || 0;
+      if (user.tokenVersion !== tokenVersion) {
+        res.status(401).json({ error: "Not authorized, session revoked" });
+        return;
+      }
 
       req.user = { id: decoded.userId };
 
