@@ -93,8 +93,12 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       },
       token: jwtToken,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Google Login Error:", error);
-    res.status(500).json({ success: false, message: "Server error during Google login" });
+    if (error instanceof Error && error.message.includes("E11000 duplicate key error")) {
+      res.status(400).json({ success: false, message: "Duplicate key error. There might be an issue with your data." });
+    } else {
+      res.status(500).json({ success: false, message: "Server error during Google login" });
+    }
   }
 };

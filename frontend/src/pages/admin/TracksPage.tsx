@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { Map, Plus, Edit2, Trash2, Hash } from "lucide-react";
+import TrackModal from "../../components/admin/TrackModal";
 
 export default function TracksPage() {
   const { adminToken } = useAdminAuth();
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTrack, setEditingTrack] = useState<any>(null);
 
   const fetchTracks = async () => {
     try {
@@ -42,6 +45,40 @@ export default function TracksPage() {
     }
   };
 
+  const handleAddClick = () => {
+    setEditingTrack(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (track: any) => {
+    setEditingTrack(track);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTrack = async (trackJson: any) => {
+    const url = editingTrack 
+      ? `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${editingTrack._id}`
+      : `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks`;
+      
+    const method = editingTrack ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}` 
+      },
+      body: JSON.stringify(trackJson)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to save track");
+    }
+
+    await fetchTracks();
+  };
+
   return (
     <div className="flex flex-col flex-1 min-h-[500px] pt-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -53,7 +90,10 @@ export default function TracksPage() {
             Manage the learning paths and problem sequences.
           </p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-max">
+        <button 
+          onClick={handleAddClick}
+          className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-max"
+        >
           <Plus className="w-4 h-4" />
           Add Track
         </button>
@@ -100,7 +140,10 @@ export default function TracksPage() {
               </div>
 
               <div className="relative z-10 flex items-center justify-end gap-3 mt-6 pt-4 border-t border-neutral-100 group-hover:border-indigo-50 transition-colors">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-neutral-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                <button 
+                  onClick={() => handleEditClick(track)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-neutral-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                >
                   <Edit2 className="w-3.5 h-3.5" />
                   Edit
                 </button>
@@ -116,6 +159,13 @@ export default function TracksPage() {
           ))}
         </div>
       )}
+
+      <TrackModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSaveTrack}
+        initialData={editingTrack}
+      />
     </div>
   );
 }
