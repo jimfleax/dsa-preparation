@@ -123,7 +123,7 @@ export default function AdminLayout() {
             </div>
             <div className="flex flex-col truncate">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
-                Authenticated
+                ADMIN
               </span>
               <span className="text-sm font-bold text-neutral-800 truncate">
                 {adminUser?.email || "Super Admin"}
@@ -135,7 +135,7 @@ export default function AdminLayout() {
             className="group flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-rose-600 bg-rose-50/50 rounded-2xl hover:bg-rose-100 border border-transparent hover:border-rose-200 transition-all duration-200 active:scale-[0.98]"
           >
             <LogOut className="mr-2 h-[18px] w-[18px]" />
-            Sign Out Securely
+            Sign Out
           </button>
         </div>
       </aside>
