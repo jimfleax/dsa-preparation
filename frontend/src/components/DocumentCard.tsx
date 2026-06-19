@@ -1,6 +1,8 @@
 import { BookOpen, MapPin, Terminal, ChevronRight } from "lucide-react";
 import { DocumentMetadata } from "../types";
 
+import { Card } from "./ui/Card";
+
 interface DocumentCardProps {
   doc: DocumentMetadata;
   isActive: boolean;
@@ -13,13 +15,18 @@ export default function DocumentCard({
   onSelect,
 }: DocumentCardProps) {
   return (
-    <button
+    <Card
+      as="button"
       id={`doc-card-${doc.id}`}
       onClick={onSelect}
-      className={`text-left w-full p-5 rounded-2xl border transition-all duration-250 cursor-pointer flex flex-col justify-between h-full bg-white group hover:shadow-md hover:border-indigo-200 ${
+      padding="md"
+      interactive
+      hoverEffect="glow"
+      hoverColor="indigo"
+      className={`w-full flex flex-col justify-between h-full ${
         isActive
           ? "border-indigo-600 bg-indigo-50/20 ring-1 ring-indigo-500 shadow-xs"
-          : "border-neutral-100 shadow-2xs"
+          : ""
       }`}
     >
       <div id={`doc-card-top-${doc.id}`} className="space-y-3 w-full">
@@ -100,6 +107,6 @@ export default function DocumentCard({
           }`}
         />
       </div>
-    </button>
+    </Card>
   );
 }

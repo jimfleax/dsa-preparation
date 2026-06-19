@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { Card } from "./ui/Card";
 import { TrackedProblem } from "../types";
 import { CalendarClock, X } from "lucide-react";
 
@@ -203,11 +204,16 @@ export default function HomeTab({
 
       {/* Navigation Quick Links */}
       <div className="mt-auto pt-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <button
+        <Card
+          as="button"
           onClick={() => onNavigate("learn")}
-          className="group relative flex items-center p-5 bg-white border border-neutral-200 rounded-2xl hover:border-indigo-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden text-left"
+          padding="md"
+          interactive
+          hoverEffect="glow"
+          hoverColor="indigo"
+          gradientBackground
+          className="group relative flex items-center overflow-hidden w-full text-left"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
@@ -224,13 +230,18 @@ export default function HomeTab({
             </div>
             <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-indigo-500 transition-colors group-hover:translate-x-1" />
           </div>
-        </button>
+        </Card>
 
-        <button
+        <Card
+          as="button"
           onClick={() => onNavigate("tracker")}
-          className="group relative flex items-center p-5 bg-white border border-neutral-200 rounded-2xl hover:border-emerald-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden text-left"
+          padding="md"
+          interactive
+          hoverEffect="glow"
+          hoverColor="emerald"
+          gradientBackground
+          className="group relative flex items-center overflow-hidden w-full text-left"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
@@ -247,13 +258,18 @@ export default function HomeTab({
             </div>
             <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-emerald-500 transition-colors group-hover:translate-x-1" />
           </div>
-        </button>
+        </Card>
 
-        <button
+        <Card
+          as="button"
           onClick={() => onNavigate("tracks")}
-          className="group relative flex items-center p-5 bg-white border border-neutral-200 rounded-2xl hover:border-purple-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden text-left"
+          padding="md"
+          interactive
+          hoverEffect="glow"
+          hoverColor="purple"
+          gradientBackground
+          className="group relative flex items-center overflow-hidden w-full text-left"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="relative z-10 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
@@ -270,7 +286,7 @@ export default function HomeTab({
             </div>
             <MoveRight className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-purple-500 transition-colors group-hover:translate-x-1" />
           </div>
-        </button>
+        </Card>
       </div>
     </div>
   );

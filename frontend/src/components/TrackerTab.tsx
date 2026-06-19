@@ -49,6 +49,7 @@ interface ProblemsTabProps {
 
 import { timeAgo } from "../lib/dateUtils";
 import { ProblemMobileCard } from "./ProblemMobileCard";
+import { Card } from "./ui/Card";
 
 export default function ProblemsTab({
   onOpenAddModal,
@@ -296,7 +297,7 @@ export default function ProblemsTab({
         className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
       >
         {/* Total Solved Card */}
-        <div className="col-span-1 bg-white border border-neutral-100 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-2 sm:gap-4 hover:border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group">
+        <Card padding="responsive" hoverEffect="lift" hoverColor="indigo" className="col-span-1 flex flex-col justify-center items-center gap-2 sm:gap-4 cursor-default group">
           <div className="bg-indigo-50 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
             <Inbox className="w-5 h-5 sm:w-8 sm:h-8" />
           </div>
@@ -312,10 +313,10 @@ export default function ProblemsTab({
               />
             </p>
           </div>
-        </div>
+        </Card>
 
         {/* Difficulty Distribution Chart */}
-        <div className="col-span-1 bg-white border border-neutral-100 p-3 sm:p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center h-36 sm:h-48 hover:border-neutral-200 hover:shadow-md transition-all duration-300">
+        <Card padding="none" className="p-3 sm:p-4 col-span-1 flex flex-col justify-center items-center h-36 sm:h-48 transition-all duration-300" hoverEffect="lift">
           {problems.length > 0 ? (
             <div className="w-full h-full flex flex-col justify-center">
               <div className="flex-1 min-h-0 w-full hide-legend-mobile">
@@ -383,10 +384,10 @@ export default function ProblemsTab({
               No problems tracked yet.
             </p>
           )}
-        </div>
+        </Card>
 
         {/* Quick Actions Card */}
-        <div className="col-span-2 md:col-span-1 bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm flex flex-col justify-center items-center gap-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
+        <Card padding="lg" hoverEffect="lift" hoverColor="indigo" className="col-span-2 md:col-span-1 flex flex-col justify-center items-center gap-4 transition-all duration-300">
           <div className="text-center mb-1">
             <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">
               Quick Actions
@@ -421,13 +422,14 @@ export default function ProblemsTab({
               </button>
             </Tooltip>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Controls Panel */}
-      <div
+      <Card
+        padding="md"
         id="problems-controls-panel"
-        className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
+        className="shadow-2xs space-y-4"
       >
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           {/* Search */}
@@ -477,13 +479,14 @@ export default function ProblemsTab({
             </select>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Problems Table */}
       {filteredProblems.length === 0 ? (
-        <div
+        <Card
+          padding="none"
           id="problems-empty-state"
-          className="bg-white border border-neutral-100 rounded-2xl p-8 sm:p-12 text-center max-w-lg mx-auto"
+          className="p-8 sm:p-12 text-center max-w-lg mx-auto"
         >
           <Inbox className="w-10 h-10 sm:w-12 sm:h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
           <h3 className="text-sm sm:text-base font-bold text-neutral-800">
@@ -502,11 +505,12 @@ export default function ProblemsTab({
               + Add Your First Problem
             </button>
           )}
-        </div>
+        </Card>
       ) : (
-        <div
+        <Card
+          padding="none"
           id="problems-table-container"
-          className="bg-white border border-neutral-100 rounded-2xl shadow-2xs overflow-hidden"
+          className="shadow-2xs overflow-hidden"
         >
           {/* Mobile Cards View */}
           <div className="md:hidden flex flex-col divide-y divide-neutral-100">
@@ -722,7 +726,7 @@ export default function ProblemsTab({
             Showing {filteredProblems.length} of {totalCount || problems.length}{" "}
             problems
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Infinite Scroll Sentinel */}

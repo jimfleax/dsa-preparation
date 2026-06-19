@@ -5,6 +5,8 @@ import AttemptProblemModal from "./AttemptProblemModal";
 import { extractTitleSlug } from "../lib/slugUtils";
 import { AnimatedNumber } from "./AnimatedNumber";
 
+import { Card } from "./ui/Card";
+
 interface TrackCardProps {
   track: Track;
   trackedProblems: Record<string, TrackedProblem>;
@@ -198,7 +200,7 @@ export default function TrackCard({
   };
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden">
+    <Card padding="none" className="overflow-hidden border-neutral-200">
       <div
         role="button"
         tabIndex={0}
@@ -426,6 +428,6 @@ export default function TrackCard({
           }
         />
       )}
-    </div>
+    </Card>
   );
 }

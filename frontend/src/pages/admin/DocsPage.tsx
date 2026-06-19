@@ -4,6 +4,7 @@ import { adminFetch } from "../../lib/adminFetch";
 import { FileText, Trash2, Tag, Calendar, Plus, Edit2 } from "lucide-react";
 import AddDocModal from "../../components/admin/AddDocModal";
 import EditDocModal from "../../components/admin/EditDocModal";
+import { Card } from "../../components/ui/Card";
 
 export default function DocsPage() {
   const { adminToken } = useAdminAuth();
@@ -71,11 +72,11 @@ export default function DocsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <div className="col-span-full bg-white border border-neutral-100 rounded-2xl p-12 text-center text-neutral-400 font-medium animate-pulse">
+          <Card padding="none" className="col-span-full p-12 text-center text-neutral-400 font-medium animate-pulse">
             Loading documents...
-          </div>
+          </Card>
         ) : docs.length === 0 ? (
-          <div className="col-span-full bg-white border border-neutral-100 rounded-2xl p-16 flex flex-col items-center text-center">
+          <Card padding="none" className="col-span-full p-16 flex flex-col items-center text-center">
             <FileText className="w-12 h-12 text-neutral-200 mb-4" />
             <h3 className="text-lg font-bold text-neutral-900">
               No documents found
@@ -83,12 +84,14 @@ export default function DocsPage() {
             <p className="text-sm text-neutral-500 mt-1 max-w-sm">
               Upload your first markdown document to see it here.
             </p>
-          </div>
+          </Card>
         ) : (
           docs.map((doc: any) => (
-            <div
+            <Card
               key={doc._id}
-              className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              padding="lg"
+              hoverEffect="lift"
+              className="flex flex-col group border-neutral-100"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -144,7 +147,7 @@ export default function DocsPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))
         )}
       </div>

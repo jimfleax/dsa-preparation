@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
-import { Map, Plus, Edit2, Trash2, Hash } from "lucide-react";
+import { Map, Plus, Edit2, Trash2 } from "lucide-react";
 import TrackModal from "../../components/admin/TrackModal";
+import { Card } from "../../components/ui/Card";
 
 export default function TracksPage() {
   const { adminToken } = useAdminAuth();
@@ -107,11 +108,11 @@ export default function TracksPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center text-neutral-400 font-medium animate-pulse">
+        <Card padding="none" className="p-12 text-center text-neutral-400 font-medium animate-pulse">
           Loading tracks...
-        </div>
+        </Card>
       ) : tracks.length === 0 ? (
-        <div className="bg-white border border-neutral-100 rounded-2xl p-16 flex flex-col items-center text-center">
+        <Card padding="none" className="p-16 flex flex-col items-center text-center">
           <Map className="w-12 h-12 text-neutral-200 mb-4" />
           <h3 className="text-lg font-bold text-neutral-900">
             No tracks found
@@ -120,13 +121,15 @@ export default function TracksPage() {
             You haven't created any learning tracks yet. Create your first track
             to start guiding users.
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tracks.map((track) => (
-            <div
+            <Card
               key={track._id}
-              className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 flex flex-col relative overflow-hidden"
+              padding="lg"
+              hoverEffect="lift"
+              className="flex flex-col relative overflow-hidden group"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-indigo-50/80 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity -z-0" />
 
@@ -161,7 +164,7 @@ export default function TracksPage() {
                   Delete
                 </button>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

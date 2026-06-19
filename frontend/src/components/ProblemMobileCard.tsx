@@ -11,6 +11,8 @@ import {
 import { TrackedProblem } from "../types";
 import { timeAgo } from "../lib/dateUtils";
 
+import { Card } from "./ui/Card";
+
 interface ProblemMobileCardProps {
   problem: TrackedProblem;
   revisitingId: string | null;
@@ -33,7 +35,7 @@ export function ProblemMobileCard({
   onSchedule,
 }: ProblemMobileCardProps) {
   return (
-    <div className="p-4 bg-white hover:bg-indigo-50/20 transition-colors flex flex-col gap-3">
+    <Card padding="sm" className="hover:bg-indigo-50/20 flex flex-col gap-3 rounded-none border-x-0 border-t-0 shadow-none">
       <div className="flex justify-between items-start gap-3">
         <div className="flex-1">
           <a
@@ -147,6 +149,6 @@ export function ProblemMobileCard({
           )}
         </button>
       </div>
-    </div>
+    </Card>
   );
 }

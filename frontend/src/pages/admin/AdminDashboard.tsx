@@ -2,6 +2,7 @@ import { useAdminAuth } from "../../context/AdminAuthContext";
 import { Users, Map, FileText, BarChart, MoveRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Card } from "../../components/ui/Card";
 
 export default function AdminDashboard() {
   const { adminUser } = useAdminAuth();
@@ -72,35 +73,28 @@ function QuickLinkCard({
   colorClass: "indigo" | "emerald" | "purple" | "rose";
 }) {
   const colorStyles = {
-    indigo:
-      "group-hover:bg-indigo-600 text-indigo-600 bg-indigo-50 border-indigo-200 group-hover:border-indigo-300 from-indigo-50/50 group-hover:text-white",
-    emerald:
-      "group-hover:bg-emerald-600 text-emerald-600 bg-emerald-50 border-emerald-200 group-hover:border-emerald-300 from-emerald-50/50 group-hover:text-white",
-    purple:
-      "group-hover:bg-purple-600 text-purple-600 bg-purple-50 border-purple-200 group-hover:border-purple-300 from-purple-50/50 group-hover:text-white",
-    rose: "group-hover:bg-rose-600 text-rose-600 bg-rose-50 border-rose-200 group-hover:border-rose-300 from-rose-50/50 group-hover:text-white",
+    indigo: "group-hover:bg-indigo-600 text-indigo-600 bg-indigo-50",
+    emerald: "group-hover:bg-emerald-600 text-emerald-600 bg-emerald-50",
+    purple: "group-hover:bg-purple-600 text-purple-600 bg-purple-50",
+    rose: "group-hover:bg-rose-600 text-rose-600 bg-rose-50",
   };
 
   const style = colorStyles[colorClass];
 
-  // Extract specific parts
-  const bgGradient = style.match(/from-\w+-50\/50/)?.[0] || "";
-  const iconBg = style.match(/bg-\w+-50/)![0];
-  const iconText = style.match(/text-\w+-600/)![0];
-  const groupHoverBg = style.match(/group-hover:bg-\w+-600/)![0];
-  const groupHoverText = "group-hover:text-white";
-
   return (
-    <Link
+    <Card
+      as={Link}
       to={to}
-      className="group relative flex flex-col p-6 bg-white border border-neutral-100 rounded-2xl hover:border-neutral-200 hover:shadow-xl hover:shadow-neutral-200/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden text-left"
+      padding="lg"
+      interactive
+      hoverEffect="glow"
+      hoverColor={colorClass}
+      gradientBackground
+      className="group relative flex flex-col h-full"
     >
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${bgGradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`}
-      />
       <div className="relative z-10 flex flex-col h-full">
         <div
-          className={`p-3 w-max rounded-xl transition-all duration-300 ${iconBg} ${iconText} ${groupHoverBg} ${groupHoverText} mb-4`}
+          className={`p-3 w-max rounded-xl transition-all duration-300 ${style} group-hover:text-white mb-4`}
         >
           {icon}
         </div>
@@ -114,6 +108,6 @@ function QuickLinkCard({
           Open module <MoveRight className="w-4 h-4" />
         </div>
       </div>
-    </Link>
+    </Card>
   );
 }

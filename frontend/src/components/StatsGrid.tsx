@@ -1,6 +1,7 @@
-import { BookOpen, Layers, Terminal } from "lucide-react";
+import { BookOpen, Layers } from "lucide-react";
 import { DocumentMetadata } from "../types";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { Card } from "./ui/Card";
 
 interface StatsGridProps {
   documents: DocumentMetadata[];
@@ -12,9 +13,10 @@ export default function StatsGrid({ documents }: StatsGridProps) {
 
   return (
     <div id="stats-grid" className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <div
+      <Card
+        padding="sm"
         id="stat-theory"
-        className="bg-white border border-indigo-100/20 p-4 rounded-2xl shadow-3xs flex items-center gap-4 hover:border-indigo-100 transition-colors"
+        className="border-indigo-100/20 shadow-3xs flex items-center gap-4 hover:border-indigo-100 transition-colors"
       >
         <div
           id="icon-theory"
@@ -36,11 +38,12 @@ export default function StatsGrid({ documents }: StatsGridProps) {
             <AnimatedNumber value={theoryCount} />
           </p>
         </div>
-      </div>
+      </Card>
 
-      <div
+      <Card
+        padding="sm"
         id="stat-tags"
-        className="bg-white border border-indigo-100/20 p-4 rounded-2xl shadow-3xs flex items-center gap-4 hover:border-indigo-100 transition-colors"
+        className="border-indigo-100/20 shadow-3xs flex items-center gap-4 hover:border-indigo-100 transition-colors"
       >
         <div
           id="icon-tags"
@@ -62,7 +65,7 @@ export default function StatsGrid({ documents }: StatsGridProps) {
             <AnimatedNumber value={uniqueTagsCount} />
           </p>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
