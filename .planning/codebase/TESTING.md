@@ -1,34 +1,37 @@
-# Codebase Testing Strategy: DSA Preparation
+# Testing Strategy & Frameworks
 
-This document outlines how tests are written, organized, and executed within the `dsa-preparation` codebase.
+This document describes the testing approach, frameworks, and tools used to ensure the reliability of the `dsa-preparation` project.
 
 ## 1. Frontend Testing
 
-### Framework & Organization
-*   **Framework**: The frontend uses standard industry tools: **Vitest** along with **React Testing Library** (`@testing-library/react`).
-*   **Location**: Test files are housed in `frontend/src/tests/`.
-*   **Naming Convention**: Files adhere to the `*.test.tsx` naming convention (e.g., `AdminApp.test.tsx`, `userAuth.test.tsx`).
-*   **Configuration**: Configured via `vitest.config.ts`. (Note: Execution scripts are not currently bound to `package.json`'s `"test"` command, requiring manual execution via `npx vitest`).
+### 1.1 Framework & Tools
+- **Test Runner:** `Vitest` configured via `vitest.config.ts`.
+- **Environment:** `jsdom` is used to simulate a browser environment in Node.js.
+- **Testing Library:** `@testing-library/react` and `@testing-library/user-event` are the primary libraries for rendering components and simulating user interactions.
 
-### How Tests are Written
-*   **Structure**: Frontend tests leverage standard BDD syntax with `describe`, `it`/`test`, `beforeEach`, and `expect` imported directly from `vitest`.
-*   **Behavior**: They render React components in a JSDOM environment, mock browser primitives like `window.localStorage` and `matchMedia`, and simulate user routing/interactions using React Testing Library's `render` and `waitFor`.
+### 1.2 Structure & Placement
+- Tests are not collocated with components. Instead, they are centralized in the `src/tests/` directory (e.g., `AdminApp.test.tsx`, `userAuth.test.tsx`, `adminLogin.test.tsx`).
+- `setup.ts` and ad-hoc runner scripts (`runner.tsx`) configure the global JSDOM and mock common browser APIs before tests execute.
+
+### 1.3 Mocks & Strategies
+- **Global Objects:** High-level browser objects such as `window.localStorage`, `window.location`, and `window.matchMedia` are mocked comprehensively in `setup.ts` to allow isolated integration tests.
+- **Routing & State:** `MemoryRouter` is used to assert route transitions and guarded components (e.g., verifying that a user is redirected to `/login` when unauthorized).
+- **Context Providers:** Tests wrap tested components in required context providers (e.g., `AdminAuthProvider`, `GoogleOAuthProvider`) to simulate actual runtime conditions.
 
 ## 2. Backend Testing
 
-### Framework & Organization
-*   **Framework**: While `jest`, `ts-jest`, and `supertest` are present in `devDependencies`, they are **not actively used** by the existing test files. There is no `jest.config.js` or `npm test` script.
-*   **Approach**: Testing relies entirely on custom, ad-hoc execution scripts written in TypeScript. 
-*   **Location**: Backend tests are scattered at the root of the backend directory (e.g., `backend/test-admin.ts`, `backend/test-analytics-integrity.ts`) or in the root-level `_dev/tests/` folder (e.g., `_dev/tests/_test_api_endpoints.ts`).
-*   **Naming Convention**: Files usually use the `test-*.ts` or `_test_*.ts` prefix.
+### 2.1 Framework & Environment
+- **Approach:** Ad-hoc custom integration test scripts located at the root of the `backend/` directory (e.g., `test-admin.ts`, `test-auth.ts`, `test-user-creation.js`).
+- **Test Runner:** Tests are typically executed directly using `tsx` or `node` via terminal commands, though `Jest` (`jest`, `ts-jest`) is installed and available in `devDependencies`.
+- **Database Simulation:** Tests rely heavily on `mongodb-memory-server` to spin up an isolated, ephemeral in-memory MongoDB instance. This prevents data collision, avoids the need for a live test database, and speeds up test execution.
 
-### How Tests are Written
-*   **Execution**: Scripts are manually executed via `npx tsx <filename>`.
-*   **Mocking & Database**: Scripts utilizing the database spin up an in-memory MongoDB instance using `mongodb-memory-server` and connect Mongoose directly to it.
-*   **Controller Invocation**: Instead of hitting an active Express server via `supertest`, tests often manually construct mocked Express Request (`req`) and Response (`res`) objects (e.g., intercepting `.json()` or `.status()`), and invoke controller functions directly.
-*   **Assertions**: Assertions are manual. They rely on standard `if (!condition) throw new Error("message")` logic or custom `assert()` wrapper functions.
-*   **Output**: Tests log success or failure directly to standard output (e.g., printing `✅ PASS` or `❌ FAIL`).
+### 2.2 Controller Integration Testing
+- Backend tests bypass Express routing and invoke controller functions directly (e.g., `adminLogin(mockReq, mockRes)`).
+- **Mocks:**
+  - Standard Express `Request` and `Response` objects are stubbed inline.
+  - Third-party authentication (e.g., Google's `OAuth2Client.verifyIdToken`) is mocked to return deterministic payload data.
+- **Assertions:** Tests use basic `if (!condition) throw new Error(...)` checks to validate outputs and logic (such as middleware ID extraction or Analytics metric calculations), terminating with `process.exit(1)` upon failure.
 
-## 3. Coverage
-*   **Tracking**: There are no code coverage configurations (e.g., Istanbul/NYC or Vitest coverage) in place for either the frontend or backend.
-*   **Scope**: Existing tests primarily focus on "happy paths", ensuring the database hooks up properly, user authentication workflows complete successfully, and basic controller integrations remain intact.
+## 3. Test Coverage & Philosophy
+- **Integration over Unit:** Both frontend and backend lean heavily into integration tests. The frontend verifies end-to-end component rendering and logic flows. The backend verifies complete request-response lifecycles, database writes, and middleware transitions.
+- **Test Tracks Data:** As specified by `.agent/skills/generating-dsa-roadmaps/SKILL.md` and `AGENTS.md`, any mock tracks inserted into the database for testing or verification MUST use the `[TEST]` prefix in the track title to identify them easily for garbage collection.
