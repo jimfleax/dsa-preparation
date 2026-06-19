@@ -13,14 +13,37 @@ export const getDocs = async (req: Request, res: Response) => {
 export const createDoc = async (req: Request, res: Response) => {
   try {
     const { title, content, tags, filename } = req.body;
-    if (!title || !content || !filename) {
-      return res.status(400).json({ error: 'Title, content and filename are required' });
+
+    // Type validation
+    if (typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({ error: 'Valid title is required' });
     }
-    const doc = new LearningDoc({ title, content, tags, filename });
+    if (typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ error: 'Valid content is required' });
+    }
+    if (typeof filename !== 'string' || !filename.trim() || !filename.endsWith('.md')) {
+      return res.status(400).json({ error: 'Valid markdown filename (.md) is required' });
+    }
+    
+    let processedTags: string[] = [];
+    if (Array.isArray(tags)) {
+      processedTags = tags.filter(t => typeof t === 'string' && t.trim() !== '');
+    }
+
+    const doc = new LearningDoc({ 
+      title: title.trim(), 
+      content, 
+      tags: processedTags, 
+      filename: filename.trim() 
+    });
+    
     await doc.save();
     res.status(201).json(doc);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'A document with this filename already exists' });
+    }
+    res.status(500).json({ error: 'Server error while creating document' });
   }
 };
 

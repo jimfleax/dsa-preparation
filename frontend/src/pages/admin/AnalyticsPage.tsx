@@ -64,7 +64,7 @@ export default function AnalyticsPage() {
     <div className="flex flex-col flex-1 min-h-[500px] pt-4">
       <div className="max-w-2xl mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold text-neutral-900 tracking-tight mb-2">
-          System Analytics
+          Analytics
         </h1>
         <p className="text-base text-neutral-500 font-medium">
           Monitor platform engagement, user growth, and content completion.

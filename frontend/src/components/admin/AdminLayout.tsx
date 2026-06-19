@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart, ShieldCheck } from "lucide-react";
+import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart } from "lucide-react";
 
 export default function AdminLayout() {
   const { adminLogout, adminUser } = useAdminAuth();
@@ -19,12 +19,7 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-neutral-100 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
         <div className="h-20 flex items-center px-6 border-b border-neutral-100">
-          <div className="flex items-center gap-3 text-indigo-600">
-            <div className="p-2 bg-indigo-50 rounded-xl">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Admin</h1>
-          </div>
+          <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Admin</h1>
         </div>
         
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">

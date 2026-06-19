@@ -84,7 +84,7 @@ export default function TracksPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-extrabold text-neutral-900 tracking-tight mb-2">
-            Curriculum Tracks
+            Tracks
           </h1>
           <p className="text-base text-neutral-500 font-medium">
             Manage the learning paths and problem sequences.

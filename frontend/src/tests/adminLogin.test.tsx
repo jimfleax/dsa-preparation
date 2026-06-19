@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AdminLogin from '../pages/admin/AdminLogin';
 import { AdminAuthProvider } from '../context/AdminAuthContext';
 import { MemoryRouter } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from 'react';
 
 global.fetch = vi.fn();
@@ -43,11 +44,13 @@ describe('AdminLogin', () => {
     });
 
     render(
-      <MemoryRouter>
-        <AdminAuthProvider>
-          <AdminLogin />
-        </AdminAuthProvider>
-      </MemoryRouter>
+      <GoogleOAuthProvider clientId="test-client-id">
+        <MemoryRouter>
+          <AdminAuthProvider>
+            <AdminLogin />
+          </AdminAuthProvider>
+        </MemoryRouter>
+      </GoogleOAuthProvider>
     );
 
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });

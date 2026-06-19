@@ -13,6 +13,11 @@ export default function DocsPage() {
   const [filename, setFilename] = useState("");
   const [content, setContent] = useState("");
 
+  // Feedback states
+  const [uploadError, setUploadError] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
   const fetchDocs = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
@@ -35,23 +40,77 @@ export default function DocsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setUploadError("");
+    setUploadSuccess("");
+
+    if (!file.name.endsWith('.md')) {
+      setUploadError("Please upload a valid Markdown file (.md)");
+      return;
+    }
+
     setFilename(file.name);
-    if (!title) setTitle(file.name.replace(".md", "").replace(/-/g, " "));
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
+
+      // Basic binary / corrupt file check
+      // A high proportion of null bytes or non-printable chars indicates a binary file.
+      if (/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text.slice(0, 1024))) {
+        setUploadError("The file appears to be corrupt or is not a valid text document.");
+        setContent("");
+        return;
+      }
+
       setContent(text);
+
+      let extractedTitle = "";
+      let extractedTags: string[] = [];
+
+      // Parse YAML frontmatter
+      const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
+      const match = text.match(frontmatterRegex);
+      
+      if (match) {
+        const fmContent = match[1];
+        const titleMatch = fmContent.match(/title:\s*['"]?(.*?)['"]?(\r?\n|$)/);
+        if (titleMatch) extractedTitle = titleMatch[1].trim();
+        
+        const tagsMatch = fmContent.match(/tags:\s*\[(.*?)\]/);
+        if (tagsMatch) {
+          extractedTags = tagsMatch[1].split(',').map(t => t.trim().replace(/['"]/g, ''));
+        }
+      } else {
+        // Fallback to first # Heading
+        const headingMatch = text.match(/^#\s+(.*?)$/m);
+        if (headingMatch) {
+          extractedTitle = headingMatch[1].trim();
+        }
+      }
+
+      if (extractedTitle) setTitle(extractedTitle);
+      else if (!title) setTitle(file.name.replace(".md", "").replace(/-/g, " "));
+
+      if (extractedTags.length > 0) {
+        setTags(extractedTags.join(", "));
+      }
     };
     reader.readAsText(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !content || !filename) return alert("Title, filename and content are required");
+    setUploadError("");
+    setUploadSuccess("");
+
+    if (!title || !content || !filename) {
+      setUploadError("Title, filename and content are required");
+      return;
+    }
 
     const tagArray = tags.split(",").map(t => t.trim()).filter(Boolean);
 
+    setIsUploading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
         method: "POST",
@@ -63,18 +122,24 @@ export default function DocsPage() {
       });
       
       if (res.ok) {
+        setUploadSuccess("Document uploaded successfully!");
         setTitle("");
         setTags("");
         setFilename("");
         setContent("");
         fetchDocs();
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setUploadSuccess(""), 3000);
       } else {
         const err = await res.json();
-        alert("Failed to upload: " + err.error);
+        setUploadError(err.error || "Failed to upload document");
       }
     } catch (error) {
       console.error(error);
-      alert("Error uploading document");
+      setUploadError("Error uploading document. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -111,6 +176,18 @@ export default function DocsPage() {
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
+          {uploadError && (
+            <div className="p-4 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+              {uploadError}
+            </div>
+          )}
+          {uploadSuccess && (
+            <div className="p-4 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-sm font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              {uploadSuccess}
+            </div>
+          )}
           <div className="p-6 border-2 border-dashed border-neutral-200 rounded-2xl bg-neutral-50/50 hover:bg-neutral-50 transition-colors relative group">
             <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full text-center">
               <FileUp className="w-8 h-8 text-indigo-400 group-hover:text-indigo-600 transition-colors mb-3" />
@@ -180,9 +257,17 @@ export default function DocsPage() {
           <div className="pt-2">
             <button 
               type="submit" 
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 hover:-translate-y-0.5 transition-all w-full sm:w-auto"
+              disabled={isUploading || !content}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 hover:-translate-y-0.5 transition-all w-full sm:w-auto flex items-center justify-center gap-2"
             >
-              Upload Document
+              {isUploading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Uploading...
+                </>
+              ) : (
+                "Upload Document"
+              )}
             </button>
           </div>
         </form>

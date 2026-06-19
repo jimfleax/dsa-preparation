@@ -21,11 +21,8 @@ export default function AdminDashboard() {
         <h1
           className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500 tracking-tight leading-tight mb-2"
         >
-          {greeting}, {adminUser?.email?.split('@')[0] || "Admin"}
+          {greeting}
         </h1>
-        <p className="text-lg text-neutral-500 font-medium">
-          Manage users, curriculum tracks, and study materials from your command center.
-        </p>
       </div>
 
       {/* Quick Actions Grid */}
