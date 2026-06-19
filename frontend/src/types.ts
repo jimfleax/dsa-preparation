@@ -44,7 +44,6 @@ export interface Track {
   _id: string;
   title: string;
   description: string;
-  order: number;
   problems: TrackProblem[];
   parts?: TrackPart[];
   createdAt: string;

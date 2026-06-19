@@ -203,7 +203,7 @@ export default function TracksTab() {
   const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
     if (a._id === activeTrackId) return -1;
     if (b._id === activeTrackId) return 1;
-    return (a.order || 0) - (b.order || 0);
+    return 0;
   });
 
   return (

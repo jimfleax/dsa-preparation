@@ -16,7 +16,6 @@ export interface TrackPart {
 export interface ITrack extends Document {
   title: string;
   description: string;
-  order: number;
   problems: TrackProblem[];
   parts?: TrackPart[];
 }
@@ -36,7 +35,6 @@ const TrackSchema: Schema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    order: { type: Number, required: true, default: 0 },
     problems: [ProblemSchema],
     parts: [
       {
@@ -49,7 +47,6 @@ const TrackSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-TrackSchema.index({ order: 1 });
 
 export default mongoose.models.Track ||
   mongoose.model<ITrack>("Track", TrackSchema);

@@ -17,7 +17,6 @@ async function runEdgeCaseTest() {
     await Track.create({
       title: "Track1",
       description: "Test Track",
-      order: 1,
       problems: [{ title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", url: "http" }]
     });
 

@@ -46,7 +46,6 @@ async function runTests() {
     await Track.create({
       title: "Track1",
       description: "Test Track",
-      order: 1,
       problems: [{ title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", url: "http" }]
     });
     await TrackedProblem.create({

@@ -124,10 +124,6 @@ export default function TracksPage() {
                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                   <Map className="w-5 h-5" />
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 group-hover:border-indigo-100 group-hover:bg-white transition-colors">
-                  <Hash className="w-3 h-3" />
-                  Order: {track.order || "N/A"}
-                </div>
               </div>
 
               <div className="relative z-10 flex-1">

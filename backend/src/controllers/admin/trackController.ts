@@ -3,7 +3,7 @@ import Track from "../../models/Track.js";
 
 export const getTracks = async (req: Request, res: Response) => {
   try {
-    const tracks = await Track.find().sort({ order: 1 });
+    const tracks = await Track.find();
     res.json(tracks);
   } catch (error) {
     console.error("Get tracks error:", error);

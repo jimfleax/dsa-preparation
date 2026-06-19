@@ -8,7 +8,7 @@ export const listTracks = async (req: Request, res: Response) => {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = req.query.limit ? Math.min(100, Math.max(1, parseInt(req.query.limit as string))) : null;
 
-    let query = Track.find().sort({ order: 1 });
+    let query = Track.find();
     
     if (limit) {
       const skip = (page - 1) * limit;

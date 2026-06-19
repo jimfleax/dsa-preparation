@@ -16,7 +16,6 @@ async function run() {
   await Track.create({
     title: "Test Track",
     description: "Testing",
-    order: 1,
     problems: [
       { title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", url: "http://example.com/1" }
     ]
