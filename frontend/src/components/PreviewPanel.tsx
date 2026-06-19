@@ -259,7 +259,7 @@ export default function PreviewPanel({
                 {data.metadata.tags.length > 0 && (
                   <div
                     id="meta-tags-container"
-                    className="pt-2 border-t border-indigo-100/30 flex flex-wrap gap-1.5 items-center"
+                    className="pt-2 border-t border-indigo-100/30 flex flex-wrap gap-1 items-center"
                   >
                     <span
                       id="tags-lbl"
@@ -270,7 +270,7 @@ export default function PreviewPanel({
                     {data.metadata.tags.map((tag, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-medium border border-indigo-100/20"
+                        className="px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-50 text-neutral-500"
                       >
                         {tag}
                       </span>

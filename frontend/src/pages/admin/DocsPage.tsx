@@ -111,13 +111,12 @@ export default function DocsPage() {
 
               <div className="flex-1">
                 {doc.tags && doc.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4 mt-2">
+                  <div className="flex flex-wrap gap-1 mb-4 mt-2">
                     {doc.tags.map((tag: string, i: number) => (
                       <span
                         key={i}
-                        className="flex items-center gap-1 px-2.5 py-1 bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 group-hover:border-indigo-100 transition-colors"
+                        className="px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-50 text-neutral-500"
                       >
-                        <Tag className="w-3 h-3 text-neutral-400" />
                         {tag}
                       </span>
                     ))}
