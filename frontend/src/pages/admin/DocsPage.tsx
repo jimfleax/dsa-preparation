@@ -93,11 +93,11 @@ export default function DocsPage() {
                   <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-bold text-neutral-900 group-hover:text-indigo-950 transition-colors line-clamp-1">
                       {doc.title}
                     </h3>
-                    <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                    <p className="text-xs text-neutral-500 font-mono mt-0.5 truncate">
                       {doc.filename}
                     </p>
                   </div>
