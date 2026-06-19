@@ -8,38 +8,103 @@ export const getAnalytics = async (req: Request, res: Response) => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const [totalUsers, newUsers, totalTracks, tracks, totalSolvedGlobally] =
+    const [totalUsers, newUsers, totalTracks, totalSolvedGlobally, uniqueProblemsAgg, mostActiveTracks] =
       await Promise.all([
         User.countDocuments(),
         User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
         Track.countDocuments(),
-        Track.find().lean(),
         TrackedProblem.countDocuments({ notrack: { $ne: true } }),
+        Track.aggregate([
+          {
+            $project: {
+              allProblems: {
+                $concatArrays: [
+                  { $ifNull: ["$problems.titleSlug", []] },
+                  {
+                    $reduce: {
+                      input: { $ifNull: ["$parts.problems.titleSlug", []] },
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          { $unwind: "$allProblems" },
+          { $group: { _id: "$allProblems" } },
+        ]),
+        Track.aggregate([
+          {
+            $project: {
+              title: 1,
+              allProblems: {
+                $concatArrays: [
+                  { $ifNull: ["$problems.titleSlug", []] },
+                  {
+                    $reduce: {
+                      input: { $ifNull: ["$parts.problems.titleSlug", []] },
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "problemprogresses",
+              localField: "allProblems",
+              foreignField: "titleSlug",
+              as: "submissions",
+            },
+          },
+          {
+            $project: {
+              title: 1,
+              activityScore: {
+                $size: {
+                  $filter: {
+                    input: "$submissions",
+                    as: "sub",
+                    cond: { $ne: ["$$sub.notrack", true] },
+                  },
+                },
+              },
+            },
+          },
+          { $sort: { activityScore: -1 } },
+          { $limit: 5 },
+        ])
       ]);
 
-    // Total problems available (unique titleSlugs in tracks)
-    const uniqueProblems = new Set<string>();
-    tracks.forEach((track) => {
-      track.problems?.forEach((p: any) => uniqueProblems.add(p.titleSlug));
-      track.parts?.forEach((part: any) => {
-        part.problems?.forEach((p: any) => uniqueProblems.add(p.titleSlug));
-      });
-    });
-    const totalProblemsAvailable = uniqueProblems.size;
-    const uniqueProblemsArr = Array.from(uniqueProblems);
+    const uniqueProblemsArr = uniqueProblemsAgg.map((p) => p._id);
+    const totalProblemsAvailable = uniqueProblemsArr.length;
 
-    const [solvedCount, revisingCount] = await Promise.all([
-      TrackedProblem.countDocuments({
-        notrack: { $ne: true },
-        titleSlug: { $in: uniqueProblemsArr },
-        attemptCount: 1,
-      }),
-      TrackedProblem.countDocuments({
-        notrack: { $ne: true },
-        titleSlug: { $in: uniqueProblemsArr },
-        attemptCount: { $gt: 1 },
-      }),
+    const progressCounts = await TrackedProblem.aggregate([
+      {
+        $match: {
+          notrack: { $ne: true },
+          titleSlug: { $in: uniqueProblemsArr },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $cond: [{ $gt: ["$attemptCount", 1] }, "revising", "solved"],
+          },
+          count: { $sum: 1 },
+        },
+      },
     ]);
+
+    let solvedCount = 0;
+    let revisingCount = 0;
+    progressCounts.forEach((pc) => {
+      if (pc._id === "solved") solvedCount = pc.count;
+      if (pc._id === "revising") revisingCount = pc.count;
+    });
 
     // Unsolved calculate
     const totalPossibleInteractions = totalProblemsAvailable * totalUsers;
@@ -47,36 +112,6 @@ export const getAnalytics = async (req: Request, res: Response) => {
       0,
       totalPossibleInteractions - (solvedCount + revisingCount),
     );
-
-    // Most active tracks
-    // Aggregate TrackedProblem counts by titleSlug
-    const problemCounts = await TrackedProblem.aggregate([
-      { $match: { notrack: { $ne: true } } },
-      { $group: { _id: "$titleSlug", count: { $sum: 1 } } },
-    ]);
-
-    const problemCountMap = new Map<string, number>();
-    problemCounts.forEach((pc) => problemCountMap.set(pc._id, pc.count));
-
-    const trackActivity = tracks.map((track) => {
-      let score = 0;
-      track.problems?.forEach((p: any) => {
-        score += problemCountMap.get(p.titleSlug) || 0;
-      });
-      track.parts?.forEach((part: any) => {
-        part.problems?.forEach((p: any) => {
-          score += problemCountMap.get(p.titleSlug) || 0;
-        });
-      });
-      return {
-        _id: track._id,
-        title: track.title,
-        activityScore: score,
-      };
-    });
-
-    trackActivity.sort((a, b) => b.activityScore - a.activityScore);
-    const mostActiveTracks = trackActivity.slice(0, 5);
 
     res.json({
       users: {
