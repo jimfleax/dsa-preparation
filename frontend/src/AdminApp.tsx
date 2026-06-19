@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -8,6 +8,7 @@ import UsersPage from "./pages/admin/UsersPage";
 import TracksPage from "./pages/admin/TracksPage";
 import DocsPage from "./pages/admin/DocsPage";
 import AnalyticsPage from "./pages/admin/AnalyticsPage";
+import NotFound from "./pages/NotFound";
 
 function AdminApp() {
   return (
@@ -22,8 +23,8 @@ function AdminApp() {
             <Route path="docs" element={<DocsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
           </Route>
-          {/* Catch-all redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Catch-all 404 route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>
     </AdminAuthProvider>

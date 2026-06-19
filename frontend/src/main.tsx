@@ -6,6 +6,7 @@ import { SkeletonTheme } from "react-loading-skeleton";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App.tsx";
 import AdminApp from "./AdminApp.tsx";
+import NotFound from "./pages/NotFound.tsx";
 import "./index.css";
 import { registerSW } from "virtual:pwa-register";
 
@@ -18,14 +19,16 @@ const updateSW = registerSW({
   },
 });
 
-const isAdminRoute = window.location.pathname.startsWith("/admin");
+const path = window.location.pathname;
+const isAdminRoute = path.startsWith("/admin");
+const isRootRoute = path === "/" || path === "/index.html";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
       {isAdminRoute ? (
         <AdminApp />
-      ) : (
+      ) : isRootRoute ? (
         <NetworkStatusProvider>
           <AuthProvider>
             <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
@@ -33,6 +36,8 @@ createRoot(document.getElementById("root")!).render(
             </SkeletonTheme>
           </AuthProvider>
         </NetworkStatusProvider>
+      ) : (
+        <NotFound />
       )}
     </GoogleOAuthProvider>
   </StrictMode>,
