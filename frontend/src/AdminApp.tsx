@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -13,20 +13,18 @@ import NotFound from "./pages/NotFound";
 function AdminApp() {
   return (
     <AdminAuthProvider>
-      <BrowserRouter basename="/admin">
-        <Routes>
-          <Route path="/login" element={<AdminLogin />} />
-          <Route element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="tracks" element={<TracksPage />} />
-            <Route path="docs" element={<DocsPage />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
-          </Route>
-          {/* Catch-all 404 route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="login" element={<AdminLogin />} />
+        <Route element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="tracks" element={<TracksPage />} />
+          <Route path="docs" element={<DocsPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+        </Route>
+        {/* Catch-all 404 route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </AdminAuthProvider>
   );
 }
