@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
-import { FileText, Trash2, Tag, Calendar, Plus } from "lucide-react";
+import { FileText, Trash2, Tag, Calendar, Plus, Edit2 } from "lucide-react";
 import AddDocModal from "../../components/admin/AddDocModal";
+import EditDocModal from "../../components/admin/EditDocModal";
 
 export default function DocsPage() {
   const { adminToken } = useAdminAuth();
   const [docs, setDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingDoc, setEditingDoc] = useState<any | null>(null);
 
   const fetchDocs = async () => {
     try {
@@ -125,13 +127,22 @@ export default function DocsPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   {new Date(doc.createdAt).toLocaleDateString()}
                 </div>
-                <button
-                  onClick={() => handleDelete(doc._id)}
-                  className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                  title="Delete Document"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => setEditingDoc(doc)}
+                    className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Edit Document"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(doc._id)}
+                    className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                    title="Delete Document"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -141,6 +152,16 @@ export default function DocsPage() {
       {showAddModal && (
         <AddDocModal
           onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            fetchDocs();
+          }}
+        />
+      )}
+
+      {editingDoc && (
+        <EditDocModal
+          doc={editingDoc}
+          onClose={() => setEditingDoc(null)}
           onSuccess={() => {
             fetchDocs();
           }}

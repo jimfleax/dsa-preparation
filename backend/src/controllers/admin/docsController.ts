@@ -69,3 +69,58 @@ export const deleteDoc = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const updateDoc = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { title, content, tags, filename } = req.body;
+
+    // Type validation
+    if (typeof title !== "string" || !title.trim()) {
+      return res.status(400).json({ error: "Valid title is required" });
+    }
+    if (typeof content !== "string" || !content.trim()) {
+      return res.status(400).json({ error: "Valid content is required" });
+    }
+    if (
+      typeof filename !== "string" ||
+      !filename.trim() ||
+      !filename.endsWith(".md")
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Valid markdown filename (.md) is required" });
+    }
+
+    let processedTags: string[] = [];
+    if (Array.isArray(tags)) {
+      processedTags = tags.filter(
+        (t) => typeof t === "string" && t.trim() !== "",
+      );
+    }
+
+    const updatedDoc = await LearningDoc.findByIdAndUpdate(
+      id,
+      {
+        title: title.trim(),
+        content,
+        tags: processedTags,
+        filename: filename.trim(),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedDoc) {
+      return res.status(404).json({ error: "Doc not found" });
+    }
+
+    res.json(updatedDoc);
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === 11000) {
+      return res
+        .status(409)
+        .json({ error: "A document with this filename already exists" });
+    }
+    res.status(500).json({ error: "Server error while updating document" });
+  }
+};

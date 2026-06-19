@@ -19,13 +19,11 @@ import {
   X,
   GraduationCap,
   FolderOpen,
-  RefreshCcw,
   Code2,
   LogIn,
   Map,
   Home,
   Loader2,
-  CheckCircle2,
   WifiOff,
 } from "lucide-react";
 import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
@@ -67,7 +65,6 @@ export default function App() {
     setSearchQuery,
     loading,
     refreshing,
-    syncStatus,
     selectedTags,
     setSelectedTags,
     allTags,
@@ -563,58 +560,6 @@ export default function App() {
 
           <div id="navbar-controls-sec" className="flex items-center gap-2">
             <SignedIn>
-              {/* Show Sync button only in Learn tab */}
-              {activeMainTab === "learn" && (
-                <Tooltip content="Scan markdown directories">
-                  <button
-                    id="refresh-docs-btn"
-                    onClick={() => fetchDocumentsList(true)}
-                    disabled={syncStatus !== "idle"}
-                    aria-label="Sync documents"
-                    className="h-9 px-3 hover:bg-indigo-50 rounded-xl border border-neutral-100 text-neutral-500 hover:text-indigo-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 text-xs font-semibold min-w-[80px]"
-                  >
-                    <AnimatePresence mode="wait">
-                      {syncStatus === "idle" && (
-                        <motion.div
-                          key="idle"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex items-center gap-1.5"
-                        >
-                          <RefreshCcw className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Sync</span>
-                        </motion.div>
-                      )}
-                      {syncStatus === "syncing" && (
-                        <motion.div
-                          key="syncing"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex items-center gap-1.5"
-                        >
-                          <RefreshCcw className="w-3.5 h-3.5 animate-spin text-indigo-600" />
-                          <span className="hidden sm:inline">Syncing...</span>
-                        </motion.div>
-                      )}
-                      {syncStatus === "success" && (
-                        <motion.div
-                          key="success"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex items-center gap-1.5 text-emerald-600"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Synced</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                </Tooltip>
-              )}
-
               <div className="hidden sm:block">
                 <Tooltip content="use this keyboard shortcut to open control panel">
                   <button

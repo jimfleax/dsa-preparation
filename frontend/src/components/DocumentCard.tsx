@@ -53,10 +53,8 @@ export default function DocumentCard({
           {doc.tags.map((tag, i) => (
             <span
               key={`${doc.id}-tag-${i}`}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                isActive
-                  ? "bg-indigo-100/55 text-indigo-700"
-                  : "bg-neutral-50 text-neutral-500"
+              className={`tag tag-core transition-colors ${
+                isActive ? "opacity-100" : "opacity-90"
               }`}
             >
               {tag}

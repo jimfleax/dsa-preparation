@@ -60,11 +60,13 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
         const titleMatch = fmContent.match(/title:\s*['"]?(.*?)['"]?(\r?\n|$)/);
         if (titleMatch) extractedTitle = titleMatch[1].trim();
 
-        const tagsMatch = fmContent.match(/tags:\s*\[(.*?)\]/);
+        const tagsMatch = fmContent.match(/tags:\s*(.+?)(\r?\n|$)/);
         if (tagsMatch) {
           extractedTags = tagsMatch[1]
+            .replace(/[\[\]]/g, "")
             .split(",")
-            .map((t) => t.trim().replace(/['"]/g, ""));
+            .map((t) => t.trim().replace(/['"]/g, ""))
+            .filter(Boolean);
         }
       } else {
         // Fallback to first # Heading
