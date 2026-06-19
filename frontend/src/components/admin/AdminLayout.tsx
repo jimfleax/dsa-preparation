@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart, Menu, X } from "lucide-react";
+import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart, Menu, X, User } from "lucide-react";
 
 export default function AdminLayout() {
   const { adminLogout, adminUser } = useAdminAuth();
@@ -20,8 +20,8 @@ export default function AdminLayout() {
       {/* Mobile Top Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-neutral-200/60 flex items-center justify-between px-4 z-40 shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm shadow-indigo-200">
-            A
+          <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center shadow-sm shadow-indigo-200">
+            <User className="w-5 h-5" />
           </div>
           <h1 className="text-lg font-extrabold text-neutral-900 tracking-tight">Admin</h1>
         </div>
@@ -52,10 +52,10 @@ export default function AdminLayout() {
         {/* Desktop Header */}
         <div className="h-16 md:h-24 flex items-center justify-between px-6 border-b border-neutral-100/50">
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex w-10 h-10 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-200 items-center justify-center font-extrabold text-lg">
-              A
+            <div className="hidden md:flex w-10 h-10 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-200 items-center justify-center">
+              <User className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Control Panel</h1>
+            <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Admin</h1>
           </div>
           <button 
             onClick={() => setMobileMenuOpen(false)}
