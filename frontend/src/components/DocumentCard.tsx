@@ -50,7 +50,7 @@ export default function DocumentCard({
           id={`doc-card-tags-${doc.id}`}
           className="flex flex-wrap gap-1 max-w-[80%]"
         >
-          {doc.tags.slice(0, 2).map((tag, i) => (
+          {doc.tags.map((tag, i) => (
             <span
               key={`${doc.id}-tag-${i}`}
               className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
@@ -62,14 +62,6 @@ export default function DocumentCard({
               {tag}
             </span>
           ))}
-          {doc.tags.length > 2 && (
-            <span
-              id={`doc-card-count-${doc.id}`}
-              className="px-1.5 py-0.5 bg-neutral-50 text-neutral-400 rounded text-[10px] font-medium"
-            >
-              +{doc.tags.length - 2}
-            </span>
-          )}
         </div>
 
         <ChevronRight
