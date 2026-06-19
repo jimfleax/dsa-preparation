@@ -24,7 +24,12 @@ export default function DocumentCard({
     >
       <div id={`doc-card-top-${doc.id}`} className="space-y-3 w-full">
         {/* Title */}
-        <div id={`doc-card-title-sec-${doc.id}`}>
+        <div id={`doc-card-title-sec-${doc.id}`} className="flex items-start gap-3">
+          <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+            isActive ? "bg-indigo-100 text-indigo-700" : "bg-neutral-50 text-neutral-500 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+          }`}>
+            <BookOpen className="w-4 h-4" />
+          </div>
           <h3
             id={`doc-card-title-${doc.id}`}
             className={`text-base font-bold leading-snug group-hover:text-indigo-600 line-clamp-2 transition-colors ${
