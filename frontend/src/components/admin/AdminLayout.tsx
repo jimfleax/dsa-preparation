@@ -20,7 +20,7 @@ export default function AdminLayout() {
       {/* Mobile Top Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-neutral-200/60 flex items-center justify-between px-4 z-40 shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-neutral-900 text-white rounded-lg flex items-center justify-center font-bold text-sm">
+          <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm shadow-indigo-200">
             A
           </div>
           <h1 className="text-lg font-extrabold text-neutral-900 tracking-tight">Admin</h1>
@@ -52,7 +52,7 @@ export default function AdminLayout() {
         {/* Desktop Header */}
         <div className="h-16 md:h-24 flex items-center justify-between px-6 border-b border-neutral-100/50">
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex w-10 h-10 bg-neutral-900 text-white rounded-xl shadow-md items-center justify-center font-extrabold text-lg">
+            <div className="hidden md:flex w-10 h-10 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-200 items-center justify-center font-extrabold text-lg">
               A
             </div>
             <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Control Panel</h1>
@@ -77,8 +77,8 @@ export default function AdminLayout() {
                 className={({ isActive }) =>
                   `group flex items-center px-4 py-3.5 text-[15px] font-semibold rounded-2xl transition-all duration-300 ${
                     isActive
-                      ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15 ring-1 ring-neutral-900"
-                      : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                      ? "bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100"
+                      : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
                   }`
                 }
               >
@@ -86,7 +86,7 @@ export default function AdminLayout() {
                   <>
                     <Icon
                       className={`mr-4 h-[22px] w-[22px] transition-all duration-300 ${
-                        isActive ? "text-white" : "text-neutral-400 group-hover:text-neutral-700"
+                        isActive ? "text-indigo-600" : "text-neutral-400 group-hover:text-neutral-600"
                       }`}
                     />
                     {item.name}
