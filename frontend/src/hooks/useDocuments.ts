@@ -24,7 +24,11 @@ export function useDocuments(apiBase: string) {
       const response = await apiFetch(`${apiBase}/api/documents`);
       const data = await response.json();
       if (data.success) {
-        setDocuments(data.documents);
+        const docsWithFallbackTags = data.documents.map((doc: DocumentMetadata) => ({
+          ...doc,
+          tags: doc.tags?.length > 0 ? doc.tags : ["Theory", "Guide"]
+        }));
+        setDocuments(docsWithFallbackTags);
         if (showRefreshIndicator) {
           setSyncStatus("success");
           setTimeout(() => setSyncStatus("idle"), 2000);
@@ -42,7 +46,8 @@ export function useDocuments(apiBase: string) {
   };
 
   const allTags = useMemo(() => {
-    const tagsSet = new Set<string>();
+    const predefinedTags = ["Theory", "Guide", "System Design", "Cheatsheet", "Core", "Frontend", "Backend"];
+    const tagsSet = new Set<string>(predefinedTags);
     documents.forEach((doc) => {
       doc.tags.forEach((tag) => tagsSet.add(tag));
     });
