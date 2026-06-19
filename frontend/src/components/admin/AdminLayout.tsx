@@ -1,10 +1,9 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart } from "lucide-react";
 
 export default function AdminLayout() {
   const { adminLogout, adminUser } = useAdminAuth();
-  const location = useLocation();
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -25,24 +24,30 @@ export default function AdminLayout() {
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {navigation.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.href;
             return (
-              <Link
+              <NavLink
                 key={item.name}
                 to={item.href}
-                className={`group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700 shadow-sm"
-                    : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-                }`}
+                end={item.href === "/"}
+                className={({ isActive }) =>
+                  `group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                      : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
+                  }`
+                }
               >
-                <Icon
-                  className={`mr-3 h-5 w-5 transition-colors ${
-                    isActive ? "text-indigo-600" : "text-neutral-400 group-hover:text-neutral-600"
-                  }`}
-                />
-                {item.name}
-              </Link>
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={`mr-3 h-5 w-5 transition-colors ${
+                        isActive ? "text-indigo-600" : "text-neutral-400 group-hover:text-neutral-600"
+                      }`}
+                    />
+                    {item.name}
+                  </>
+                )}
+              </NavLink>
             );
           })}
         </nav>
