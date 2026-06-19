@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -13,7 +13,7 @@ import NotFound from "./pages/NotFound";
 function AdminApp() {
   return (
     <AdminAuthProvider>
-      <HashRouter>
+      <BrowserRouter basename="/admin">
         <Routes>
           <Route path="/login" element={<AdminLogin />} />
           <Route element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
@@ -26,7 +26,7 @@ function AdminApp() {
           {/* Catch-all 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </AdminAuthProvider>
   );
 }

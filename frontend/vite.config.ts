@@ -14,6 +14,7 @@ export default defineConfig(() => {
         manifest: false, // We already have a public/manifest.json, so we just use that directly
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"], // Cache all safe static assets
+          navigateFallback: "/index.html",
         },
       }),
     ],
