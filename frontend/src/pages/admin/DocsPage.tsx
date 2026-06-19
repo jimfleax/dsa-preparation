@@ -89,12 +89,12 @@ export default function DocsPage() {
               className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-indigo-950 transition-colors line-clamp-1">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-indigo-950 transition-colors truncate">
                       {doc.title}
                     </h3>
                     <p className="text-xs text-neutral-500 font-mono mt-0.5 truncate">
