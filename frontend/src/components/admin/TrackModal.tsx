@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import BaseModal from "../BaseModal";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-import { Plus, ChevronRight, ChevronLeft, Trash2, Loader2, ListTree } from "lucide-react";
+import { Plus, ChevronRight, ChevronLeft, Trash2, Edit2, Loader2, ListTree } from "lucide-react";
 
 interface TrackModalProps {
   isOpen: boolean;
@@ -34,6 +34,9 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
   const [addSubtrackOpen, setAddSubtrackOpen] = useState(false);
   const [subtrackTitle, setSubtrackTitle] = useState("");
   const [subtrackDescription, setSubtrackDescription] = useState("");
+
+  const [editSubtrackTarget, setEditSubtrackTarget] = useState<number | null>(null);
+  const [editProblemTarget, setEditProblemTarget] = useState<{ partIndex: number | 'root', problemIndex: number } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -70,6 +73,8 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
       setError("");
       setAddProblemTarget(null);
       setAddSubtrackOpen(false);
+      setEditSubtrackTarget(null);
+      setEditProblemTarget(null);
     }
   }, [isOpen, initialData]);
 
@@ -105,9 +110,29 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
   };
 
   // Subtrack Management
+  const handleEditSubtrackClick = (index: number) => {
+    setSubtrackTitle(parts[index].title);
+    setSubtrackDescription(parts[index].description || "");
+    setEditSubtrackTarget(index);
+    setAddSubtrackOpen(true);
+  };
+
   const handleAddSubtrack = () => {
     if (!subtrackTitle.trim()) return;
-    setParts([...parts, { title: subtrackTitle, description: subtrackDescription, problems: [] }]);
+    
+    if (editSubtrackTarget !== null) {
+      const newParts = [...parts];
+      newParts[editSubtrackTarget] = { 
+        ...newParts[editSubtrackTarget], 
+        title: subtrackTitle, 
+        description: subtrackDescription 
+      };
+      setParts(newParts);
+      setEditSubtrackTarget(null);
+    } else {
+      setParts([...parts, { title: subtrackTitle, description: subtrackDescription, problems: [] }]);
+    }
+    
     setAddSubtrackOpen(false);
     setSubtrackTitle("");
     setSubtrackDescription("");
@@ -132,6 +157,13 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
   };
 
   // Problem Scraping
+  const handleEditProblemClick = (partIndex: number | 'root', problemIndex: number) => {
+    const prob = partIndex === 'root' ? problems[problemIndex] : parts[partIndex].problems[problemIndex];
+    setProblemUrl(prob.url);
+    setProblemPreview(prob);
+    setEditProblemTarget({ partIndex, problemIndex });
+  };
+
   const handleUrlChange = async (url: string) => {
     setProblemUrl(url);
     setProblemPreview(null);
@@ -183,12 +215,26 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
   const handleAddProblemSubmit = () => {
     if (!problemPreview) return;
     
-    if (addProblemTarget === 'root') {
-      setProblems([...problems, problemPreview]);
-    } else if (typeof addProblemTarget === 'number') {
-      const newParts = [...parts];
-      newParts[addProblemTarget].problems.push(problemPreview);
-      setParts(newParts);
+    if (editProblemTarget !== null) {
+      const { partIndex, problemIndex } = editProblemTarget;
+      if (partIndex === 'root') {
+        const newProbs = [...problems];
+        newProbs[problemIndex] = problemPreview;
+        setProblems(newProbs);
+      } else {
+        const newParts = [...parts];
+        newParts[partIndex].problems[problemIndex] = problemPreview;
+        setParts(newParts);
+      }
+      setEditProblemTarget(null);
+    } else {
+      if (addProblemTarget === 'root') {
+        setProblems([...problems, problemPreview]);
+      } else if (typeof addProblemTarget === 'number') {
+        const newParts = [...parts];
+        newParts[addProblemTarget].problems.push(problemPreview);
+        setParts(newParts);
+      }
     }
     
     setAddProblemTarget(null);
@@ -214,9 +260,14 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
           </a>
         </div>
       </div>
-      <button onClick={() => removeProblem(target, pIdx)} className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-        <Trash2 className="w-4 h-4" />
-      </button>
+      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-all gap-1">
+        <button onClick={() => handleEditProblemClick(target, pIdx)} className="p-1.5 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+          <Edit2 className="w-4 h-4" />
+        </button>
+        <button onClick={() => removeProblem(target, pIdx)} className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 
@@ -311,6 +362,9 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
                     {part.description && <p className="text-xs text-neutral-500 mt-0.5">{part.description}</p>}
                   </div>
                   <div className="flex items-center gap-2">
+                    <button onClick={() => handleEditSubtrackClick(i)} className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-neutral-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors">
+                      <Edit2 className="w-3 h-3" /> Edit
+                    </button>
                     <button onClick={() => setAddProblemTarget(i)} className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-indigo-600 hover:bg-indigo-100 rounded-md transition-colors">
                       <Plus className="w-3 h-3" /> Add Problem
                     </button>
@@ -342,12 +396,12 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
         </div>
 
         {/* Inner Modals / Popups */}
-        {(addSubtrackOpen || addProblemTarget !== null) && (
+        {(addSubtrackOpen || addProblemTarget !== null || editProblemTarget !== null) && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-200">
             <div className="bg-white border border-neutral-200 shadow-xl rounded-2xl p-6 w-full max-w-md">
               {addSubtrackOpen ? (
                 <>
-                  <h3 className="text-lg font-bold text-neutral-900 mb-4">Add Subtrack</h3>
+                  <h3 className="text-lg font-bold text-neutral-900 mb-4">{editSubtrackTarget !== null ? 'Edit Subtrack' : 'Add Subtrack'}</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-xs font-bold text-neutral-700 mb-1">Subtrack Title</label>
@@ -359,14 +413,16 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
                     </div>
                   </div>
                   <div className="flex justify-end gap-2 mt-6">
-                    <button onClick={() => setAddSubtrackOpen(false)} className="px-4 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancel</button>
-                    <button onClick={handleAddSubtrack} disabled={!subtrackTitle.trim()} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors">Add Subtrack</button>
+                    <button onClick={() => { setAddSubtrackOpen(false); setEditSubtrackTarget(null); setSubtrackTitle(""); setSubtrackDescription(""); }} className="px-4 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={handleAddSubtrack} disabled={!subtrackTitle.trim()} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors">{editSubtrackTarget !== null ? 'Save Subtrack' : 'Add Subtrack'}</button>
                   </div>
                 </>
               ) : (
                 <>
                   <h3 className="text-lg font-bold text-neutral-900 mb-4">
-                    Add Problem {addProblemTarget === 'root' ? 'to Root' : 'to Subtrack'}
+                    {editProblemTarget !== null 
+                      ? 'Edit Problem' 
+                      : `Add Problem ${addProblemTarget === 'root' ? 'to Root' : 'to Subtrack'}`}
                   </h3>
                   <div className="space-y-4">
                     <div>
@@ -391,8 +447,8 @@ export default function TrackModal({ isOpen, onClose, onSubmit, initialData }: T
                     </div>
                   </div>
                   <div className="flex justify-end gap-2 mt-6">
-                    <button onClick={() => { setAddProblemTarget(null); setProblemUrl(""); setProblemPreview(null); }} className="px-4 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancel</button>
-                    <button onClick={handleAddProblemSubmit} disabled={!problemPreview || isFetchingProblem} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors">Add Problem</button>
+                    <button onClick={() => { setAddProblemTarget(null); setEditProblemTarget(null); setProblemUrl(""); setProblemPreview(null); }} className="px-4 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={handleAddProblemSubmit} disabled={!problemPreview || isFetchingProblem} className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors">{editProblemTarget !== null ? 'Save Problem' : 'Add Problem'}</button>
                   </div>
                 </>
               )}
