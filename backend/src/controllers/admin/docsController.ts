@@ -47,8 +47,8 @@ export const createDoc = async (req: Request, res: Response) => {
 
     await doc.save();
     res.status(201).json(doc);
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === 11000) {
       return res
         .status(409)
         .json({ error: "A document with this filename already exists" });

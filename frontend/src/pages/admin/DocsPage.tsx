@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { adminFetch } from "../../lib/adminFetch";
 import { FileText, Trash2, Tag, Calendar, Plus } from "lucide-react";
 import AddDocModal from "../../components/admin/AddDocModal";
 
@@ -11,7 +12,7 @@ export default function DocsPage() {
 
   const fetchDocs = async () => {
     try {
-      const res = await fetch(
+      const res = await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/docs`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
@@ -33,7 +34,7 @@ export default function DocsPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this document?")) return;
     try {
-      await fetch(
+      await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${id}`,
         {
           method: "DELETE",

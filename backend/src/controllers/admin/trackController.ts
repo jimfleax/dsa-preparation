@@ -24,7 +24,7 @@ export const createTrack = async (req: Request, res: Response) => {
 
 export const updateTrack = async (req: Request, res: Response) => {
   try {
-    const track = await (Track as any).findByIdAndUpdate(
+    const track = await Track.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true },
@@ -41,7 +41,7 @@ export const updateTrack = async (req: Request, res: Response) => {
 
 export const deleteTrack = async (req: Request, res: Response) => {
   try {
-    const track = await (Track as any).findByIdAndDelete(req.params.id);
+    const track = await Track.findByIdAndDelete(req.params.id);
     if (!track) {
       return res.status(404).json({ error: "Track not found" });
     }

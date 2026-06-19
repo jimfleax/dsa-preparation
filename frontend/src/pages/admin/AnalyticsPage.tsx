@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { adminFetch } from "../../lib/adminFetch";
 import {
   BarChart,
   Bar,
@@ -35,7 +36,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await fetch(
+        const res = await adminFetch(
           `${import.meta.env.VITE_API_URL || ""}/api/admin/analytics`,
           {
             headers: { Authorization: `Bearer ${adminToken}` },

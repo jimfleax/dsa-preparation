@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { adminFetch } from "../../lib/adminFetch";
 import { Map, Plus, Edit2, Trash2, Hash } from "lucide-react";
 import TrackModal from "../../components/admin/TrackModal";
 
@@ -12,7 +13,7 @@ export default function TracksPage() {
 
   const fetchTracks = async () => {
     try {
-      const res = await fetch(
+      const res = await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
@@ -38,7 +39,7 @@ export default function TracksPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this track?")) return;
     try {
-      await fetch(
+      await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${id}`,
         {
           method: "DELETE",
@@ -68,7 +69,7 @@ export default function TracksPage() {
 
     const method = editingTrack ? "PUT" : "POST";
 
-    const res = await fetch(url, {
+    const res = await adminFetch(url, {
       method,
       headers: {
         "Content-Type": "application/json",

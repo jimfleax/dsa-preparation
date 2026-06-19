@@ -48,6 +48,7 @@ import LandingPage from "./components/LandingPage";
 import GlobalContextMenu from "./components/GlobalContextMenu";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { forceGlobalLogout } from "@/src/lib/logoutUtil";
 
 export default function App() {
   const apiBase =
@@ -293,7 +294,7 @@ export default function App() {
       });
       if (response.status === 401) {
         console.warn("Unauthorized token detected, logging out.");
-        logout();
+        await forceGlobalLogout();
         return;
       }
       const data = await response.json();

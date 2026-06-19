@@ -78,9 +78,14 @@ export const adminGoogleLogin = async (
       await admin.save();
     }
 
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET environment variable is not set.");
+    }
+
     const jwtToken = jwt.sign(
       { id: admin._id },
-      process.env.JWT_SECRET || "fallback_secret",
+      secret,
       { expiresIn: "1d" },
     );
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { adminFetch } from "../../lib/adminFetch";
 import { User, Mail, Code2, Calendar, Info, Trash2 } from "lucide-react";
 import UserInfoModal from "../../components/admin/UserInfoModal";
 import DeleteUserModal from "../../components/admin/DeleteUserModal";
@@ -17,7 +18,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(
+      const res = await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/users`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
@@ -39,7 +40,7 @@ export default function UsersPage() {
   const handleDeleteConfirm = async (deleteProgress: boolean) => {
     if (!selectedUserForDelete) return;
     try {
-      const res = await fetch(
+      const res = await adminFetch(
         `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${selectedUserForDelete._id}?deleteProgress=${deleteProgress}`,
         {
           method: "DELETE",

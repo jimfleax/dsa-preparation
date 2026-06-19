@@ -133,7 +133,7 @@ app.use("/api/tracker", requireAuth, trackerRoutes);
 app.use("/api/user", requireAuth, userRoutes);
 
 // Mount Sync API routes (requires authentication)
-app.use("/api/sync", requireAuth, syncRoutes);
+app.use("/api/sync", requireAuth, scrapeLimiter, syncRoutes);
 
 // Mount Tracks API routes (requires authentication)
 app.use("/api/tracks", requireAuth, trackRoutes);

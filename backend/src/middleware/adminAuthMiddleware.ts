@@ -13,10 +13,11 @@ export const requireAdminAuth = async (
   }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "fallback_secret",
-    ) as { id: string };
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET environment variable is not set.");
+    }
+    const decoded = jwt.verify(token, secret) as { id: string };
     const admin = await Admin.findById(decoded.id);
 
     if (!admin) {
@@ -26,6 +27,7 @@ export const requireAdminAuth = async (
     req.admin = { id: admin.id };
     next();
   } catch (error) {
+    console.error("Admin Auth Error:", error instanceof Error ? error.message : "Unknown error");
     res.status(401).json({ error: "Invalid token." });
   }
 };
