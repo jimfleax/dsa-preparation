@@ -28,28 +28,28 @@ export default function AdminDashboard() {
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-8">
         <QuickLinkCard
-          to="/users"
+          to="/admin/users"
           icon={<Users className="w-5 h-5" />}
           title="Users"
           description="Manage accounts"
           colorClass="indigo"
         />
         <QuickLinkCard
-          to="/tracks"
+          to="/admin/tracks"
           icon={<Map className="w-5 h-5" />}
           title="Roadmap Tracks"
           description="Curate curriculums"
           colorClass="emerald"
         />
         <QuickLinkCard
-          to="/docs"
+          to="/admin/docs"
           icon={<FileText className="w-5 h-5" />}
           title="Documentation"
           description="Edit study theory"
           colorClass="purple"
         />
         <QuickLinkCard
-          to="/analytics"
+          to="/admin/analytics"
           icon={<BarChart className="w-5 h-5" />}
           title="Analytics"
           description="View system metrics"

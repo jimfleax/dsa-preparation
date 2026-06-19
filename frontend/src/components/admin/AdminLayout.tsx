@@ -6,11 +6,11 @@ export default function AdminLayout() {
   const { adminLogout, adminUser } = useAdminAuth();
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Users", href: "/users", icon: Users },
-    { name: "Tracks", href: "/tracks", icon: Map },
-    { name: "Docs", href: "/docs", icon: FileText },
-    { name: "Analytics", href: "/analytics", icon: BarChart },
+    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Tracks", href: "/admin/tracks", icon: Map },
+    { name: "Docs", href: "/admin/docs", icon: FileText },
+    { name: "Analytics", href: "/admin/analytics", icon: BarChart },
   ];
 
   return (
@@ -28,7 +28,7 @@ export default function AdminLayout() {
               <NavLink
                 key={item.name}
                 to={item.href}
-                end={item.href === "/"}
+                end={item.href === "/admin"}
                 className={({ isActive }) =>
                   `group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${
                     isActive

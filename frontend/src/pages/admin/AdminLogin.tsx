@@ -25,7 +25,7 @@ export default function AdminLogin() {
       }
       
       adminLogin(data.token, data.admin);
-      navigate("/");
+      navigate("/admin");
     } catch (err: any) {
       console.error(err);
       setError(err.message || "An error occurred during authentication");
