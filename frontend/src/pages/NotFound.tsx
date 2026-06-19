@@ -13,9 +13,10 @@ export default function NotFound() {
         Page Not Found
       </h2>
       <p className="text-sm sm:text-base text-neutral-500 font-medium max-w-md mb-8 leading-relaxed">
-        Oops! The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+        Oops! The page you're looking for doesn't exist or has been moved. Let's
+        get you back on track.
       </p>
-      
+
       <div className="flex items-center gap-3">
         <button
           onClick={() => window.history.back()}
@@ -25,7 +26,7 @@ export default function NotFound() {
           Go Back
         </button>
         <button
-          onClick={() => window.location.href = "/"}
+          onClick={() => (window.location.href = "/")}
           className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:bg-indigo-700 transition-all active:scale-95"
         >
           <Home className="w-4 h-4" />

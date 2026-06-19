@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import {
-  Link2,
-  Loader2,
-  Hash,
-  Trash2,
-} from "lucide-react";
+import { Link2, Loader2, Hash, Trash2 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
@@ -46,7 +41,9 @@ export default function EditProblemModal({
     if (problem && isOpen) {
       setUrl(problem.url);
       setAttemptCount(problem.attemptCount);
-      setReviewDuration(problem.reviewDurationDays ? String(problem.reviewDurationDays) : "");
+      setReviewDuration(
+        problem.reviewDurationDays ? String(problem.reviewDurationDays) : "",
+      );
       setTitlePreview(problem.title);
       setDifficultyPreview(problem.difficulty || "");
       setError(null);
@@ -75,11 +72,14 @@ export default function EditProblemModal({
       setDifficultyPreview("");
 
       try {
-        const response = await apiFetch(`${apiBase}/api/problems/scrape-title`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: value.trim() }),
-        });
+        const response = await apiFetch(
+          `${apiBase}/api/problems/scrape-title`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: value.trim() }),
+          },
+        );
 
         const data = await response.json();
 
@@ -107,7 +107,7 @@ export default function EditProblemModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!problem) return;
-    
+
     setError(null);
     setSuccess(false);
 
@@ -136,10 +136,10 @@ export default function EditProblemModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           url: url.trim(),
           attemptCount,
-          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null
+          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null,
         }),
       });
       const data = await response.json();
@@ -215,10 +215,7 @@ export default function EditProblemModal({
       subtitle="Update problem details"
       icon={<Link2 className="w-4 h-4" />}
     >
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 space-y-4 overflow-y-auto"
-      >
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-neutral-600">
             LeetCode URL
@@ -273,9 +270,7 @@ export default function EditProblemModal({
               type="number"
               min="1"
               value={attemptCount}
-              onChange={(e) =>
-                setAttemptCount(parseInt(e.target.value) || 1)
-              }
+              onChange={(e) => setAttemptCount(parseInt(e.target.value) || 1)}
               disabled={saving || deleting}
               className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
             />
@@ -305,7 +300,9 @@ export default function EditProblemModal({
 
         {error && <FormAlert type="error" message={error} />}
 
-        {success && <FormAlert type="success" message="Problem updated successfully!" />}
+        {success && (
+          <FormAlert type="success" message="Problem updated successfully!" />
+        )}
 
         <div className="flex items-center justify-between pt-2">
           <button
@@ -337,9 +334,7 @@ export default function EditProblemModal({
             </button>
             <button
               type="submit"
-              disabled={
-                saving || deleting || !titlePreview || fetchingTitle
-              }
+              disabled={saving || deleting || !titlePreview || fetchingTitle}
               className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {saving ? (

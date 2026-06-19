@@ -51,9 +51,11 @@ export const checkSync = async (req: Request, res: Response) => {
     const slugs = dedupedSubmissions.map((s) => s.titleSlug);
     const existingRecords = await TrackedProblem.find({
       userId,
-      titleSlug: { $in: slugs }
-    }).select("titleSlug lastAttemptedDate _id").lean();
-    
+      titleSlug: { $in: slugs },
+    })
+      .select("titleSlug lastAttemptedDate _id")
+      .lean();
+
     const existingMap = new Map();
     existingRecords.forEach((r) => existingMap.set(r.titleSlug, r));
 
@@ -68,10 +70,22 @@ export const checkSync = async (req: Request, res: Response) => {
         const subDate = new Date(Number(sub.timestamp) * 1000);
         if (!isNaN(subDate.getTime()) && existing.lastAttemptedDate) {
           const existingDate = new Date(existing.lastAttemptedDate);
-          
+
           // Compare dates (year, month, day) in UTC to avoid local timezone shifts causing weirdness
-          const subDay = new Date(Date.UTC(subDate.getUTCFullYear(), subDate.getUTCMonth(), subDate.getUTCDate()));
-          const existingDay = new Date(Date.UTC(existingDate.getUTCFullYear(), existingDate.getUTCMonth(), existingDate.getUTCDate()));
+          const subDay = new Date(
+            Date.UTC(
+              subDate.getUTCFullYear(),
+              subDate.getUTCMonth(),
+              subDate.getUTCDate(),
+            ),
+          );
+          const existingDay = new Date(
+            Date.UTC(
+              existingDate.getUTCFullYear(),
+              existingDate.getUTCMonth(),
+              existingDate.getUTCDate(),
+            ),
+          );
 
           // If the submission is on a strictly newer day than the recorded lastAttemptedDate
           if (subDay.getTime() > existingDay.getTime()) {
@@ -93,7 +107,8 @@ export const checkSync = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error("Error checking sync:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -117,7 +132,11 @@ export const trackSubmissions = async (req: Request, res: Response) => {
     }
 
     if (submissions.length === 0) {
-      return res.json({ success: true, message: "No submissions to process.", added: 0 });
+      return res.json({
+        success: true,
+        message: "No submissions to process.",
+        added: 0,
+      });
     }
 
     // 1. Fetch all existing records in a single query
@@ -125,15 +144,23 @@ export const trackSubmissions = async (req: Request, res: Response) => {
     const existingRecords = await TrackedProblem.find({
       userId,
       titleSlug: { $in: titleSlugs },
-    }).select("titleSlug").lean();
+    })
+      .select("titleSlug")
+      .lean();
 
     const existingSet = new Set(existingRecords.map((r) => r.titleSlug));
 
     // Filter out already tracked problems
-    const newSubmissions = submissions.filter((sub: any) => !existingSet.has(sub.titleSlug));
+    const newSubmissions = submissions.filter(
+      (sub: any) => !existingSet.has(sub.titleSlug),
+    );
 
     if (newSubmissions.length === 0) {
-      return res.json({ success: true, message: "Processed 0 submissions.", added: 0 });
+      return res.json({
+        success: true,
+        message: "Processed 0 submissions.",
+        added: 0,
+      });
     }
 
     // 2. Fetch LeetCode details in parallel
@@ -148,7 +175,7 @@ export const trackSubmissions = async (req: Request, res: Response) => {
           }
         } catch (err) {
           console.warn(
-            `Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`
+            `Failed to fetch difficulty for ${sub.titleSlug}, proceeding without it.`,
           );
         }
 
@@ -167,7 +194,7 @@ export const trackSubmissions = async (req: Request, res: Response) => {
           notrack: !!notrack,
           lastAttemptedDate,
         };
-      })
+      }),
     );
 
     // 3. Batch insert new tracked problems
@@ -180,7 +207,8 @@ export const trackSubmissions = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error("Error tracking submissions:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };

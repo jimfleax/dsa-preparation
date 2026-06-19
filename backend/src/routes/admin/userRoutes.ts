@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getUsers, deleteUser, getUserProgress, getLeetCodeData } from "../../controllers/admin/userController.js";
+import {
+  getUsers,
+  deleteUser,
+  getUserProgress,
+  getLeetCodeData,
+} from "../../controllers/admin/userController.js";
 import { requireAdminAuth } from "../../middleware/adminAuthMiddleware.js";
 
 const router = Router();

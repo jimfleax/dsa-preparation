@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AdminAuthProvider, useAdminAuth } from '../context/AdminAuthContext';
-import AdminProtectedRoute from '../components/admin/AdminProtectedRoute';
-import React from 'react';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AdminAuthProvider, useAdminAuth } from "../context/AdminAuthContext";
+import AdminProtectedRoute from "../components/admin/AdminProtectedRoute";
+import React from "react";
 
 // mock localStorage
 const localStorageMock = (function () {
@@ -18,13 +18,13 @@ const localStorageMock = (function () {
     clear: function () {
       store = {};
     },
-    removeItem: function(key: string) {
+    removeItem: function (key: string) {
       delete store[key];
-    }
+    },
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
@@ -33,17 +33,20 @@ function LocationDisplay() {
   return <div data-testid="location-display">{location.pathname}</div>;
 }
 
-describe('Admin Auth Context & Routing', () => {
+describe("Admin Auth Context & Routing", () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('redirects unauthenticated user to /login', async () => {
+  it("redirects unauthenticated user to /login", async () => {
     render(
       <AdminAuthProvider>
-        <MemoryRouter initialEntries={['/']}>
+        <MemoryRouter initialEntries={["/"]}>
           <Routes>
-            <Route path="/login" element={<div data-testid="login-page">Login Page</div>} />
+            <Route
+              path="/login"
+              element={<div data-testid="login-page">Login Page</div>}
+            />
             <Route
               path="/"
               element={
@@ -55,25 +58,31 @@ describe('Admin Auth Context & Routing', () => {
           </Routes>
           <LocationDisplay />
         </MemoryRouter>
-      </AdminAuthProvider>
+      </AdminAuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.queryByTestId('protected-page')).toBeNull();
-      expect(screen.getByTestId('login-page')).toBeDefined();
-      expect(screen.getByTestId('location-display').textContent).toBe('/login');
+      expect(screen.queryByTestId("protected-page")).toBeNull();
+      expect(screen.getByTestId("login-page")).toBeDefined();
+      expect(screen.getByTestId("location-display").textContent).toBe("/login");
     });
   });
 
-  it('allows authenticated user to see protected content', async () => {
-    window.localStorage.setItem('admin_token', 'fake-token');
-    window.localStorage.setItem('admin_user', JSON.stringify({ id: '1', username: 'admin' }));
+  it("allows authenticated user to see protected content", async () => {
+    window.localStorage.setItem("admin_token", "fake-token");
+    window.localStorage.setItem(
+      "admin_user",
+      JSON.stringify({ id: "1", username: "admin" }),
+    );
 
     render(
       <AdminAuthProvider>
-        <MemoryRouter initialEntries={['/']}>
+        <MemoryRouter initialEntries={["/"]}>
           <Routes>
-            <Route path="/login" element={<div data-testid="login-page">Login Page</div>} />
+            <Route
+              path="/login"
+              element={<div data-testid="login-page">Login Page</div>}
+            />
             <Route
               path="/"
               element={
@@ -85,13 +94,13 @@ describe('Admin Auth Context & Routing', () => {
           </Routes>
           <LocationDisplay />
         </MemoryRouter>
-      </AdminAuthProvider>
+      </AdminAuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('protected-page')).toBeDefined();
-      expect(screen.queryByTestId('login-page')).toBeNull();
-      expect(screen.getByTestId('location-display').textContent).toBe('/');
+      expect(screen.getByTestId("protected-page")).toBeDefined();
+      expect(screen.queryByTestId("login-page")).toBeNull();
+      expect(screen.getByTestId("location-display").textContent).toBe("/");
     });
   });
 });

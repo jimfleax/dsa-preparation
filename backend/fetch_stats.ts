@@ -19,15 +19,15 @@ async function fetchAcCount(slug: string): Promise<string> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0",
       },
       body: JSON.stringify({
         operationName: "questionData",
         variables: { titleSlug: slug },
-        query
-      })
+        query,
+      }),
     });
-    const data = await res.json() as any;
+    const data = (await res.json()) as any;
     if (data.data && data.data.question && data.data.question.stats) {
       const stats = JSON.parse(data.data.question.stats);
       return stats.totalAccepted;
@@ -41,14 +41,16 @@ async function fetchAcCount(slug: string): Promise<string> {
 async function run() {
   try {
     await connectDB();
-    const problems = await TrackedProblem.find({ userId: "6a33f4b3f6dbb933463f715a" }).sort({ titleSlug: 1 });
+    const problems = await TrackedProblem.find({
+      userId: "6a33f4b3f6dbb933463f715a",
+    }).sort({ titleSlug: 1 });
     console.log(`| Problem | Accepted Submissions |`);
     console.log(`|---|---|`);
     for (const p of problems) {
       const ac = await fetchAcCount(p.titleSlug);
       console.log(`| ${p.title} | ${ac} |`);
       // Add a slight delay to avoid rate limits
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 200));
     }
   } catch (err) {
     console.error("Fatal error:", err);

@@ -8,15 +8,20 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../../backend/.env" });
 
 async function run() {
-  await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/dsa-test");
-  
+  await mongoose.connect(
+    process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/dsa-test",
+  );
+
   // Clean up
   await User.deleteMany({});
   await Track.deleteMany({});
   await TrackedProblem.deleteMany({});
 
   // 1. Create a user
-  const user = await User.create({ clerkId: "user_1", email: "test@example.com" });
+  const user = await User.create({
+    clerkId: "user_1",
+    email: "test@example.com",
+  });
 
   // 2. Create a track with "two-sum"
   const track = await Track.create({
@@ -26,10 +31,10 @@ async function run() {
       {
         titleSlug: "two-sum",
         title: "Two Sum",
-        difficulty: "Easy"
-      }
+        difficulty: "Easy",
+      },
     ],
-    order: 1
+    order: 1,
   });
 
   // 3. Create TrackedProblem for "two-sum"
@@ -38,7 +43,7 @@ async function run() {
     titleSlug: "two-sum",
     title: "Two Sum",
     attemptCount: 1,
-    lastAttemptedDate: new Date()
+    lastAttemptedDate: new Date(),
   });
 
   // 4. Create TrackedProblem for "three-sum" (outside track)
@@ -47,15 +52,21 @@ async function run() {
     titleSlug: "three-sum",
     title: "Three Sum",
     attemptCount: 1,
-    lastAttemptedDate: new Date()
+    lastAttemptedDate: new Date(),
   });
 
   // Mock res
   let responseData: any;
   const req: any = {};
   const res: any = {
-    json: (data: any) => { responseData = data; },
-    status: (code: number) => ({ json: (data: any) => { responseData = data; } })
+    json: (data: any) => {
+      responseData = data;
+    },
+    status: (code: number) => ({
+      json: (data: any) => {
+        responseData = data;
+      },
+    }),
   };
 
   await getAnalytics(req, res);

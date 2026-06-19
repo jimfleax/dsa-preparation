@@ -21,7 +21,11 @@ interface HomeTabProps {
   refreshKey?: number;
 }
 
-export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: HomeTabProps) {
+export default function HomeTab({
+  totalDocuments,
+  onNavigate,
+  refreshKey,
+}: HomeTabProps) {
   const [totalSolved, setTotalSolved] = useState<number | null>(null);
   const [trackProgress, setTrackProgress] = useState<{
     completed: number;
@@ -79,39 +83,42 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
 
             const diffTime = today.getTime() - lastAttempt.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
+
             return diffDays >= p.reviewDurationDays;
           });
           setDueProblems(due);
         }
 
         if (tracksData.success) {
-        let completedTracks = 0;
-        let totalTracks = tracksData.tracks.length;
+          let completedTracks = 0;
+          let totalTracks = tracksData.tracks.length;
 
-        tracksData.tracks.forEach((track: any) => {
-          const allProblems = [
-            ...(track.problems || []),
-            ...(track.parts?.flatMap((p: any) => p.problems) || []),
-          ];
+          tracksData.tracks.forEach((track: any) => {
+            const allProblems = [
+              ...(track.problems || []),
+              ...(track.parts?.flatMap((p: any) => p.problems) || []),
+            ];
 
-          let completedCount = 0;
-          allProblems.forEach((problem: any) => {
-            const slug = extractTitleSlug(problem.url);
-            if (slug && solvedSlugs.has(slug)) {
-              completedCount++;
+            let completedCount = 0;
+            allProblems.forEach((problem: any) => {
+              const slug = extractTitleSlug(problem.url);
+              if (slug && solvedSlugs.has(slug)) {
+                completedCount++;
+              }
+            });
+
+            if (
+              allProblems.length > 0 &&
+              completedCount === allProblems.length
+            ) {
+              completedTracks++;
             }
           });
 
-          if (allProblems.length > 0 && completedCount === allProblems.length) {
-            completedTracks++;
-          }
-        });
-
-        setTrackProgress({
-          completed: completedTracks,
-          total: totalTracks,
-        });
+          setTrackProgress({
+            completed: completedTracks,
+            total: totalTracks,
+          });
         }
       } catch (error) {
         console.error("Failed to fetch home stats:", error);
@@ -135,7 +142,9 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
         {dueProblems.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-3">
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent('openReviewModal'))}
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent("openReviewModal"))
+              }
               className="flex flex-col items-start px-4 py-2.5 bg-white border border-rose-200 hover:border-rose-300 hover:shadow-md rounded-xl transition-all text-left max-w-sm"
             >
               <div className="flex items-center gap-1.5 text-rose-600 mb-1">
@@ -145,8 +154,8 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
                 </span>
               </div>
               <span className="text-sm font-semibold text-neutral-800 line-clamp-1 w-full">
-                {dueProblems.length === 1 
-                  ? dueProblems[0].title 
+                {dueProblems.length === 1
+                  ? dueProblems[0].title
                   : "You have multiple problems to review"}
               </span>
             </button>
@@ -177,11 +186,15 @@ export default function HomeTab({ totalDocuments, onNavigate, refreshKey }: Home
           <p>
             progressed through{" "}
             <span className="font-semibold text-purple-500 not-italic mx-1">
-              <AnimatedNumber value={trackProgress ? trackProgress.completed : null} />
+              <AnimatedNumber
+                value={trackProgress ? trackProgress.completed : null}
+              />
             </span>{" "}
             out of{" "}
             <span className="font-semibold text-rose-500 not-italic mx-1">
-              <AnimatedNumber value={trackProgress ? trackProgress.total : null} />
+              <AnimatedNumber
+                value={trackProgress ? trackProgress.total : null}
+              />
             </span>{" "}
             tracks
           </p>

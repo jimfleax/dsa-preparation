@@ -12,7 +12,7 @@ export default function TracksSkeleton() {
         <div className="flex-1 w-full text-center md:text-left flex flex-col items-center md:items-start">
           <Skeleton width={180} height={24} className="mb-2" />
           <Skeleton width="80%" height={16} className="mb-6" />
-          
+
           <div className="flex flex-wrap gap-4 justify-center md:justify-start w-full">
             <div className="bg-neutral-50 border border-neutral-100 p-4 rounded-xl flex items-center gap-4 w-full max-w-[280px]">
               <div className="flex-1">
@@ -43,7 +43,10 @@ export default function TracksSkeleton() {
       {/* Track Cards Skeleton */}
       <div className="grid gap-6">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm flex flex-col gap-4">
+          <div
+            key={i}
+            className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm flex flex-col gap-4"
+          >
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -53,7 +56,7 @@ export default function TracksSkeleton() {
               </div>
               <Skeleton width={100} height={36} borderRadius={18} />
             </div>
-            
+
             {/* Progress Bar */}
             <div className="mt-4">
               <Skeleton width="100%" height={8} borderRadius={4} />

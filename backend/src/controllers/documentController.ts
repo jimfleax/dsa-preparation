@@ -10,8 +10,8 @@ interface DocumentMetadata {
 
 export const getDocuments = async (req: Request, res: Response) => {
   try {
-    const docs = await LearningDoc.find({}, 'filename title tags').lean();
-    
+    const docs = await LearningDoc.find({}, "filename title tags").lean();
+
     const result: DocumentMetadata[] = docs.map((doc: any) => ({
       id: doc._id.toString(),
       filename: doc.filename,
@@ -32,13 +32,15 @@ export const getDocuments = async (req: Request, res: Response) => {
 
 export const getDocument = async (req: Request, res: Response) => {
   const { filename } = req.query;
-  if (!filename || typeof filename !== 'string') {
-    return res.status(400).json({ success: false, error: "Invalid filename parameter." });
+  if (!filename || typeof filename !== "string") {
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid filename parameter." });
   }
 
   try {
     const safeFilename = filename.replace(/[^a-zA-Z0-9.\-_]/g, "");
-    
+
     const doc = await LearningDoc.findOne({ filename: safeFilename }).lean();
 
     if (!doc) {
@@ -57,7 +59,9 @@ export const getDocument = async (req: Request, res: Response) => {
     };
 
     // Remove YAML frontmatter if it exists in the stored content just like before
-    const clientContent = doc.content.replace(/^---\r?\n[\s\S]*?\r?\n---/, "").trim();
+    const clientContent = doc.content
+      .replace(/^---\r?\n[\s\S]*?\r?\n---/, "")
+      .trim();
 
     res.json({
       success: true,

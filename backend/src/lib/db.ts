@@ -113,7 +113,10 @@ export const connectDB = async (): Promise<void> => {
       }
     } catch (migrationErr: unknown) {
       // Non-fatal: log and continue — index may already be gone
-      const message = migrationErr instanceof Error ? migrationErr.message : String(migrationErr);
+      const message =
+        migrationErr instanceof Error
+          ? migrationErr.message
+          : String(migrationErr);
       if (!message.includes("index not found")) {
         console.warn(`[DB] ⚠ Migration warning: ${message}`);
       }

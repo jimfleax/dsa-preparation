@@ -23,7 +23,9 @@ interface AdminAuthContextType {
   getAdminToken: () => Promise<string | null>;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
+const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
+  undefined,
+);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
@@ -67,8 +69,15 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, [adminToken]);
 
   const authValue = useMemo(
-    () => ({ adminUser, adminToken, isAdminSignedIn: !!adminToken, adminLogin, adminLogout, getAdminToken }),
-    [adminUser, adminToken, adminLogin, adminLogout, getAdminToken]
+    () => ({
+      adminUser,
+      adminToken,
+      isAdminSignedIn: !!adminToken,
+      adminLogin,
+      adminLogout,
+      getAdminToken,
+    }),
+    [adminUser, adminToken, adminLogin, adminLogout, getAdminToken],
   );
 
   if (loading) {

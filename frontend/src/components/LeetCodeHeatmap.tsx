@@ -6,12 +6,11 @@ interface LeetCodeHeatmapProps {
   weeksToShow?: number;
 }
 
-export default function LeetCodeHeatmap({ 
-  submissionCalendar, 
+export default function LeetCodeHeatmap({
+  submissionCalendar,
   className = "",
-  weeksToShow = 26 // default to half a year to fit nicely
+  weeksToShow = 26, // default to half a year to fit nicely
 }: LeetCodeHeatmapProps) {
-  
   const { grid, monthLabels } = useMemo(() => {
     // Parse the submission data
     let submissions = {};
@@ -32,7 +31,7 @@ export default function LeetCodeHeatmap({
     // Determine the end date (today) and start date
     const endDate = new Date();
     endDate.setHours(0, 0, 0, 0);
-    
+
     // Shift endDate to the most recent Saturday so weeks align properly
     const endDay = endDate.getDay();
     const daysToAdd = 6 - endDay;
@@ -40,11 +39,12 @@ export default function LeetCodeHeatmap({
     gridEndDate.setDate(gridEndDate.getDate() + daysToAdd);
 
     const startDate = new Date(gridEndDate);
-    startDate.setDate(gridEndDate.getDate() - (weeksToShow * 7) + 1);
+    startDate.setDate(gridEndDate.getDate() - weeksToShow * 7 + 1);
 
-    const gridLayout: { date: Date; count: number; inFuture: boolean }[][] = Array(7)
-      .fill(null)
-      .map(() => []);
+    const gridLayout: { date: Date; count: number; inFuture: boolean }[][] =
+      Array(7)
+        .fill(null)
+        .map(() => []);
 
     const months: { label: string; weekIndex: number }[] = [];
     let currentMonth = -1;
@@ -54,12 +54,12 @@ export default function LeetCodeHeatmap({
 
     while (currDate <= gridEndDate) {
       const dayOfWeek = currDate.getDay();
-      
+
       // Track month changes for labels
       if (currDate.getDate() === 1 || currentMonth === -1) {
         months.push({
           label: currDate.toLocaleString("default", { month: "short" }),
-          weekIndex: weekIndex
+          weekIndex: weekIndex,
         });
         currentMonth = currDate.getMonth();
       }
@@ -67,7 +67,7 @@ export default function LeetCodeHeatmap({
       gridLayout[dayOfWeek].push({
         date: new Date(currDate),
         count: subMap.get(currDate.getTime()) || 0,
-        inFuture: currDate > endDate
+        inFuture: currDate > endDate,
       });
 
       if (dayOfWeek === 6) {
@@ -99,13 +99,13 @@ export default function LeetCodeHeatmap({
   const labelWidth = 30;
 
   // Add 15px extra padding to the right so the last month label doesn't get cut off
-  const totalWidth = labelWidth + (weeksToShow * (cellSize + cellGap)) + 15;
-  const totalHeight = labelHeight + (7 * (cellSize + cellGap));
+  const totalWidth = labelWidth + weeksToShow * (cellSize + cellGap) + 15;
+  const totalHeight = labelHeight + 7 * (cellSize + cellGap);
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <svg 
-        viewBox={`0 0 ${totalWidth} ${totalHeight}`} 
+      <svg
+        viewBox={`0 0 ${totalWidth} ${totalHeight}`}
         width={totalWidth}
         height={totalHeight}
         className="text-[9px] font-sans text-neutral-400"
@@ -113,9 +113,9 @@ export default function LeetCodeHeatmap({
         {/* Month Labels */}
         <g transform={`translate(${labelWidth}, 10)`}>
           {monthLabels.map((month, i) => (
-            <text 
-              key={i} 
-              x={month.weekIndex * (cellSize + cellGap)} 
+            <text
+              key={i}
+              x={month.weekIndex * (cellSize + cellGap)}
               y={0}
               className="fill-current"
             >
@@ -126,19 +126,36 @@ export default function LeetCodeHeatmap({
 
         {/* Day Labels */}
         <g transform={`translate(0, ${labelHeight})`}>
-          <text y={0 * (cellSize + cellGap) + 8} className="fill-current">Sun</text>
-          <text y={1 * (cellSize + cellGap) + 8} className="fill-current">Mon</text>
-          <text y={2 * (cellSize + cellGap) + 8} className="fill-current">Tue</text>
-          <text y={3 * (cellSize + cellGap) + 8} className="fill-current">Wed</text>
-          <text y={4 * (cellSize + cellGap) + 8} className="fill-current">Thu</text>
-          <text y={5 * (cellSize + cellGap) + 8} className="fill-current">Fri</text>
-          <text y={6 * (cellSize + cellGap) + 8} className="fill-current">Sat</text>
+          <text y={0 * (cellSize + cellGap) + 8} className="fill-current">
+            Sun
+          </text>
+          <text y={1 * (cellSize + cellGap) + 8} className="fill-current">
+            Mon
+          </text>
+          <text y={2 * (cellSize + cellGap) + 8} className="fill-current">
+            Tue
+          </text>
+          <text y={3 * (cellSize + cellGap) + 8} className="fill-current">
+            Wed
+          </text>
+          <text y={4 * (cellSize + cellGap) + 8} className="fill-current">
+            Thu
+          </text>
+          <text y={5 * (cellSize + cellGap) + 8} className="fill-current">
+            Fri
+          </text>
+          <text y={6 * (cellSize + cellGap) + 8} className="fill-current">
+            Sat
+          </text>
         </g>
 
         {/* Heatmap Grid */}
         <g transform={`translate(${labelWidth}, ${labelHeight})`}>
           {grid.map((weekRow, dayIndex) => (
-            <g key={dayIndex} transform={`translate(0, ${dayIndex * (cellSize + cellGap)})`}>
+            <g
+              key={dayIndex}
+              transform={`translate(0, ${dayIndex * (cellSize + cellGap)})`}
+            >
               {weekRow.map((day, weekIndex) => (
                 <rect
                   key={weekIndex}
@@ -149,11 +166,13 @@ export default function LeetCodeHeatmap({
                   rx={2}
                   ry={2}
                   fill={day.inFuture ? "transparent" : getColor(day.count)}
-                  className={day.inFuture ? "" : "transition-colors duration-300"}
+                  className={
+                    day.inFuture ? "" : "transition-colors duration-300"
+                  }
                 >
                   <title>
-                    {day.inFuture 
-                      ? "" 
+                    {day.inFuture
+                      ? ""
                       : `${day.count} submissions on ${day.date.toDateString()}`}
                   </title>
                 </rect>
@@ -162,7 +181,7 @@ export default function LeetCodeHeatmap({
           ))}
         </g>
       </svg>
-      
+
       <div className="flex items-center justify-end gap-1 mt-3 text-[10px] text-neutral-500 font-medium">
         <span>Less</span>
         <div className="w-2.5 h-2.5 rounded-[2px] bg-[#f5f5f5]"></div>

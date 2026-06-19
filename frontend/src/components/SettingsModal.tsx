@@ -105,10 +105,7 @@ export default function SettingsModal({
       subtitle="Configure your LeetCode integration"
       icon={<Settings className="w-4 h-4" />}
     >
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 space-y-4 overflow-y-auto"
-      >
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
         {/* Info banner when no username is set */}
         {!currentUsername && (
           <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-700 font-medium">
@@ -150,7 +147,9 @@ export default function SettingsModal({
         {error && <FormAlert type="error" message={error} />}
 
         {/* Success Message */}
-        {success && <FormAlert type="success" message="Settings saved successfully!" />}
+        {success && (
+          <FormAlert type="success" message="Settings saved successfully!" />
+        )}
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-2">

@@ -31,8 +31,10 @@ const LearningDocSchema = new Schema<ILearningDoc>(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const LearningDoc = (mongoose.models.LearningDoc as mongoose.Model<ILearningDoc>) || mongoose.model<ILearningDoc>("LearningDoc", LearningDocSchema);
+export const LearningDoc =
+  (mongoose.models.LearningDoc as mongoose.Model<ILearningDoc>) ||
+  mongoose.model<ILearningDoc>("LearningDoc", LearningDocSchema);
 export default LearningDoc;

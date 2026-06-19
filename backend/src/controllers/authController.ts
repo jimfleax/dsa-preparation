@@ -17,7 +17,10 @@ const generateToken = (userId: string, tokenVersion: number): string => {
   });
 };
 
-export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+export const googleLogin = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { token } = req.body;
     if (!token) {
@@ -33,19 +36,23 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       });
     } catch (verifyError: any) {
       console.warn("Token verification failed:", verifyError.message);
-      res.status(401).json({ success: false, message: "Invalid or expired Google token" });
+      res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired Google token" });
       return;
     }
     const payload = ticket.getPayload();
 
     if (!payload || !payload.email) {
-      res.status(400).json({ success: false, message: "Invalid Google token payload" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid Google token payload" });
       return;
     }
 
     const email = payload.email.toLowerCase();
     const googleId = payload.sub;
-    const name = payload.name || email.split('@')[0];
+    const name = payload.name || email.split("@")[0];
 
     // Find or create user
     let user = await User.findOne({ email });
@@ -62,13 +69,13 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         user.name = name;
         changed = true;
       }
-      
+
       // Migrate tokenVersion if missing for older users
       if (user.tokenVersion === undefined) {
         user.tokenVersion = 0;
         changed = true;
       }
-      
+
       if (changed) {
         await user.save();
       }
@@ -95,10 +102,21 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     });
   } catch (error: unknown) {
     console.error("Google Login Error:", error);
-    if (error instanceof Error && error.message.includes("E11000 duplicate key error")) {
-      res.status(400).json({ success: false, message: "Duplicate key error. There might be an issue with your data." });
+    if (
+      error instanceof Error &&
+      error.message.includes("E11000 duplicate key error")
+    ) {
+      res
+        .status(400)
+        .json({
+          success: false,
+          message:
+            "Duplicate key error. There might be an issue with your data.",
+        });
     } else {
-      res.status(500).json({ success: false, message: "Server error during Google login" });
+      res
+        .status(500)
+        .json({ success: false, message: "Server error during Google login" });
     }
   }
 };

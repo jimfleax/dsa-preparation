@@ -15,9 +15,17 @@ const addProblemSchema = z.object({
 
 const updateProblemSchema = z.object({
   url: z.string().url("A valid URL is required.").optional(),
-  attemptCount: z.coerce.number().int().min(1, "Attempt count must be at least 1.").optional(),
+  attemptCount: z.coerce
+    .number()
+    .int()
+    .min(1, "Attempt count must be at least 1.")
+    .optional(),
   reviewDurationDays: z.number().int().min(1).optional().nullable(),
-  notes: z.string().max(2000, "Notes cannot exceed 2000 characters").optional().nullable(),
+  notes: z
+    .string()
+    .max(2000, "Notes cannot exceed 2000 characters")
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -58,7 +66,8 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
       titleSlug,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     console.error("[scrapeLeetCodeTitle] Error:", message);
     res.status(502).json({
       success: false,
@@ -74,17 +83,21 @@ export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
 export const getLeetCodeCalendar = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
-    const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined;
-    
+    const year = req.query.year
+      ? parseInt(req.query.year as string, 10)
+      : undefined;
+
     if (!username) {
-      return res.status(400).json({ success: false, error: "Username is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Username is required" });
     }
 
     const graphqlQuery = {
       operationName: "userProfileCalendar",
       variables: {
         username,
-        ...(year && { year })
+        ...(year && { year }),
       },
       query: `query userProfileCalendar($username: String!, $year: Int) {
         matchedUser(username: $username) {
@@ -98,14 +111,15 @@ export const getLeetCodeCalendar = async (req: Request, res: Response) => {
             submissionCalendar
           }
         }
-      }`
+      }`,
     };
 
     const response = await fetch("https://leetcode.com/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
       body: JSON.stringify(graphqlQuery),
     });
@@ -115,10 +129,15 @@ export const getLeetCodeCalendar = async (req: Request, res: Response) => {
     }
 
     const data = await response.json();
-    
+
     if (data.errors) {
-      console.error("[LeetCode Scraper] GraphQL error (userProfileCalendar):", data.errors);
-      return res.status(400).json({ success: false, error: "LeetCode API returned an error" });
+      console.error(
+        "[LeetCode Scraper] GraphQL error (userProfileCalendar):",
+        data.errors,
+      );
+      return res
+        .status(400)
+        .json({ success: false, error: "LeetCode API returned an error" });
     }
 
     const userCalendar = data.data?.matchedUser?.userCalendar || null;
@@ -131,10 +150,14 @@ export const getLeetCodeCalendar = async (req: Request, res: Response) => {
     res.json({ success: true, data: userCalendar });
   } catch (error: any) {
     console.error("[LeetCode Scraper] Error fetching calendar:", error.message);
-    res.status(500).json({ success: false, error: "Failed to fetch calendar from LeetCode" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Failed to fetch calendar from LeetCode",
+      });
   }
 };
-
 
 /**
  * GET /api/problems
@@ -149,11 +172,13 @@ export const listProblems = async (req: Request, res: Response) => {
     }
 
     const { search, sort } = req.query;
-    
+
     const isLimitAll = req.query.limit === "all";
     // Pagination parameters
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = isLimitAll ? 0 : Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
+    const limit = isLimitAll
+      ? 0
+      : Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
     const skip = isLimitAll ? 0 : (page - 1) * limit;
 
     // Always scope to the authenticated user — prevents IDOR
@@ -178,23 +203,26 @@ export const listProblems = async (req: Request, res: Response) => {
     // Execute queries in parallel for performance
     const [problems, totalCount] = await Promise.all([
       query.lean(),
-      TrackedProblem.countDocuments(filter)
+      TrackedProblem.countDocuments(filter),
     ]);
 
-    res.json({ 
-      success: true, 
-      problems, 
+    res.json({
+      success: true,
+      problems,
       count: problems.length,
-      pagination: isLimitAll ? null : {
-        total: totalCount,
-        page,
-        limit,
-        pages: Math.ceil(totalCount / limit)
-      }
+      pagination: isLimitAll
+        ? null
+        : {
+            total: totalCount,
+            page,
+            limit,
+            pages: Math.ceil(totalCount / limit),
+          },
     });
   } catch (error: unknown) {
     console.error("Error listing problems:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -215,7 +243,9 @@ export const addProblem = async (req: Request, res: Response) => {
 
     const parseResult = addProblemSchema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
+      return res
+        .status(400)
+        .json({ success: false, error: parseResult.error.issues[0].message });
     }
     const { url, reviewDurationDays } = parseResult.data;
 
@@ -277,7 +307,12 @@ export const addProblem = async (req: Request, res: Response) => {
     res.status(201).json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error adding problem:", error);
-    if (error && typeof error === "object" && "code" in error && error.code === 11000) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === 11000
+    ) {
       const mongoError = error as any;
       console.error(
         "[addProblem] E11000 keyPattern:",
@@ -288,10 +323,14 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(409).json({
         success: false,
         error: "This problem is already being tracked.",
-        debug: { keyPattern: mongoError.keyPattern, keyValue: mongoError.keyValue },
+        debug: {
+          keyPattern: mongoError.keyPattern,
+          keyValue: mongoError.keyValue,
+        },
       });
     }
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -310,7 +349,9 @@ export const revisitProblem = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, error: "Invalid ID format." });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid ID format." });
     }
 
     // Compound query prevents accessing another user's problem (IDOR prevention)
@@ -329,7 +370,7 @@ export const revisitProblem = async (req: Request, res: Response) => {
     } else {
       problem.lastAttemptedDate = new Date();
     }
-    
+
     if (reviewDurationDays !== undefined) {
       if (reviewDurationDays === null) {
         problem.reviewDurationDays = undefined; // Unset
@@ -337,13 +378,14 @@ export const revisitProblem = async (req: Request, res: Response) => {
         problem.reviewDurationDays = reviewDurationDays;
       }
     }
-    
+
     await problem.save();
 
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error recording revisit:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -361,12 +403,16 @@ export const updateProblem = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, error: "Invalid ID format." });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid ID format." });
     }
 
     const parseResult = updateProblemSchema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({ success: false, error: parseResult.error.issues[0].message });
+      return res
+        .status(400)
+        .json({ success: false, error: parseResult.error.issues[0].message });
     }
     const { url, attemptCount, reviewDurationDays, notes } = parseResult.data;
 
@@ -453,7 +499,8 @@ export const updateProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error updating problem:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -471,7 +518,9 @@ export const deleteProblem = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, error: "Invalid ID format." });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid ID format." });
     }
 
     // Compound query prevents deleting another user's problem (IDOR prevention)
@@ -485,7 +534,8 @@ export const deleteProblem = async (req: Request, res: Response) => {
     res.json({ success: true, message: "Problem removed from tracker." });
   } catch (error: unknown) {
     console.error("Error deleting problem:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -508,7 +558,8 @@ export const listUntrackedProblems = async (req: Request, res: Response) => {
     res.json({ success: true, problems, count: problems.length });
   } catch (error: unknown) {
     console.error("Error listing untracked problems:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -526,7 +577,9 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, error: "Invalid ID format." });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid ID format." });
     }
 
     const problem = await TrackedProblem.findOne({ _id: id, userId });
@@ -542,7 +595,8 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error toggling track status:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -558,12 +612,18 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const problems = await TrackedProblem.find(
-      { userId, notrack: { $ne: true } }
-    ).select('difficulty').lean();
+    const problems = await TrackedProblem.find({
+      userId,
+      notrack: { $ne: true },
+    })
+      .select("difficulty")
+      .lean();
 
-    let easy = 0, medium = 0, hard = 0, unrated = 0;
-    
+    let easy = 0,
+      medium = 0,
+      hard = 0,
+      unrated = 0;
+
     problems.forEach((p: any) => {
       if (p.difficulty === "Easy") easy++;
       else if (p.difficulty === "Medium") medium++;
@@ -579,15 +639,14 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
           Easy: easy,
           Medium: medium,
           Hard: hard,
-          Unrated: unrated
-        }
-      }
+          Unrated: unrated,
+        },
+      },
     });
   } catch (error: unknown) {
     console.error("Error getting tracker metrics:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
-
-

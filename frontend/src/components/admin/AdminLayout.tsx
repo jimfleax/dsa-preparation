@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-import { LogOut, LayoutDashboard, Users, Map, FileText, BarChart, Menu, X, User } from "lucide-react";
+import {
+  LogOut,
+  LayoutDashboard,
+  Users,
+  Map,
+  FileText,
+  BarChart,
+  Menu,
+  X,
+  User,
+} from "lucide-react";
 
 export default function AdminLayout() {
   const { adminLogout, adminUser } = useAdminAuth();
@@ -23,9 +33,11 @@ export default function AdminLayout() {
           <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center shadow-sm shadow-indigo-200">
             <User className="w-5 h-5" />
           </div>
-          <h1 className="text-lg font-extrabold text-neutral-900 tracking-tight">Admin</h1>
+          <h1 className="text-lg font-extrabold text-neutral-900 tracking-tight">
+            Admin
+          </h1>
         </div>
-        <button 
+        <button
           onClick={() => setMobileMenuOpen(true)}
           className="p-2 -mr-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
         >
@@ -35,36 +47,40 @@ export default function AdminLayout() {
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 bg-neutral-900/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`
+      <aside
+        className={`
         fixed md:static inset-y-0 left-0 z-50
         w-72 bg-white/90 backdrop-blur-xl md:bg-white border-r border-neutral-200/60 
         flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.03)]
         transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-      `}>
+      `}
+      >
         {/* Desktop Header */}
         <div className="h-16 md:h-24 flex items-center justify-between px-6 border-b border-neutral-100/50">
           <div className="flex items-center gap-3">
             <div className="hidden md:flex w-10 h-10 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-200 items-center justify-center">
               <User className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">Admin</h1>
+            <h1 className="text-xl font-extrabold text-neutral-900 tracking-tight">
+              Admin
+            </h1>
           </div>
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(false)}
             className="md:hidden p-2 -mr-2 text-neutral-400 hover:bg-neutral-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto scrollbar-hide">
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -86,7 +102,9 @@ export default function AdminLayout() {
                   <>
                     <Icon
                       className={`mr-4 h-[22px] w-[22px] transition-all duration-300 ${
-                        isActive ? "text-indigo-600" : "text-neutral-400 group-hover:text-neutral-600"
+                        isActive
+                          ? "text-indigo-600"
+                          : "text-neutral-400 group-hover:text-neutral-600"
                       }`}
                     />
                     {item.name}
@@ -104,7 +122,9 @@ export default function AdminLayout() {
               {adminUser?.email?.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="flex flex-col truncate">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">Authenticated</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">
+                Authenticated
+              </span>
               <span className="text-sm font-bold text-neutral-800 truncate">
                 {adminUser?.email || "Super Admin"}
               </span>

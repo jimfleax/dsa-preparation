@@ -10,12 +10,12 @@ interface ReviewDuePopupProps {
   refreshKey?: number;
 }
 
-export function ReviewActionCard({ 
-  problem, 
-  onRevisited 
-}: { 
-  problem: TrackedProblem; 
-  onRevisited: (id: string) => void; 
+export function ReviewActionCard({
+  problem,
+  onRevisited,
+}: {
+  problem: TrackedProblem;
+  onRevisited: (id: string) => void;
 }) {
   const [revisitingId, setRevisitingId] = useState<string | null>(null);
   const [keepReviewDuration, setKeepReviewDuration] = useState<string>("");
@@ -30,14 +30,17 @@ export function ReviewActionCard({
     setRevisitingId(problem._id);
     try {
       const token = await getToken();
-      const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}/revisit`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await apiFetch(
+        `${apiBase}/api/tracker/${problem._id}/revisit`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reviewDurationDays }),
         },
-        body: JSON.stringify({ reviewDurationDays }),
-      });
+      );
       const data = await response.json();
 
       if (data.success) {
@@ -64,7 +67,12 @@ export function ReviewActionCard({
             {problem.title}
           </a>
           <p className="text-xs text-neutral-400 mt-1">
-            Last attempted {Math.floor((Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24))} days ago
+            Last attempted{" "}
+            {Math.floor(
+              (Date.now() - new Date(problem.lastAttemptedDate).getTime()) /
+                (1000 * 60 * 60 * 24),
+            )}{" "}
+            days ago
           </p>
         </div>
 
@@ -79,7 +87,9 @@ export function ReviewActionCard({
                 onChange={(e) => setKeepReviewDuration(e.target.value)}
                 className="w-20 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm text-neutral-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <span className="text-xs text-neutral-500 font-medium">days later</span>
+              <span className="text-xs text-neutral-500 font-medium">
+                days later
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -91,7 +101,11 @@ export function ReviewActionCard({
               </button>
               <button
                 onClick={() =>
-                  handleRevisit(parseInt(keepReviewDuration) || problem.reviewDurationDays || 1)
+                  handleRevisit(
+                    parseInt(keepReviewDuration) ||
+                      problem.reviewDurationDays ||
+                      1,
+                  )
                 }
                 disabled={revisitingId === problem._id || !keepReviewDuration}
                 className="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
@@ -133,7 +147,10 @@ export function ReviewActionCard({
   );
 }
 
-export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePopupProps) {
+export default function ReviewDuePopup({
+  onRevisited,
+  refreshKey,
+}: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
   const { getToken, isSignedIn } = useAuth();
@@ -179,8 +196,8 @@ export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePop
       fetchDueProblems();
       setIsModalDismissed(false);
     };
-    window.addEventListener('openReviewModal', handleOpen);
-    return () => window.removeEventListener('openReviewModal', handleOpen);
+    window.addEventListener("openReviewModal", handleOpen);
+    return () => window.removeEventListener("openReviewModal", handleOpen);
   }, [fetchDueProblems]);
 
   const handleRevisitDone = (problemId: string) => {
@@ -192,22 +209,23 @@ export default function ReviewDuePopup({ onRevisited, refreshKey }: ReviewDuePop
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
+      <div
         className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
         onClick={() => setIsModalDismissed(true)}
       />
       <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 fade-in duration-200">
         <div className="flex justify-between items-center bg-indigo-50 border-b border-indigo-100 px-4 py-3 shrink-0">
-           <span className="text-sm font-bold text-indigo-700 flex items-center gap-2">
-             <CalendarClock className="w-4 h-4" />
-             {dueProblems.length} problem{dueProblems.length > 1 ? "s" : ""} due for review
-           </span>
-           <button 
-             onClick={() => setIsModalDismissed(true)} 
-             className="p-1.5 bg-indigo-100/50 hover:bg-indigo-200/50 text-indigo-600 hover:text-indigo-800 rounded-lg transition-colors cursor-pointer"
-           >
-             <X className="w-4 h-4"/>
-           </button>
+          <span className="text-sm font-bold text-indigo-700 flex items-center gap-2">
+            <CalendarClock className="w-4 h-4" />
+            {dueProblems.length} problem{dueProblems.length > 1 ? "s" : ""} due
+            for review
+          </span>
+          <button
+            onClick={() => setIsModalDismissed(true)}
+            className="p-1.5 bg-indigo-100/50 hover:bg-indigo-200/50 text-indigo-600 hover:text-indigo-800 rounded-lg transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="overflow-y-auto p-4 space-y-3 no-scrollbar">

@@ -27,15 +27,18 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/admin/*" element={<AdminApp />} />
-          <Route path="/" element={
-            <NetworkStatusProvider>
-              <AuthProvider>
-                <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
-                  <App />
-                </SkeletonTheme>
-              </AuthProvider>
-            </NetworkStatusProvider>
-          } />
+          <Route
+            path="/"
+            element={
+              <NetworkStatusProvider>
+                <AuthProvider>
+                  <SkeletonTheme baseColor="#f5f5f5" highlightColor="#fafafa">
+                    <App />
+                  </SkeletonTheme>
+                </AuthProvider>
+              </NetworkStatusProvider>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

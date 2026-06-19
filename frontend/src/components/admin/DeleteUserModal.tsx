@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 
-export default function DeleteUserModal({ 
-  user, 
-  onClose, 
-  onConfirm 
-}: { 
-  user: any; 
-  onClose: () => void; 
-  onConfirm: (deleteProgress: boolean) => Promise<void> 
+export default function DeleteUserModal({
+  user,
+  onClose,
+  onConfirm,
+}: {
+  user: any;
+  onClose: () => void;
+  onConfirm: (deleteProgress: boolean) => Promise<void>;
 }) {
   const [deleteProgress, setDeleteProgress] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -22,7 +22,6 @@ export default function DeleteUserModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
-        
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center">
@@ -36,22 +35,29 @@ export default function DeleteUserModal({
               <X className="w-5 h-5" />
             </button>
           </div>
-          
-          <h2 className="text-xl font-bold text-neutral-900 mb-2">Delete User Account</h2>
+
+          <h2 className="text-xl font-bold text-neutral-900 mb-2">
+            Delete User Account
+          </h2>
           <p className="text-sm text-neutral-500 font-medium mb-6">
-            Are you sure you want to delete <strong className="text-neutral-900">{user.name || user.email}</strong>? This action is permanent and cannot be undone.
+            Are you sure you want to delete{" "}
+            <strong className="text-neutral-900">
+              {user.name || user.email}
+            </strong>
+            ? This action is permanent and cannot be undone.
           </p>
 
           <label className="flex items-start gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-xl cursor-pointer hover:bg-rose-50 transition-colors">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={deleteProgress}
               onChange={(e) => setDeleteProgress(e.target.checked)}
               disabled={isDeleting}
               className="mt-1 w-4 h-4 text-rose-600 border-rose-300 rounded focus:ring-rose-500"
             />
             <span className="text-sm font-medium text-rose-900">
-              Also delete all progress problems the user has completed in the database.
+              Also delete all progress problems the user has completed in the
+              database.
             </span>
           </label>
         </div>
@@ -72,7 +78,6 @@ export default function DeleteUserModal({
             {isDeleting ? "Deleting..." : "Confirm Delete"}
           </button>
         </div>
-
       </div>
     </div>
   );

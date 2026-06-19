@@ -11,9 +11,12 @@ export default function DocsPage() {
 
   const fetchDocs = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs`,
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        },
+      );
       const json = await res.json();
       setDocs(Array.isArray(json) ? json : []);
     } catch (err) {
@@ -30,10 +33,13 @@ export default function DocsPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this document?")) return;
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
+      await fetch(
+        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${adminToken}` },
+        },
+      );
       fetchDocs();
     } catch (error) {
       console.error(error);
@@ -59,24 +65,26 @@ export default function DocsPage() {
           Add Document
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-           <div className="col-span-full bg-white border border-neutral-100 rounded-2xl p-12 text-center text-neutral-400 font-medium animate-pulse">
+          <div className="col-span-full bg-white border border-neutral-100 rounded-2xl p-12 text-center text-neutral-400 font-medium animate-pulse">
             Loading documents...
           </div>
         ) : docs.length === 0 ? (
           <div className="col-span-full bg-white border border-neutral-100 rounded-2xl p-16 flex flex-col items-center text-center">
             <FileText className="w-12 h-12 text-neutral-200 mb-4" />
-            <h3 className="text-lg font-bold text-neutral-900">No documents found</h3>
+            <h3 className="text-lg font-bold text-neutral-900">
+              No documents found
+            </h3>
             <p className="text-sm text-neutral-500 mt-1 max-w-sm">
               Upload your first markdown document to see it here.
             </p>
           </div>
         ) : (
           docs.map((doc: any) => (
-            <div 
-              key={doc._id} 
+            <div
+              key={doc._id}
               className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
               <div className="flex items-start justify-between mb-4">
@@ -85,8 +93,12 @@ export default function DocsPage() {
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-indigo-950 transition-colors line-clamp-1">{doc.title}</h3>
-                    <p className="text-xs text-neutral-500 font-mono mt-0.5">{doc.filename}</p>
+                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-indigo-950 transition-colors line-clamp-1">
+                      {doc.title}
+                    </h3>
+                    <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                      {doc.filename}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -95,7 +107,10 @@ export default function DocsPage() {
                 {doc.tags && doc.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4 mt-2">
                     {doc.tags.map((tag: string, i: number) => (
-                      <span key={i} className="flex items-center gap-1 px-2.5 py-1 bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 group-hover:border-indigo-100 transition-colors">
+                      <span
+                        key={i}
+                        className="flex items-center gap-1 px-2.5 py-1 bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 group-hover:border-indigo-100 transition-colors"
+                      >
                         <Tag className="w-3 h-3 text-neutral-400" />
                         {tag}
                       </span>
@@ -109,8 +124,8 @@ export default function DocsPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   {new Date(doc.createdAt).toLocaleDateString()}
                 </div>
-                <button 
-                  onClick={() => handleDelete(doc._id)} 
+                <button
+                  onClick={() => handleDelete(doc._id)}
                   className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
                   title="Delete Document"
                 >
@@ -123,7 +138,7 @@ export default function DocsPage() {
       </div>
 
       {showAddModal && (
-        <AddDocModal 
+        <AddDocModal
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {
             fetchDocs();

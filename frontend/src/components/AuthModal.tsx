@@ -20,7 +20,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   if (!isOpen) return null;
 
-  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse,
+  ) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -64,9 +66,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           >
             <X className="w-5 h-5" />
           </button>
-          
+
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight">Welcome Back</h2>
+            <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight">
+              Welcome Back
+            </h2>
             <p className="mt-3 text-sm font-medium text-neutral-500">
               Sign in to sync your DSA progress securely.
             </p>
@@ -82,7 +86,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-6 space-y-4">
                 <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-                <p className="text-sm font-semibold text-neutral-600">Authenticating...</p>
+                <p className="text-sm font-semibold text-neutral-600">
+                  Authenticating...
+                </p>
               </div>
             ) : (
               <div className="w-full flex justify-center py-4 transform hover:scale-[1.02] transition-transform duration-200">
@@ -98,10 +104,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
             )}
           </div>
-          
+
           <div className="mt-8 text-center">
             <p className="text-xs text-neutral-400">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
+              By continuing, you agree to our Terms of Service and Privacy
+              Policy.
             </p>
           </div>
         </div>

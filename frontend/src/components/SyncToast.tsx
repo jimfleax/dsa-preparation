@@ -41,12 +41,8 @@ export default function SyncToast({
             <RefreshCw className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-neutral-900">
-              {title}
-            </h3>
-            <p className="text-xs text-neutral-500 mt-1">
-              {subtitle}
-            </p>
+            <h3 className="text-sm font-bold text-neutral-900">{title}</h3>
+            <p className="text-xs text-neutral-500 mt-1">{subtitle}</p>
           </div>
         </div>
 

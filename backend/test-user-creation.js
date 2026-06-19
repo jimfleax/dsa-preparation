@@ -34,16 +34,18 @@ const UserSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const User = mongoose.model("User", UserSchema);
 
 async function test() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/test");
+    await mongoose.connect(
+      process.env.MONGODB_URI || "mongodb://localhost:27017/test",
+    );
     await User.collection.drop().catch(() => {});
-    
+
     // Create new user
     const user = await User.create({
       name: "Test User",
@@ -51,7 +53,6 @@ async function test() {
       googleId: "1234567890",
     });
     console.log("User created:", user);
-    
   } catch (error) {
     console.error("Error creating user:", error);
   } finally {

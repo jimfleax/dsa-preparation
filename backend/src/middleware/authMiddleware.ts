@@ -46,7 +46,8 @@ export const requireAuth = async (
 
       return next();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       console.warn(`Token verification failed: ${errorMessage}`);
       res.status(401).json({ error: "Not authorized, token failed" });
       return;

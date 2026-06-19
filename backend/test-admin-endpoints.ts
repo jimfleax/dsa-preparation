@@ -21,23 +21,25 @@ async function runTests() {
   const mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-  
+
   console.log("Connected to in-memory db.");
 
   try {
     // 1. Unauth test
     let res = await request(app).get("/api/admin/users");
-    if (res.status !== 401) throw new Error("Expected 401 for /api/admin/users");
+    if (res.status !== 401)
+      throw new Error("Expected 401 for /api/admin/users");
 
     // 2. Auth - Login
     const pwdHash = await bcrypt.hash("password123", 10);
     await Admin.create({ email: "admin@example.com", password: pwdHash });
-    
+
     res = await request(app).post("/api/admin/auth/login").send({
       email: "admin@example.com",
-      password: "password123"
+      password: "password123",
     });
-    if (res.status !== 200) throw new Error("Expected 200 for login, got: " + res.status);
+    if (res.status !== 200)
+      throw new Error("Expected 200 for login, got: " + res.status);
     const token = res.body.token;
     if (!token) throw new Error("No token returned");
 
@@ -46,7 +48,14 @@ async function runTests() {
     await Track.create({
       title: "Track1",
       description: "Test Track",
-      problems: [{ title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", url: "http" }]
+      problems: [
+        {
+          title: "Two Sum",
+          titleSlug: "two-sum",
+          difficulty: "Easy",
+          url: "http",
+        },
+      ],
     });
     await TrackedProblem.create({
       userId: "fake-id",
@@ -59,13 +68,16 @@ async function runTests() {
     res = await request(app)
       .get("/api/admin/analytics")
       .set("Authorization", `Bearer ${token}`);
-    
+
     if (res.status !== 200) throw new Error("Analytics failed: " + res.text);
     console.log("Analytics output:", res.body);
 
-    if (res.body.users.total !== 1) throw new Error("Analytics users.total mismatch");
-    if (res.body.content.totalTracks !== 1) throw new Error("Analytics totalTracks mismatch");
-    if (res.body.engagement.mostActiveTracks.length !== 1) throw new Error("Analytics mostActiveTracks length mismatch");
+    if (res.body.users.total !== 1)
+      throw new Error("Analytics users.total mismatch");
+    if (res.body.content.totalTracks !== 1)
+      throw new Error("Analytics totalTracks mismatch");
+    if (res.body.engagement.mostActiveTracks.length !== 1)
+      throw new Error("Analytics mostActiveTracks length mismatch");
 
     console.log("ALL TESTS PASSED SUCCESSFULLY");
   } catch (err) {

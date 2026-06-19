@@ -1,4 +1,12 @@
-import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
 import { useNetworkStatus } from "./context/NetworkStatusContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,7 +54,9 @@ export default function App() {
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
 
-  const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+  const isMac =
+    typeof window !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const { isOffline } = useNetworkStatus();
   const prevOfflineRef = useRef(isOffline);
 
@@ -74,10 +84,14 @@ export default function App() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Top-level tab state: controls which main view is active
-  const tabs = useMemo(() => ["home", "learn", "tracker", "tracks"] as const, []);
-  const [activeMainTab, setActiveMainTab] = useState<typeof tabs[number]>("home");
+  const tabs = useMemo(
+    () => ["home", "learn", "tracker", "tracks"] as const,
+    [],
+  );
+  const [activeMainTab, setActiveMainTab] =
+    useState<(typeof tabs)[number]>("home");
   const [direction, setDirection] = useState(0);
-  const prevTabRef = useRef<typeof tabs[number]>(activeMainTab);
+  const prevTabRef = useRef<(typeof tabs)[number]>(activeMainTab);
 
   useEffect(() => {
     const currentIndex = tabs.indexOf(activeMainTab);
@@ -126,7 +140,8 @@ export default function App() {
   const [showSyncToast, setShowSyncToast] = useState<boolean>(false);
   const [newSubmissionsCount, setNewSubmissionsCount] = useState<number>(0);
   const [newSubmissions, setNewSubmissions] = useState<any[]>([]);
-  const [revisitedSubmissionsCount, setRevisitedSubmissionsCount] = useState<number>(0);
+  const [revisitedSubmissionsCount, setRevisitedSubmissionsCount] =
+    useState<number>(0);
   const [revisitedSubmissions, setRevisitedSubmissions] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
@@ -140,10 +155,12 @@ export default function App() {
     toggle: togglePalette,
     calendarData,
     isLoading: isCalendarLoading,
-    error: calendarError
+    error: calendarError,
   } = useCommandPalette(userSettings?.leetcodeUsername);
 
-  const [trackedProblemsForPalette, setTrackedProblemsForPalette] = useState<TrackedProblem[]>([]);
+  const [trackedProblemsForPalette, setTrackedProblemsForPalette] = useState<
+    TrackedProblem[]
+  >([]);
 
   // Fetch tracked problems when palette opens to populate search
   useEffect(() => {
@@ -152,7 +169,7 @@ export default function App() {
         try {
           const token = await getToken();
           const res = await apiFetch(`${apiBase}/api/tracker`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
           if (data.success) {
@@ -171,7 +188,10 @@ export default function App() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
-      if (data.success && (data.newCount > 0 || (data.revisitedCount && data.revisitedCount > 0))) {
+      if (
+        data.success &&
+        (data.newCount > 0 || (data.revisitedCount && data.revisitedCount > 0))
+      ) {
         setNewSubmissionsCount(data.newCount || 0);
         setNewSubmissions(data.newSubmissions || []);
         setRevisitedSubmissionsCount(data.revisitedCount || 0);
@@ -187,7 +207,7 @@ export default function App() {
     setIsSyncing(true);
     try {
       const token = await getToken();
-      
+
       const promises: Promise<any>[] = [];
 
       // Sync new submissions
@@ -199,29 +219,32 @@ export default function App() {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ submissions: newSubmissions, notrack: false }),
-          }).then(res => res.json())
+            body: JSON.stringify({
+              submissions: newSubmissions,
+              notrack: false,
+            }),
+          }).then((res) => res.json()),
         );
       }
 
       // Sync revisited submissions
       if (revisitedSubmissions.length > 0) {
-        revisitedSubmissions.forEach(sub => {
+        revisitedSubmissions.forEach((sub) => {
           promises.push(
             apiFetch(`${apiBase}/api/tracker/${sub.problemId}/revisit`, {
               method: "PATCH",
-              headers: { 
+              headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ timestamp: sub.submission.timestamp }),
-            }).then(res => res.json())
+            }).then((res) => res.json()),
           );
         });
       }
 
       await Promise.all(promises);
-      
+
       setShowSyncToast(false);
       setProblemsRefreshKey((k) => k + 1);
     } catch (err) {
@@ -235,7 +258,7 @@ export default function App() {
     setIsSyncing(true);
     try {
       const token = await getToken();
-      
+
       // Only dismiss new submissions by tracking them with notrack=true
       if (newSubmissions.length > 0) {
         await apiFetch(`${apiBase}/api/sync/track`, {
@@ -247,7 +270,7 @@ export default function App() {
           body: JSON.stringify({ submissions: newSubmissions, notrack: true }),
         });
       }
-      
+
       // For revisited submissions, dismissing just clears the toast without updating the tracker
       setShowSyncToast(false);
     } catch (err) {
@@ -298,8 +321,6 @@ export default function App() {
       setShowSettingsModal(false);
     }
   }, [isSignedIn, fetchUserSettings]);
-
-
 
   // Perform dynamic ping health check
   const checkBackendStatus = useCallback(async () => {
@@ -600,19 +621,27 @@ export default function App() {
                     aria-label="Open Command Palette"
                     className="flex items-center gap-1 bg-transparent hover:bg-neutral-50/50 transition-all duration-200 cursor-pointer active:scale-95 select-none p-1 rounded-xl opacity-80 hover:opacity-100"
                   >
-                  {isMac ? (
-                    <>
-                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">⌘</kbd>
-                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">K</kbd>
-                    </>
-                  ) : (
-                    <>
-                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">Ctrl</kbd>
-                      <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">K</kbd>
-                    </>
-                  )}
-                </button>
-              </Tooltip>
+                    {isMac ? (
+                      <>
+                        <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">
+                          ⌘
+                        </kbd>
+                        <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">
+                          K
+                        </kbd>
+                      </>
+                    ) : (
+                      <>
+                        <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">
+                          Ctrl
+                        </kbd>
+                        <kbd className="bg-neutral-100/90 border border-neutral-200/80 px-2 py-1 rounded-md text-[9px] font-mono text-neutral-600 font-bold shadow-xs leading-none">
+                          K
+                        </kbd>
+                      </>
+                    )}
+                  </button>
+                </Tooltip>
               </div>
 
               {/* Native Logout / User Info */}
@@ -629,9 +658,9 @@ export default function App() {
                 {userDropdownOpen && (
                   <>
                     {/* Backdrop to close when clicking outside */}
-                    <div 
-                      className="fixed inset-0 z-40 cursor-default" 
-                      onClick={() => setUserDropdownOpen(false)} 
+                    <div
+                      className="fixed inset-0 z-40 cursor-default"
+                      onClick={() => setUserDropdownOpen(false)}
                     />
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-lg rounded-xl overflow-hidden z-50 transition-all">
                       <div className="p-3 border-b border-neutral-50 bg-neutral-50/50">
@@ -686,7 +715,8 @@ export default function App() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
               </span>
               <span className="text-xs font-semibold text-rose-700">
-                You're offline — showing cached data. Reconnecting automatically…
+                You're offline — showing cached data. Reconnecting
+                automatically…
               </span>
             </div>
           </motion.div>
@@ -695,7 +725,7 @@ export default function App() {
 
       {/* === SIGNED OUT: Landing Page === */}
       <SignedOut>
-          <LandingPage onSignIn={() => setShowAuthModal(true)} />
+        <LandingPage onSignIn={() => setShowAuthModal(true)} />
       </SignedOut>
 
       {/* Main Workspace Frame container */}
@@ -705,10 +735,13 @@ export default function App() {
           role="main"
           className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:py-8 flex flex-col gap-6 overflow-x-hidden relative"
         >
-          <GlobalContextMenu onNavigate={setActiveMainTab} onOpenShortcuts={togglePalette} />
-          <ReviewDuePopup 
+          <GlobalContextMenu
+            onNavigate={setActiveMainTab}
+            onOpenShortcuts={togglePalette}
+          />
+          <ReviewDuePopup
             refreshKey={problemsRefreshKey}
-            onRevisited={() => setProblemsRefreshKey((k) => k + 1)} 
+            onRevisited={() => setProblemsRefreshKey((k) => k + 1)}
           />
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             {/* === HOME TAB VIEW === */}
@@ -749,7 +782,13 @@ export default function App() {
                 }}
                 className="w-full flex-1 flex flex-col gap-6"
               >
-                <Suspense fallback={<div className="h-64 flex flex-col items-center justify-center text-center"><Loader2 className="w-8 h-8 animate-spin text-neutral-400" /></div>}>
+                <Suspense
+                  fallback={
+                    <div className="h-64 flex flex-col items-center justify-center text-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    </div>
+                  }
+                >
                   <TrackerTab
                     onOpenAddModal={() => setShowAddModal(true)}
                     refreshKey={problemsRefreshKey}
@@ -803,7 +842,10 @@ export default function App() {
                       className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between"
                     >
                       {/* Search Input Box */}
-                      <div id="search-input-wrapper" className="relative flex-1">
+                      <div
+                        id="search-input-wrapper"
+                        className="relative flex-1"
+                      >
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
                         <Tooltip content="Quick Search" shortcut="/">
                           <input
@@ -904,10 +946,11 @@ export default function App() {
                             id="no-matching-desc"
                             className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed"
                           >
-                            We couldn't find any resources matching your parameters:{" "}
-                            <code>{searchQuery || "Multiple Filters"}</code>. Try
-                            resetting filters or creating a new document in the
-                            collection folders.
+                            We couldn't find any resources matching your
+                            parameters:{" "}
+                            <code>{searchQuery || "Multiple Filters"}</code>.
+                            Try resetting filters or creating a new document in
+                            the collection folders.
                           </p>
                           <button
                             id="reset-filters-hero-btn"
@@ -944,9 +987,7 @@ export default function App() {
 
       {/* === SIGNED IN: Bottom Navigation for Mobile === */}
       <SignedIn>
-        <nav
-          className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe"
-        >
+        <nav className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe">
           <div className="flex justify-around items-center px-4 py-2.5">
             <button
               onClick={() => setActiveMainTab("home")}
@@ -977,7 +1018,7 @@ export default function App() {
       </SignedIn>
 
       {/* Footer Info Hub */}
-        <footer
+      <footer
         id="dsa-footer"
         role="contentinfo"
         className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400 hidden sm:block"
@@ -988,7 +1029,7 @@ export default function App() {
         >
           <p id="footer-copy" className="font-medium">
             Built with ❤️ by{" "}
-            <button 
+            <button
               onClick={() => setShowAboutMeModal(true)}
               className="text-indigo-600 hover:text-indigo-700 font-bold underline decoration-indigo-200 underline-offset-4 cursor-pointer transition-colors"
             >
@@ -1038,7 +1079,7 @@ export default function App() {
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
-        <CommandPalette 
+        <CommandPalette
           isOpen={isPaletteOpen}
           onClose={closePalette}
           leetcodeUsername={userSettings?.leetcodeUsername}

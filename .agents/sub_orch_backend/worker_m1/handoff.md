@@ -1,6 +1,7 @@
 # Milestone 1: Backend Admin Setup Handoff
 
 ## 1. Observation
+
 - The `backend/package.json` did not contain `bcryptjs` or `@types/bcryptjs`, which were required for hashing Admin passwords.
 - Existing schemas like `User`, `Track`, and `TrackedProblem` were found in `backend/src/models/`. They were used as references.
 - `server.src.ts` is the main entry point for the Express backend, while `server.ts` is a shim.
@@ -8,6 +9,7 @@
 - TypeScript definitions in `backend/src/types.ts` needed `admin?: { id: string }` appended to `Express.Request` so middlewares and controllers could use it.
 
 ## 2. Logic Chain
+
 1. **Dependencies**: `bcryptjs` and `@types/bcryptjs` were installed to support standard hashing for Admin credentials without writing custom Node crypto layers.
 2. **Admin Schema**: Created `Admin.ts` with `email` and `password` fields. We skipped creating a signup/register script as strictly requested by the prompt.
 3. **Type Augmentation**: Updated `types.ts` to extend `Express.Request` with `admin?: { id: string }`.
@@ -20,13 +22,16 @@
 6. **Integration**: Created `index.ts` in `routes/admin/` to bundle all sub-routes, and then imported and mounted them to `/api/admin` in `server.src.ts`.
 
 ## 3. Caveats
+
 - Track model's mongoose default export uses an `OR` condition (`mongoose.models.Track || ...`), which confused TypeScript's type inference. We used type assertions `(Track as any)` in `trackController.ts` for operations like `findByIdAndUpdate` and `findByIdAndDelete` to pass `npx tsc --noEmit`.
 - No endpoint exists to register an admin. To log in, an admin user must manually insert an admin record into MongoDB with a pre-hashed bcrypt password.
 
 ## 4. Conclusion
+
 The implementation cleanly covers the entire Milestone 1 Backend Admin Setup scope. The schema, types, middleware, controllers, and routes have been wired up correctly, ensuring endpoints for login, user listing, track management, and analytical aggregates are protected and functional. The TypeScript build is completely clean, and integration matches existing codebase patterns.
 
 ## 5. Verification Method
+
 1. Verify TypeScript compiles without errors: run `npx tsc --noEmit` inside `backend/`.
 2. Verify build succeeds: run `npm run build` inside `backend/`.
 3. Test locally:

@@ -13,7 +13,9 @@ export interface LeetCodeCalendarData {
 export function useCommandPalette(leetcodeUsername?: string) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [calendarData, setCalendarData] = useState<LeetCodeCalendarData | null>(null);
+  const [calendarData, setCalendarData] = useState<LeetCodeCalendarData | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const apiBase =
@@ -22,7 +24,7 @@ export function useCommandPalette(leetcodeUsername?: string) {
 
   const fetchCalendarData = useCallback(async () => {
     if (!leetcodeUsername) return;
-    
+
     // Check session storage cache first (cache for 5 mins)
     const cacheKey = `leetcode_calendar_${leetcodeUsername}`;
     const cached = sessionStorage.getItem(cacheKey);
@@ -31,7 +33,11 @@ export function useCommandPalette(leetcodeUsername?: string) {
         const { data, timestamp } = JSON.parse(cached);
         // Invalidate cache if it is older than 5 minutes OR if the cached data is missing 'ranking'
         // (to handle transition from older backend version that didn't include ranking)
-        if (Date.now() - timestamp < 5 * 60 * 1000 && data && "ranking" in data) {
+        if (
+          Date.now() - timestamp < 5 * 60 * 1000 &&
+          data &&
+          "ranking" in data
+        ) {
           setCalendarData(data);
           return;
         }
@@ -43,14 +49,16 @@ export function useCommandPalette(leetcodeUsername?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await apiFetch(`${apiBase}/api/leetcode/calendar/${leetcodeUsername}`);
+      const res = await apiFetch(
+        `${apiBase}/api/leetcode/calendar/${leetcodeUsername}`,
+      );
       const result = await res.json();
-      
+
       if (result.success && result.data) {
         setCalendarData(result.data);
         sessionStorage.setItem(
-          cacheKey, 
-          JSON.stringify({ data: result.data, timestamp: Date.now() })
+          cacheKey,
+          JSON.stringify({ data: result.data, timestamp: Date.now() }),
         );
       } else {
         setError(result.error || "Failed to fetch data");
@@ -81,6 +89,6 @@ export function useCommandPalette(leetcodeUsername?: string) {
     calendarData,
     isLoading,
     error,
-    refetch: fetchCalendarData
+    refetch: fetchCalendarData,
   };
 }

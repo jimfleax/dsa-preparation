@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 
-export function AnimatedNumber({ 
-  value, 
+export function AnimatedNumber({
+  value,
   duration = 1000,
-  formatter
-}: { 
-  value: number | null; 
+  formatter,
+}: {
+  value: number | null;
   duration?: number;
   formatter?: (val: number) => string;
 }) {
@@ -13,7 +13,7 @@ export function AnimatedNumber({
 
   useEffect(() => {
     if (value === null) return;
-    
+
     let startTime: number;
     let animationFrame: number;
 
@@ -21,8 +21,9 @@ export function AnimatedNumber({
       if (!startTime) startTime = timestamp;
       const progress = timestamp - startTime;
       const percentage = Math.min(progress / duration, 1);
-      
-      const easeOutExpo = percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
+
+      const easeOutExpo =
+        percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
       setDisplayValue(Math.floor(easeOutExpo * value));
 
       if (percentage < 1) {

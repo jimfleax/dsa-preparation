@@ -3,6 +3,7 @@
 **Core Finding:** The frontend Admin Login component contains hardcoded paths, payload fields, and response expectations that do not match the backend's contract. The backend expects an `email` field at `/api/admin/auth/login` and returns `{ token, admin }`, whereas the frontend sends `username` to `/api/admin/login` and expects `{ token, user }`.
 
 ## 1. Observation
+
 - In `frontend/src/pages/admin/AdminLogin.tsx`:
   - Line 20: The API endpoint called is `fetch("/api/admin/login", ...)`
   - Line 25: The request payload is `body: JSON.stringify({ username, password })`
@@ -22,6 +23,7 @@
   - Mock data uses `{ id: '1', username: 'admin' }`.
 
 ## 2. Logic Chain
+
 1. The frontend attempts to login at `/api/admin/login` but the backend is listening on `/api/admin/auth/login`. This results in a 404.
 2. The frontend sends `username` instead of `email`, causing the backend to reject the request (`400 Bad Request`) since it requires `email`.
 3. Even if the request succeeds, the frontend expects the user object at `data.user`, but the backend sends it at `data.admin`. This results in an `undefined` user being saved to context.
@@ -29,9 +31,11 @@
 5. Tests contain mock local storage data utilizing `username` which will cause type/logic errors when the interface is changed to `email`.
 
 ## 3. Caveats
+
 - No caveats. The mismatch is purely structural between the frontend's API call definition and the backend's controller logic.
 
 ## 4. Conclusion & Fix Strategy
+
 To perfectly align the frontend with the backend contract, implement the following changes:
 
 1. **`frontend/src/context/AdminAuthContext.tsx`**:
@@ -51,6 +55,7 @@ To perfectly align the frontend with the backend contract, implement the followi
    - Update mock local storage to use `email` instead of `username`: `JSON.stringify({ id: '1', email: 'admin@example.com' })`.
 
 ## 5. Verification Method
+
 - **Static Analysis**: Verify type correctness using TypeScript: `npx tsc --noEmit` in the `frontend` folder.
 - **Unit Tests**: Run frontend tests with `npm test` inside the frontend directory to ensure the mock changes work.
 - **Integration/E2E**:

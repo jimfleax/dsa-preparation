@@ -14,9 +14,9 @@ interface NetworkStatusContextType {
   isOffline: boolean;
 }
 
-const NetworkStatusContext = createContext<NetworkStatusContextType | undefined>(
-  undefined,
-);
+const NetworkStatusContext = createContext<
+  NetworkStatusContextType | undefined
+>(undefined);
 
 const HEALTH_POLL_INTERVAL_MS = 10_000; // 10 seconds when offline
 

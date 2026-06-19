@@ -57,22 +57,44 @@ export default function TrackerSkeleton() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/50">
-                <th className="px-5 py-3"><Skeleton width={80} height={14} /></th>
-                <th className="px-5 py-3 text-center"><Skeleton width={60} height={14} inline /></th>
-                <th className="px-5 py-3 text-center"><Skeleton width={60} height={14} inline /></th>
-                <th className="px-5 py-3"><Skeleton width={80} height={14} /></th>
-                <th className="px-5 py-3 text-center"><Skeleton width={60} height={14} inline /></th>
-                <th className="px-5 py-3 text-center w-24"><Skeleton width={60} height={14} inline /></th>
+                <th className="px-5 py-3">
+                  <Skeleton width={80} height={14} />
+                </th>
+                <th className="px-5 py-3 text-center">
+                  <Skeleton width={60} height={14} inline />
+                </th>
+                <th className="px-5 py-3 text-center">
+                  <Skeleton width={60} height={14} inline />
+                </th>
+                <th className="px-5 py-3">
+                  <Skeleton width={80} height={14} />
+                </th>
+                <th className="px-5 py-3 text-center">
+                  <Skeleton width={60} height={14} inline />
+                </th>
+                <th className="px-5 py-3 text-center w-24">
+                  <Skeleton width={60} height={14} inline />
+                </th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 8 }).map((_, i) => (
                 <tr key={i} className="border-b border-neutral-50">
-                  <td className="px-5 py-4"><Skeleton width="70%" height={20} /></td>
-                  <td className="px-5 py-4 text-center"><Skeleton width={60} height={20} borderRadius={10} inline /></td>
-                  <td className="px-5 py-4 text-center"><Skeleton width={30} height={20} borderRadius={10} inline /></td>
-                  <td className="px-5 py-4"><Skeleton width={100} height={16} /></td>
-                  <td className="px-5 py-4 text-center"><Skeleton width={80} height={28} borderRadius={8} inline /></td>
+                  <td className="px-5 py-4">
+                    <Skeleton width="70%" height={20} />
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <Skeleton width={60} height={20} borderRadius={10} inline />
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <Skeleton width={30} height={20} borderRadius={10} inline />
+                  </td>
+                  <td className="px-5 py-4">
+                    <Skeleton width={100} height={16} />
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <Skeleton width={80} height={28} borderRadius={8} inline />
+                  </td>
                   <td className="px-5 py-4 text-center">
                     <div className="flex justify-center gap-2">
                       <Skeleton width={28} height={28} borderRadius={8} />

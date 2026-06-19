@@ -26,7 +26,8 @@ export const getUserSettings = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error("Error fetching user settings:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -77,7 +78,8 @@ export const updateUserSettings = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error("Error updating user settings:", error);
-    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
   }
 };

@@ -32,7 +32,9 @@ export default function ScheduleReviewModal({
 
   useEffect(() => {
     if (problem && isOpen) {
-      setReviewDuration(problem.reviewDurationDays ? String(problem.reviewDurationDays) : "");
+      setReviewDuration(
+        problem.reviewDurationDays ? String(problem.reviewDurationDays) : "",
+      );
       setError(null);
       setSuccess(false);
     }
@@ -54,10 +56,10 @@ export default function ScheduleReviewModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           url: problem.url, // URL is required by the schema, so we send the existing one
           attemptCount: problem.attemptCount, // Send existing attempt count
-          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null
+          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null,
         }),
       });
       const data = await response.json();
@@ -95,10 +97,10 @@ export default function ScheduleReviewModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           url: problem.url,
           attemptCount: problem.attemptCount,
-          reviewDurationDays: null
+          reviewDurationDays: null,
         }),
       });
       const data = await response.json();
@@ -148,7 +150,8 @@ export default function ScheduleReviewModal({
                   const lastAttempt = new Date(problem.lastAttemptedDate);
                   lastAttempt.setHours(0, 0, 0, 0);
                   const scheduledDate = new Date(
-                    lastAttempt.getTime() + problem.reviewDurationDays * 24 * 60 * 60 * 1000
+                    lastAttempt.getTime() +
+                      problem.reviewDurationDays * 24 * 60 * 60 * 1000,
                   );
                   return scheduledDate.toLocaleDateString(undefined, {
                     weekday: "short",
@@ -157,9 +160,12 @@ export default function ScheduleReviewModal({
                     year: "numeric",
                   });
                 })()}
-              </strong>.
+              </strong>
+              .
               <br />
-              <span className="text-indigo-600 opacity-90">Changing the duration below will overwrite the current schedule.</span>
+              <span className="text-indigo-600 opacity-90">
+                Changing the duration below will overwrite the current schedule.
+              </span>
             </span>
           </div>
         ) : null}
@@ -185,7 +191,9 @@ export default function ScheduleReviewModal({
         </div>
 
         {error && <FormAlert type="error" message={error} />}
-        {success && <FormAlert type="success" message="Review schedule updated!" />}
+        {success && (
+          <FormAlert type="success" message="Review schedule updated!" />
+        )}
 
         <div className="flex items-center justify-end gap-2 pt-2">
           <button

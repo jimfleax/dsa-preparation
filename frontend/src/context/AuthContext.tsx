@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const authValue = useMemo(
     () => ({ user, token, isSignedIn: !!token, login, logout, getToken }),
-    [user, token, login, logout, getToken]
+    [user, token, login, logout, getToken],
   );
 
   if (loading) {
@@ -81,9 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
   );
 }
 

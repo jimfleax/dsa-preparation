@@ -12,7 +12,7 @@ interface BaseModalProps {
   title?: string;
   subtitle?: ReactNode;
   icon?: ReactNode;
-  
+
   // Options
   maxWidthClass?: string;
   hideHeader?: boolean;
@@ -74,7 +74,10 @@ export default function BaseModal({
                   </div>
                 )}
                 <div>
-                  <h2 id={`${modalId}-title`} className="text-sm font-bold text-neutral-900 line-clamp-1">
+                  <h2
+                    id={`${modalId}-title`}
+                    className="text-sm font-bold text-neutral-900 line-clamp-1"
+                  >
                     {title}
                   </h2>
                   {subtitle && (

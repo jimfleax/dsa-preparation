@@ -147,7 +147,9 @@ code {
 /* Sleek note editor with smooth caret */
 .note-editor {
   caret-color: #6366f1;
-  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+  transition:
+    border-color 0.15s ease-out,
+    box-shadow 0.15s ease-out;
   line-height: 1.75;
   letter-spacing: 0.01em;
   resize: vertical;
@@ -159,8 +161,13 @@ code {
 }
 
 @keyframes caret-pulse {
-  0%, 100% { caret-color: #6366f1; }
-  50% { caret-color: #a5b4fc; }
+  0%,
+  100% {
+    caret-color: #6366f1;
+  }
+  50% {
+    caret-color: #a5b4fc;
+  }
 }
 
 /* Character count styling */
@@ -181,8 +188,8 @@ code {
   display: none;
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 @media (max-width: 639px) {

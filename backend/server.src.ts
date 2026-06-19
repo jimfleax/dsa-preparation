@@ -12,7 +12,10 @@ import authRoutes from "./src/routes/authRoutes.ts";
 import documentRoutes from "./src/routes/documentRoutes.ts";
 import adminRoutes from "./src/routes/admin/index.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
-import { scrapeLeetCodeTitle, getLeetCodeCalendar } from "./src/controllers/trackerController.ts";
+import {
+  scrapeLeetCodeTitle,
+  getLeetCodeCalendar,
+} from "./src/controllers/trackerController.ts";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -21,45 +24,61 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 
 // Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    try {
-      const originHostname = new URL(origin).hostname;
-      
-      let allowedDomain = "localhost";
-      if (process.env.FRONTEND_URL) {
-        const rawFrontendUrl = process.env.FRONTEND_URL.trim();
-        if (rawFrontendUrl.startsWith("http")) {
-          allowedDomain = new URL(rawFrontendUrl).hostname;
-        } else {
-          allowedDomain = rawFrontendUrl.split('/')[0]; // Strip trailing paths if any
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      try {
+        const originHostname = new URL(origin).hostname;
+
+        let allowedDomain = "localhost";
+        if (process.env.FRONTEND_URL) {
+          const rawFrontendUrl = process.env.FRONTEND_URL.trim();
+          if (rawFrontendUrl.startsWith("http")) {
+            allowedDomain = new URL(rawFrontendUrl).hostname;
+          } else {
+            allowedDomain = rawFrontendUrl.split("/")[0]; // Strip trailing paths if any
+          }
         }
-      }
 
-      const isLocal = originHostname === "localhost" || 
-                      originHostname === "127.0.0.1" || 
-                      originHostname === "::1" ||
-                      originHostname.startsWith("192.168.") || 
-                      originHostname.startsWith("10.") ||
-                      originHostname.endsWith(".local");
+        const isLocal =
+          originHostname === "localhost" ||
+          originHostname === "127.0.0.1" ||
+          originHostname === "::1" ||
+          originHostname.startsWith("192.168.") ||
+          originHostname.startsWith("10.") ||
+          originHostname.endsWith(".local");
 
-      if (originHostname === allowedDomain || isLocal || originHostname === "dsa.jimfleax.in") {
-        return callback(null, true);
+        if (
+          originHostname === allowedDomain ||
+          isLocal ||
+          originHostname === "dsa.jimfleax.in"
+        ) {
+          return callback(null, true);
+        }
+
+        console.warn(
+          `[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`,
+        );
+        const corsError = new Error(
+          `CORS Error: Origin ${origin} is not allowed.`,
+        );
+        (corsError as any).status = 403;
+        return callback(corsError);
+      } catch (err) {
+        return callback(new Error("Invalid origin"));
       }
-      
-      console.warn(`[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`);
-      const corsError = new Error(`CORS Error: Origin ${origin} is not allowed.`);
-      (corsError as any).status = 403;
-      return callback(corsError);
-    } catch (err) {
-      return callback(new Error("Invalid origin"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
-}));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+  }),
+);
 
 // Pre-flight handler for all routes
 app.options("*", cors() as any);
@@ -87,7 +106,10 @@ app.get("/api/health", (req, res) => {
 const scrapeLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 10, // Limit each IP to 10 requests per `window`
-  message: { success: false, error: "Too many scrape requests. Please try again later." },
+  message: {
+    success: false,
+    error: "Too many scrape requests. Please try again later.",
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -143,9 +165,10 @@ app.use(
       res.status(status).json({
         success: false,
         error: status === 500 ? "Internal Server Error" : "Client Error",
-        message: (process.env.NODE_ENV === "production" && status === 500) 
-          ? "An unexpected error occurred" 
-          : err.message,
+        message:
+          process.env.NODE_ENV === "production" && status === 500
+            ? "An unexpected error occurred"
+            : err.message,
       });
     } else {
       // For non-API routes, fall back to default express handler or custom HTML

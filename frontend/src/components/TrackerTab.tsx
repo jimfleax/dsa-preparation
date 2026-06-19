@@ -77,8 +77,10 @@ export default function ProblemsTab({
   const [isSmartRevisitOpen, setIsSmartRevisitOpen] = useState<boolean>(false);
   const [smartRevisitProblem, setSmartRevisitProblem] =
     useState<TrackedProblem | null>(null);
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
-  const [schedulingProblem, setSchedulingProblem] = useState<TrackedProblem | null>(null);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] =
+    useState<boolean>(false);
+  const [schedulingProblem, setSchedulingProblem] =
+    useState<TrackedProblem | null>(null);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const [noteProblem, setNoteProblem] = useState<TrackedProblem | null>(null);
 
@@ -103,31 +105,31 @@ export default function ProblemsTab({
 
     try {
       const token = await getToken();
-      
+
       const promises: Promise<Response>[] = [
         apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        }),
       ];
 
       if (pageNum === 1) {
         promises.push(
           apiFetch(`${apiBase}/api/tracker/metrics`, {
             headers: { Authorization: `Bearer ${token}` },
-          })
+          }),
         );
       }
 
       const responses = await Promise.all(promises);
       const data = await responses[0].json();
-      
+
       if (data.success) {
         if (pageNum === 1) {
           setProblems(data.problems);
         } else {
           setProblems((prev) => [...prev, ...data.problems]);
         }
-        
+
         if (data.pagination) {
           setTotalCount(data.pagination.total);
           setHasMore(pageNum < data.pagination.pages);
@@ -136,7 +138,7 @@ export default function ProblemsTab({
           setTotalCount(data.problems.length);
           setHasMore(false);
         }
-        
+
         setPage(pageNum);
       }
 
@@ -230,8 +232,16 @@ export default function ProblemsTab({
     }
 
     result.sort((a, b) => {
-      const isADue = a.reviewDurationDays && (Date.now() - new Date(a.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= a.reviewDurationDays;
-      const isBDue = b.reviewDurationDays && (Date.now() - new Date(b.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= b.reviewDurationDays;
+      const isADue =
+        a.reviewDurationDays &&
+        (Date.now() - new Date(a.lastAttemptedDate).getTime()) /
+          (1000 * 60 * 60 * 24) >=
+          a.reviewDurationDays;
+      const isBDue =
+        b.reviewDurationDays &&
+        (Date.now() - new Date(b.lastAttemptedDate).getTime()) /
+          (1000 * 60 * 60 * 24) >=
+          b.reviewDurationDays;
 
       if (isADue && !isBDue) return -1;
       if (!isADue && isBDue) return 1;
@@ -248,10 +258,18 @@ export default function ProblemsTab({
   }, [problems, searchQuery, sortBy]);
 
   // Calculate stats
-  const easyCount = globalMetrics?.difficulty?.Easy ?? problems.filter((p) => p.difficulty === "Easy").length;
-  const mediumCount = globalMetrics?.difficulty?.Medium ?? problems.filter((p) => p.difficulty === "Medium").length;
-  const hardCount = globalMetrics?.difficulty?.Hard ?? problems.filter((p) => p.difficulty === "Hard").length;
-  const unratedCount = globalMetrics?.difficulty?.Unrated ?? (problems.length - (easyCount + mediumCount + hardCount));
+  const easyCount =
+    globalMetrics?.difficulty?.Easy ??
+    problems.filter((p) => p.difficulty === "Easy").length;
+  const mediumCount =
+    globalMetrics?.difficulty?.Medium ??
+    problems.filter((p) => p.difficulty === "Medium").length;
+  const hardCount =
+    globalMetrics?.difficulty?.Hard ??
+    problems.filter((p) => p.difficulty === "Hard").length;
+  const unratedCount =
+    globalMetrics?.difficulty?.Unrated ??
+    problems.length - (easyCount + mediumCount + hardCount);
 
   const difficultyData = [
     { name: "Easy", value: easyCount, color: "#10b981" },
@@ -287,7 +305,11 @@ export default function ProblemsTab({
               Problems Solved
             </p>
             <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-neutral-800">
-              <AnimatedNumber value={globalMetrics?.totalSolved || totalCount || problems.length} />
+              <AnimatedNumber
+                value={
+                  globalMetrics?.totalSolved || totalCount || problems.length
+                }
+              />
             </p>
           </div>
         </div>
@@ -327,7 +349,11 @@ export default function ProblemsTab({
                         fontSize: "11px",
                         padding: "6px 10px",
                       }}
-                      itemStyle={{ color: "#1f2937", fontWeight: 600, padding: 0 }}
+                      itemStyle={{
+                        color: "#1f2937",
+                        fontWeight: 600,
+                        padding: 0,
+                      }}
                     />
                     <Legend
                       verticalAlign="middle"
@@ -343,7 +369,10 @@ export default function ProblemsTab({
               <div className="sm:hidden flex justify-center gap-2 mt-1.5 text-[9px] font-bold text-neutral-550 shrink-0">
                 {difficultyData.map((d, i) => (
                   <span key={i} className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: d.color }}></span>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ backgroundColor: d.color }}
+                    ></span>
                     {d.name}
                   </span>
                 ))}
@@ -553,7 +582,10 @@ export default function ProblemsTab({
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
                       {problem.reviewDurationDays ? (
-                        (Date.now() - new Date(problem.lastAttemptedDate).getTime()) / (1000 * 60 * 60 * 24) >= problem.reviewDurationDays ? (
+                        (Date.now() -
+                          new Date(problem.lastAttemptedDate).getTime()) /
+                          (1000 * 60 * 60 * 24) >=
+                        problem.reviewDurationDays ? (
                           <div className="mt-1 flex">
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wide">
                               <CalendarClock className="w-2.5 h-2.5" />
@@ -687,14 +719,18 @@ export default function ProblemsTab({
 
           {/* Table footer */}
           <div className="px-5 py-3 border-t border-neutral-50 bg-neutral-50/30 text-[11px] text-neutral-400 font-medium">
-            Showing {filteredProblems.length} of {totalCount || problems.length} problems
+            Showing {filteredProblems.length} of {totalCount || problems.length}{" "}
+            problems
           </div>
         </div>
       )}
 
       {/* Infinite Scroll Sentinel */}
       {hasMore && (
-        <div ref={sentinelRef} className="py-4 flex justify-center items-center h-16">
+        <div
+          ref={sentinelRef}
+          className="py-4 flex justify-center items-center h-16"
+        >
           {isFetchingMore && (
             <div className="flex items-center gap-2 text-neutral-400 text-sm font-medium">
               <Loader2 className="w-4 h-4 animate-spin" />

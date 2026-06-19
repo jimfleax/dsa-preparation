@@ -26,27 +26,38 @@ export default function TrackCard({
 }: TrackCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
-  const [selectedPartIndex, setSelectedPartIndex] = useState<number | null>(null);
+  const [selectedPartIndex, setSelectedPartIndex] = useState<number | null>(
+    null,
+  );
   const [showAttemptModal, setShowAttemptModal] = useState(false);
 
   const getDefaultExpandedParts = () => {
     if (!track.parts || track.parts.length === 0) return {};
     const initial: Record<number, boolean> = {};
-    const hasActivePart = track._id === activeTrackId && activePartIndex !== undefined && activePartIndex !== null;
+    const hasActivePart =
+      track._id === activeTrackId &&
+      activePartIndex !== undefined &&
+      activePartIndex !== null;
     let firstIncompleteFound = false;
 
     track.parts.forEach((part, idx) => {
       initial[idx] = false;
     });
 
-    if (hasActivePart && activePartIndex !== undefined && activePartIndex !== null) {
+    if (
+      hasActivePart &&
+      activePartIndex !== undefined &&
+      activePartIndex !== null
+    ) {
       const activePart = track.parts[activePartIndex];
       const partSolved = activePart.problems.filter((p) => {
         const slug = extractTitleSlug(p.url);
         return slug && !!trackedProblems[slug];
       }).length;
-      const isPartCompleted = activePart.problems.length > 0 && partSolved === activePart.problems.length;
-      
+      const isPartCompleted =
+        activePart.problems.length > 0 &&
+        partSolved === activePart.problems.length;
+
       if (!isPartCompleted) {
         initial[activePartIndex] = true;
         firstIncompleteFound = true;
@@ -60,7 +71,8 @@ export default function TrackCard({
           const slug = extractTitleSlug(p.url);
           return slug && !!trackedProblems[slug];
         }).length;
-        const isPartCompleted = part.problems.length > 0 && partSolved === part.problems.length;
+        const isPartCompleted =
+          part.problems.length > 0 && partSolved === part.problems.length;
         if (!isPartCompleted) {
           initial[idx] = true;
           firstIncompleteFound = true;
@@ -76,12 +88,15 @@ export default function TrackCard({
     if (track._id === activeTrackId) {
       setExpanded(true);
       if (activePartIndex !== undefined && activePartIndex !== null) {
-        setExpandedParts(prev => {
+        setExpandedParts((prev) => {
           const next = getDefaultExpandedParts();
-          
+
           // Check if it's the same to prevent unnecessary renders
-          const isSame = Object.keys(prev).every(k => prev[Number(k)] === next[Number(k)]) && 
-                         Object.keys(next).every(k => prev[Number(k)] === next[Number(k)]);
+          const isSame =
+            Object.keys(prev).every(
+              (k) => prev[Number(k)] === next[Number(k)],
+            ) &&
+            Object.keys(next).every((k) => prev[Number(k)] === next[Number(k)]);
           return isSame ? prev : next;
         });
       }
@@ -99,13 +114,14 @@ export default function TrackCard({
   }).length;
   const progressPercent =
     Math.round((completedCount / totalProblems) * 100) || 0;
-  const isCompleted =
-    totalProblems > 0 && completedCount === totalProblems;
+  const isCompleted = totalProblems > 0 && completedCount === totalProblems;
 
-  const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(() => getDefaultExpandedParts());
+  const [expandedParts, setExpandedParts] = useState<Record<number, boolean>>(
+    () => getDefaultExpandedParts(),
+  );
 
   const togglePart = (idx: number) => {
-    setExpandedParts(prev => ({ ...prev, [idx]: !prev[idx] }));
+    setExpandedParts((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
 
   const handleProblemClick = (problem: any, partIndex?: number) => {
@@ -115,7 +131,11 @@ export default function TrackCard({
     setExpanded(true);
   };
 
-  const renderProblem = (problem: TrackProblem, key: string | number, partIndex?: number) => {
+  const renderProblem = (
+    problem: TrackProblem,
+    key: string | number,
+    partIndex?: number,
+  ) => {
     const slug = extractTitleSlug(problem.url);
     const tracked = slug ? trackedProblems[slug] : undefined;
     const isSolved = !!tracked;
@@ -127,7 +147,7 @@ export default function TrackCard({
         tabIndex={0}
         aria-label={`Attempt problem: ${problem.title}`}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             handleProblemClick(problem, partIndex);
           }
@@ -137,9 +157,15 @@ export default function TrackCard({
       >
         <div className="flex items-center gap-4">
           {isSolved ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" aria-hidden="true" />
+            <CheckCircle2
+              className="w-5 h-5 text-emerald-500 shrink-0"
+              aria-hidden="true"
+            />
           ) : (
-            <Circle className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0" aria-hidden="true" />
+            <Circle
+              className="w-5 h-5 text-neutral-300 group-hover:text-indigo-400 transition-colors shrink-0"
+              aria-hidden="true"
+            />
           )}
           <div>
             <p
@@ -179,7 +205,7 @@ export default function TrackCard({
         aria-expanded={expanded}
         aria-label={`${track.title} track progress: ${progressPercent}%`}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             if (!expanded) {
               setExpandedParts(getDefaultExpandedParts());
@@ -206,13 +232,18 @@ export default function TrackCard({
               </span>
             )}
             {isCompleted && (
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full" aria-label="Completed">
+              <span
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full"
+                aria-label="Completed"
+              >
                 <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                 Completed
               </span>
             )}
           </div>
-          <p className={`text-xs text-neutral-500 mt-1 font-medium ${expanded ? "" : "line-clamp-2"}`}>
+          <p
+            className={`text-xs text-neutral-500 mt-1 font-medium ${expanded ? "" : "line-clamp-2"}`}
+          >
             {track.description}
           </p>
           <div className="mt-4 flex items-center gap-4">
@@ -223,10 +254,14 @@ export default function TrackCard({
                     const slug = extractTitleSlug(p.url);
                     return slug && !!trackedProblems[slug];
                   }).length;
-                  const partPercent = Math.round((partSolved / part.problems.length) * 100) || 0;
+                  const partPercent =
+                    Math.round((partSolved / part.problems.length) * 100) || 0;
                   const isPartFull = partSolved === part.problems.length;
                   return (
-                    <div key={idx} className="flex-1 bg-neutral-200 rounded-full overflow-hidden">
+                    <div
+                      key={idx}
+                      className="flex-1 bg-neutral-200 rounded-full overflow-hidden"
+                    >
                       <div
                         className={`h-full transition-all duration-500 ${isPartFull ? "bg-emerald-500" : "bg-indigo-500"}`}
                         style={{ width: `${partPercent}%` }}
@@ -246,7 +281,10 @@ export default function TrackCard({
             <span
               className={`text-[11px] font-bold ${isCompleted ? "text-emerald-600" : "text-neutral-600"}`}
             >
-              <AnimatedNumber value={completedCount} /> / <AnimatedNumber value={totalProblems} /> (<AnimatedNumber value={progressPercent} />%)
+              <AnimatedNumber value={completedCount} /> /{" "}
+              <AnimatedNumber value={totalProblems} /> (
+              <AnimatedNumber value={progressPercent} />
+              %)
             </span>
           </div>
         </div>
@@ -254,17 +292,23 @@ export default function TrackCard({
           className={`p-2 rounded-xl transition-all duration-300 ${isCompleted ? "text-emerald-500 bg-emerald-100" : "text-neutral-400 bg-neutral-100"}`}
           aria-hidden="true"
         >
-          <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${expanded ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`w-5 h-5 transition-transform duration-500 ${expanded ? "rotate-180" : ""}`}
+          />
         </div>
       </div>
 
-      <div className={`grid transition-all duration-500 ease-in-out ${expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+      <div
+        className={`grid transition-all duration-500 ease-in-out ${expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+      >
         <div className="overflow-hidden border-t border-neutral-100">
           {track.parts && track.parts.length > 0 ? (
             <div className="divide-y divide-neutral-100">
               {track.problems && track.problems.length > 0 && (
                 <div className="bg-neutral-50/30 divide-y divide-neutral-100">
-                  {track.problems.map((problem, idx) => renderProblem(problem, `flat-${idx}`))}
+                  {track.problems.map((problem, idx) =>
+                    renderProblem(problem, `flat-${idx}`),
+                  )}
                 </div>
               )}
               {track.parts.map((part, pIdx) => {
@@ -283,42 +327,70 @@ export default function TrackCard({
                       aria-expanded={isPartExpanded}
                       aria-label={`Toggle ${part.title}`}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
+                        if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
                           togglePart(pIdx);
                         }
                       }}
-                      className={`relative overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/50 transition-colors ${isPartExpanded ? 'border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
+                      className={`relative overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-50/50 transition-colors ${isPartExpanded ? "border-l-4 border-indigo-500" : "border-l-4 border-transparent"}`}
                       onClick={() => togglePart(pIdx)}
                     >
                       {/* Subtle Progress Fill */}
                       <div
-                        className={`absolute left-0 top-0 bottom-0 pointer-events-none transition-all duration-500 ease-out ${isPartCompleted ? 'bg-emerald-50/60' : 'bg-neutral-100/70'}`}
-                        style={{ width: `${Math.round((partSolved / part.problems.length) * 100) || 0}%` }}
+                        className={`absolute left-0 top-0 bottom-0 pointer-events-none transition-all duration-500 ease-out ${isPartCompleted ? "bg-emerald-50/60" : "bg-neutral-100/70"}`}
+                        style={{
+                          width: `${Math.round((partSolved / part.problems.length) * 100) || 0}%`,
+                        }}
                       />
                       <div className="relative z-10 flex items-center gap-3">
                         {isPartCompleted ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" />
+                          <CheckCircle2
+                            className="w-4 h-4 text-emerald-500 shrink-0"
+                            aria-hidden="true"
+                          />
                         ) : (
-                          <Circle className="w-4 h-4 text-neutral-300 shrink-0" aria-hidden="true" />
+                          <Circle
+                            className="w-4 h-4 text-neutral-300 shrink-0"
+                            aria-hidden="true"
+                          />
                         )}
                         <div>
-                          <h4 className={`text-xs font-bold ${isPartExpanded ? 'text-indigo-900' : 'text-neutral-800'}`}>{part.title}</h4>
+                          <h4
+                            className={`text-xs font-bold ${isPartExpanded ? "text-indigo-900" : "text-neutral-800"}`}
+                          >
+                            {part.title}
+                          </h4>
                           {part.description && (
-                            <p className="text-[10px] text-neutral-500 font-medium">{part.description}</p>
+                            <p className="text-[10px] text-neutral-500 font-medium">
+                              {part.description}
+                            </p>
                           )}
                         </div>
                       </div>
                       <div className="relative z-10 flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-neutral-500 bg-white/60 px-2 py-0.5 rounded-full border border-neutral-200 backdrop-blur-sm" aria-label={`${partSolved} of ${part.problems.length} solved`}>
+                        <span
+                          className="text-[10px] font-bold text-neutral-500 bg-white/60 px-2 py-0.5 rounded-full border border-neutral-200 backdrop-blur-sm"
+                          aria-label={`${partSolved} of ${part.problems.length} solved`}
+                        >
                           {partSolved} / {part.problems.length}
                         </span>
-                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+                        <ChevronDown
+                          className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isPartExpanded ? "rotate-180" : ""}`}
+                          aria-hidden="true"
+                        />
                       </div>
                     </div>
-                    <div className={`grid transition-all duration-300 ease-in-out ${isPartExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                    <div
+                      className={`grid transition-all duration-300 ease-in-out ${isPartExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                    >
                       <div className="overflow-hidden bg-white divide-y divide-neutral-50">
-                        {part.problems.map((problem, idx) => renderProblem(problem, `part-${pIdx}-prob-${idx}`, pIdx))}
+                        {part.problems.map((problem, idx) =>
+                          renderProblem(
+                            problem,
+                            `part-${pIdx}-prob-${idx}`,
+                            pIdx,
+                          ),
+                        )}
                       </div>
                     </div>
                   </div>
@@ -327,7 +399,9 @@ export default function TrackCard({
             </div>
           ) : (
             <div className="divide-y divide-neutral-100">
-              {track.problems.map((problem, idx) => renderProblem(problem, idx))}
+              {track.problems.map((problem, idx) =>
+                renderProblem(problem, idx),
+              )}
             </div>
           )}
         </div>
@@ -347,7 +421,9 @@ export default function TrackCard({
               : undefined
           }
           onUpdated={onUpdate}
-          onSolveClick={() => onTrackActive?.(track._id, selectedPartIndex ?? undefined)}
+          onSolveClick={() =>
+            onTrackActive?.(track._id, selectedPartIndex ?? undefined)
+          }
         />
       )}
     </div>

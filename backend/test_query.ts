@@ -2,5 +2,5 @@
 import { Request, Response } from "express";
 
 export const dummy = async () => {
-    // we assume TrackedProblem is a mongoose model
+  // we assume TrackedProblem is a mongoose model
 };

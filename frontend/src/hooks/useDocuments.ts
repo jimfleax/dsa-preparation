@@ -7,7 +7,9 @@ export function useDocuments(apiBase: string) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success">("idle");
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success">(
+    "idle",
+  );
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const fetchDocumentsList = async (showRefreshIndicator = false) => {
@@ -49,7 +51,7 @@ export function useDocuments(apiBase: string) {
 
   const handleToggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   }, []);
 
@@ -59,7 +61,7 @@ export function useDocuments(apiBase: string) {
         const query = searchQuery.toLowerCase().trim();
         const matchesTitle = doc.title.toLowerCase().includes(query);
         const matchesTags = doc.tags.some((tag) =>
-          tag.toLowerCase().includes(query)
+          tag.toLowerCase().includes(query),
         );
         if (!matchesTitle && !matchesTags) return false;
       }

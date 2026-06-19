@@ -9,21 +9,26 @@ export default function AdminLogin() {
   const { adminLogin } = useAdminAuth();
   const navigate = useNavigate();
 
-  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse,
+  ) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || ""}/api/admin/auth/google`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: credentialResponse.credential }),
+        },
+      );
       const data = await response.json();
-      
+
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Failed to authenticate with Google");
       }
-      
+
       adminLogin(data.token, data.admin);
       navigate("/admin");
     } catch (err: any) {
@@ -54,7 +59,7 @@ export default function AdminLogin() {
                 {error}
               </div>
             )}
-            
+
             {isLoading && (
               <div className="text-blue-600 text-sm bg-blue-50 p-2 rounded">
                 Signing in...

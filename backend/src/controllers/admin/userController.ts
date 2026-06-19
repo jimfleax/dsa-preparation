@@ -12,10 +12,13 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
-    const deleteProgress = req.query.deleteProgress === 'true';
+    const deleteProgress = req.query.deleteProgress === "true";
 
     if (!id) {
       res.status(400).json({ error: "User ID is required" });
@@ -42,7 +45,9 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
 export const getUserProgress = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const progress = await TrackedProblem.find({ userId: id }).sort({ lastAttemptedDate: -1 });
+    const progress = await TrackedProblem.find({ userId: id }).sort({
+      lastAttemptedDate: -1,
+    });
     res.json(progress);
   } catch (error) {
     console.error("Get user progress error:", error);
@@ -50,7 +55,10 @@ export const getUserProgress = async (req: Request, res: Response) => {
   }
 };
 
-export const getLeetCodeData = async (req: Request, res: Response): Promise<void> => {
+export const getLeetCodeData = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
@@ -84,13 +92,15 @@ export const getLeetCodeData = async (req: Request, res: Response): Promise<void
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Referer": "https://leetcode.com",
+        Referer: "https://leetcode.com",
       },
       body: JSON.stringify({ query, variables: { username } }),
     });
 
     if (!response.ok) {
-      res.status(response.status).json({ error: "Failed to fetch from LeetCode API" });
+      res
+        .status(response.status)
+        .json({ error: "Failed to fetch from LeetCode API" });
       return;
     }
 

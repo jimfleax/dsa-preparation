@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import AdminLogin from '../pages/admin/AdminLogin';
-import { AdminAuthProvider } from '../context/AdminAuthContext';
-import { MemoryRouter } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import React from 'react';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import AdminLogin from "../pages/admin/AdminLogin";
+import { AdminAuthProvider } from "../context/AdminAuthContext";
+import { MemoryRouter } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import React from "react";
 
 global.fetch = vi.fn();
 
@@ -21,23 +21,23 @@ const localStorageMock = (function () {
     clear: function () {
       store = {};
     },
-    removeItem: function(key: string) {
+    removeItem: function (key: string) {
       delete store[key];
-    }
+    },
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
-describe('AdminLogin', () => {
+describe("AdminLogin", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.localStorage.clear();
   });
 
-  it('displays error from backend on failed login', async () => {
+  it("displays error from backend on failed login", async () => {
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ error: "Invalid credentials" }),
@@ -50,12 +50,16 @@ describe('AdminLogin', () => {
             <AdminLogin />
           </AdminAuthProvider>
         </MemoryRouter>
-      </GoogleOAuthProvider>
+      </GoogleOAuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: /Sign in/i }));
+    fireEvent.change(screen.getByLabelText(/Email/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Sign in/i }));
 
     await waitFor(() => {
       // It should display "Invalid credentials" if frontend is mapped correctly,

@@ -10,15 +10,24 @@ async function run() {
   await mongoose.connect(mongoServer.getUri());
 
   // Create User
-  await User.create({ clerkId: "user_1", email: "test@example.com", name: "Test" });
+  await User.create({
+    clerkId: "user_1",
+    email: "test@example.com",
+    name: "Test",
+  });
 
   // Create Track
   await Track.create({
     title: "Test Track",
     description: "Testing",
     problems: [
-      { title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", url: "http://example.com/1" }
-    ]
+      {
+        title: "Two Sum",
+        titleSlug: "two-sum",
+        difficulty: "Easy",
+        url: "http://example.com/1",
+      },
+    ],
   });
 
   // Create TrackedProblems
@@ -26,14 +35,14 @@ async function run() {
     userId: "user_1",
     titleSlug: "two-sum",
     title: "Two Sum",
-    attemptCount: 1
+    attemptCount: 1,
   });
 
   await TrackedProblem.create({
     userId: "user_1",
     titleSlug: "three-sum",
     title: "Three Sum",
-    attemptCount: 1
+    attemptCount: 1,
   });
 
   // Mock req/res
@@ -43,7 +52,7 @@ async function run() {
     },
     status: (code: number) => {
       return { json: (data: any) => console.log(code, data) };
-    }
+    },
   };
 
   await getAnalytics({} as any, res as any);

@@ -49,13 +49,16 @@ export default function AddProblemModal({
 
       try {
         // Fetch real title from LeetCode via a utility endpoint
-        const response = await apiFetch(`${apiBase}/api/problems/scrape-title`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await apiFetch(
+          `${apiBase}/api/problems/scrape-title`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: value.trim() }),
           },
-          body: JSON.stringify({ url: value.trim() }),
-        });
+        );
 
         const data = await response.json();
 
@@ -113,9 +116,9 @@ export default function AddProblemModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           url: url.trim(),
-          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null
+          reviewDurationDays: reviewDuration ? parseInt(reviewDuration) : null,
         }),
       });
       const data = await response.json();
@@ -164,10 +167,7 @@ export default function AddProblemModal({
       icon={<Link2 className="w-4 h-4" />}
     >
       {/* Form Body */}
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 space-y-4 overflow-y-auto"
-      >
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
         {/* URL Input */}
         <div className="space-y-1.5">
           <label
@@ -255,7 +255,9 @@ export default function AddProblemModal({
         {error && <FormAlert type="error" message={error} />}
 
         {/* Success Message */}
-        {success && <FormAlert type="success" message="Problem added successfully!" />}
+        {success && (
+          <FormAlert type="success" message="Problem added successfully!" />
+        )}
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-2">

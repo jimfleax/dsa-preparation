@@ -5,9 +5,10 @@ import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-
-
-export const adminGoogleLogin = async (req: Request, res: Response): Promise<void> => {
+export const adminGoogleLogin = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { token } = req.body;
     if (!token) {
@@ -22,27 +23,39 @@ export const adminGoogleLogin = async (req: Request, res: Response): Promise<voi
         audience: process.env.GOOGLE_CLIENT_ID,
       });
     } catch (verifyError: any) {
-      console.warn("Admin Google Token verification failed:", verifyError.message);
-      res.status(401).json({ success: false, message: "Invalid or expired Google token" });
+      console.warn(
+        "Admin Google Token verification failed:",
+        verifyError.message,
+      );
+      res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired Google token" });
       return;
     }
     const payload = ticket.getPayload();
 
     if (!payload || !payload.email) {
-      res.status(400).json({ success: false, message: "Invalid Google token payload" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid Google token payload" });
       return;
     }
 
     const email = payload.email.toLowerCase();
     const googleId = payload.sub;
-    const name = payload.name || email.split('@')[0];
+    const name = payload.name || email.split("@")[0];
 
     // Find existing admin
     const admin = await Admin.findOne({ email });
 
     if (!admin) {
       // Security: Do NOT create a new admin if not found. Only existing admins can log in.
-      res.status(403).json({ success: false, message: "Unauthorized. Admin account not found for this email." });
+      res
+        .status(403)
+        .json({
+          success: false,
+          message: "Unauthorized. Admin account not found for this email.",
+        });
       return;
     }
 
@@ -55,7 +68,7 @@ export const adminGoogleLogin = async (req: Request, res: Response): Promise<voi
       admin.name = name;
       changed = true;
     }
-    
+
     if (admin.tokenVersion === undefined) {
       admin.tokenVersion = 0;
       changed = true;
@@ -68,7 +81,7 @@ export const adminGoogleLogin = async (req: Request, res: Response): Promise<voi
     const jwtToken = jwt.sign(
       { id: admin._id },
       process.env.JWT_SECRET || "fallback_secret",
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     res.json({
@@ -82,7 +95,8 @@ export const adminGoogleLogin = async (req: Request, res: Response): Promise<voi
     });
   } catch (error) {
     console.error("Admin Google Login Error:", error);
-    res.status(500).json({ success: false, message: "Server error during Google login" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error during Google login" });
   }
 };
-

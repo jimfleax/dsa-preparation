@@ -36,7 +36,7 @@ export default function NoteModal({
       setNotes(problem.notes || "");
       setError(null);
       setSuccess(false);
-      
+
       // Auto focus the textarea after render
       setTimeout(() => {
         if (textareaRef.current) {
@@ -44,7 +44,7 @@ export default function NoteModal({
           // Put cursor at the end
           textareaRef.current.setSelectionRange(
             textareaRef.current.value.length,
-            textareaRef.current.value.length
+            textareaRef.current.value.length,
           );
         }
       }, 50);
@@ -72,10 +72,10 @@ export default function NoteModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           notes: notes.trim() === "" ? null : notes.trim(),
           url: problem.url,
-          attemptCount: problem.attemptCount
+          attemptCount: problem.attemptCount,
         }),
       });
       const data = await response.json();
@@ -107,18 +107,21 @@ export default function NoteModal({
       setSaving(true);
       try {
         const token = await getToken();
-        const response = await apiFetch(`${apiBase}/api/tracker/${problem._id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+        const response = await apiFetch(
+          `${apiBase}/api/tracker/${problem._id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              notes: null,
+              url: problem.url,
+              attemptCount: problem.attemptCount,
+            }),
           },
-          body: JSON.stringify({ 
-            notes: null,
-            url: problem.url,
-            attemptCount: problem.attemptCount
-          }),
-        });
+        );
         const data = await response.json();
 
         if (!response.ok || !data.success) {
@@ -159,7 +162,10 @@ export default function NoteModal({
       icon={<StickyNote className="w-4 h-4" />}
       maxWidthClass="max-w-2xl"
     >
-      <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden min-h-[300px]">
+      <form
+        onSubmit={handleSave}
+        className="flex flex-col flex-1 overflow-hidden min-h-[300px]"
+      >
         <div className="p-6 pb-2 flex-1 flex flex-col gap-3">
           <div className="relative flex-1 flex flex-col group">
             <textarea
@@ -170,12 +176,12 @@ export default function NoteModal({
               placeholder="Write down your thoughts, approaches, or key takeaways for this problem..."
               className="note-editor w-full h-full min-h-[200px] flex-1 p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-sans shadow-inner resize-none"
             />
-            
+
             <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-none">
-              <span 
+              <span
                 className={`note-char-count text-[10px] font-bold px-2 py-1 rounded-md bg-white/80 backdrop-blur-sm border shadow-sm ${
-                  isOverLimit 
-                    ? "text-rose-600 border-rose-200" 
+                  isOverLimit
+                    ? "text-rose-600 border-rose-200"
                     : "text-neutral-400 border-neutral-200"
                 }`}
               >
@@ -185,7 +191,9 @@ export default function NoteModal({
           </div>
 
           {error && <FormAlert type="error" message={error} />}
-          {success && <FormAlert type="success" message="Note saved successfully!" />}
+          {success && (
+            <FormAlert type="success" message="Note saved successfully!" />
+          )}
         </div>
 
         <div className="flex items-center justify-between px-6 py-4 border-t border-neutral-100 shrink-0 bg-neutral-50/50 rounded-b-2xl">
@@ -197,7 +205,7 @@ export default function NoteModal({
           >
             Clear Note
           </button>
-          
+
           <div className="flex items-center gap-2">
             <button
               type="button"

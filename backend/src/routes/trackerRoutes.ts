@@ -7,7 +7,7 @@ import {
   deleteProblem,
   updateProblem,
   toggleTrackProblem,
-  getTrackerMetrics
+  getTrackerMetrics,
 } from "../controllers/trackerController.ts";
 
 const router = Router();

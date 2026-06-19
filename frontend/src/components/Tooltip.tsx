@@ -40,23 +40,23 @@ export default function Tooltip({ content, shortcut, children }: TooltipProps) {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            initial={{ 
-              opacity: 0, 
-              scale: 0.95, 
+            initial={{
+              opacity: 0,
+              scale: 0.95,
               y: position === "top" ? 5 : -5,
-              x: "-50%" 
+              x: "-50%",
             }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1, 
+            animate={{
+              opacity: 1,
+              scale: 1,
               y: 0,
-              x: "-50%"
+              x: "-50%",
             }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.95, 
+            exit={{
+              opacity: 0,
+              scale: 0.95,
               y: position === "top" ? 5 : -5,
-              x: "-50%"
+              x: "-50%",
             }}
             transition={{ duration: 0.12, ease: "easeOut" }}
             className={`absolute left-1/2 px-2 py-1 bg-white text-neutral-800 text-[10px] font-bold rounded-lg shadow-lg border border-neutral-100 whitespace-nowrap z-[100] pointer-events-none flex items-center gap-2 ${
@@ -69,7 +69,7 @@ export default function Tooltip({ content, shortcut, children }: TooltipProps) {
                 {shortcut}
               </span>
             )}
-            
+
             {/* Tooltip Arrow */}
             {position === "top" ? (
               <>

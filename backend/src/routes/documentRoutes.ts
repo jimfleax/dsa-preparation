@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { getDocuments, getDocument } from "../controllers/documentController.ts";
+import {
+  getDocuments,
+  getDocument,
+} from "../controllers/documentController.ts";
 
 const router = Router();
 

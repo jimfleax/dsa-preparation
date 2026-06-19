@@ -1,6 +1,7 @@
 # Tech Stack & Tools
 
 ## Frontend
+
 - **Framework**: React 19 (via Vite)
 - **Routing**: React Router v7
 - **Styling**: Tailwind CSS v4, Lucide React (Icons)
@@ -10,6 +11,7 @@
 - **Other**: React Loading Skeleton, React Markdown.
 
 ## Backend
+
 - **Framework**: Express.js
 - **Runtime**: Node.js 18+ (uses native `fetch`)
 - **Language**: TypeScript (ts-node / tsc)

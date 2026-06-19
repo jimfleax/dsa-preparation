@@ -46,6 +46,4 @@ const UserSchema = new Schema<IUser>(
 
 // Pre-save or other hooks can go here if needed in the future
 
-
-
 export default mongoose.model<IUser>("User", UserSchema);

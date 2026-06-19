@@ -1,5 +1,15 @@
 import { motion } from "framer-motion";
-import { LogIn, GraduationCap, Code2, Map, BookOpen, ArrowRight, Github, CodeSquare, RefreshCcw } from "lucide-react";
+import {
+  LogIn,
+  GraduationCap,
+  Code2,
+  Map,
+  BookOpen,
+  ArrowRight,
+  Github,
+  CodeSquare,
+  RefreshCcw,
+} from "lucide-react";
 
 interface LandingPageProps {
   onSignIn: () => void;
@@ -22,8 +32,8 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         >
           <GraduationCap className="w-10 h-10" />
         </motion.div>
-        
-        <motion.h1 
+
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
@@ -41,7 +51,9 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-neutral-500 mb-10 max-w-2xl leading-relaxed"
         >
-          Track your problem-solving journey, organize study materials, follow structured roadmaps, and auto-sync your LeetCode progress — all in one unified workspace.
+          Track your problem-solving journey, organize study materials, follow
+          structured roadmaps, and auto-sync your LeetCode progress — all in one
+          unified workspace.
         </motion.p>
 
         <motion.div
@@ -57,7 +69,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             Start Your Journey
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          
+
           <a
             href="https://github.com/jimfleax/dsa-preparation"
             target="_blank"
@@ -79,19 +91,19 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           transition={{ duration: 0.6 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          <FeatureCard 
+          <FeatureCard
             icon={<CodeSquare className="w-6 h-6 text-indigo-600" />}
             title="LeetCode Auto-Sync"
             description="Seamlessly synchronize your solved problems directly from LeetCode. Never manually log a completion again."
             delay={0.1}
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<Map className="w-6 h-6 text-blue-600" />}
             title="Curated Roadmaps"
             description="Follow expertly designed tracks and subtracks to master DSA topics progressively and efficiently."
             delay={0.2}
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<RefreshCcw className="w-6 h-6 text-purple-600" />}
             title="Smart Review Tracker"
             description="Log your attempts, utilize spaced repetition for optimal review intervals, and attach notes to every problem."
@@ -100,14 +112,23 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         </motion.div>
       </section>
 
-
       {/* Footer */}
       <footer className="w-full mt-auto py-8 bg-transparent border-t border-neutral-100/50 relative z-10">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
           <p>&copy; 2026 DSA Preparation. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="/privacy-policy.html" className="hover:text-indigo-600 transition-colors">Privacy Policy</a>
-            <a href="/terms-of-service.html" className="hover:text-indigo-600 transition-colors">Terms of Service</a>
+            <a
+              href="/privacy-policy.html"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="/terms-of-service.html"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Terms of Service
+            </a>
           </div>
         </div>
       </footer>
@@ -115,7 +136,17 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
   );
 }
 
-function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+  delay,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay: number;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -127,10 +158,10 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
       <div className="p-3 bg-neutral-50 rounded-xl mb-5 border border-neutral-100">
         {icon}
       </div>
-      <h3 className="text-lg sm:text-xl font-bold text-neutral-900 mb-3">{title}</h3>
-      <p className="text-neutral-500 leading-relaxed text-sm">
-        {description}
-      </p>
+      <h3 className="text-lg sm:text-xl font-bold text-neutral-900 mb-3">
+        {title}
+      </h3>
+      <p className="text-neutral-500 leading-relaxed text-sm">{description}</p>
     </motion.div>
   );
 }

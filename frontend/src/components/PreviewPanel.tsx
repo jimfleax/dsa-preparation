@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  X,
-  FileText,
-  BookOpen,
-  Code,
-  Loader2,
-} from "lucide-react";
+import { X, FileText, BookOpen, Code, Loader2 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "github-markdown-css/github-markdown-light.css";
@@ -43,18 +37,15 @@ export default function PreviewPanel({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(target)
-      ) {
+      if (sidebarRef.current && !sidebarRef.current.contains(target)) {
         // Ignore clicks inside Document Cards
         if (target.closest('[id^="doc-card-"]')) {
           return;
         }
         // Ignore clicks inside Command Palette
         if (
-          target.closest('#command-palette-container') ||
-          target.closest('#command-palette-backdrop')
+          target.closest("#command-palette-container") ||
+          target.closest("#command-palette-backdrop")
         ) {
           return;
         }
@@ -163,7 +154,10 @@ export default function PreviewPanel({
           id="preview-panel-header"
           className="h-16 border-b border-neutral-100 flex items-center justify-between px-6 bg-white shrink-0"
         >
-          <div id="header-meta-group" className="flex items-center gap-2.5 min-w-0 flex-1 mr-4">
+          <div
+            id="header-meta-group"
+            className="flex items-center gap-2.5 min-w-0 flex-1 mr-4"
+          >
             <div
               id="item-icon-wrapper"
               className="p-2 border border-indigo-100 bg-indigo-50/50 text-indigo-700 rounded-lg shrink-0"
@@ -212,8 +206,8 @@ export default function PreviewPanel({
                 id="no-active-doc-desc"
                 className="text-xs text-neutral-450 max-w-xs mt-1"
               >
-                Select any theory module from the grid workspace
-                to render the preview here.
+                Select any theory module from the grid workspace to render the
+                preview here.
               </p>
             </div>
           ) : loading ? (

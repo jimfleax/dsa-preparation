@@ -15,7 +15,13 @@ function AdminApp() {
     <AdminAuthProvider>
       <Routes>
         <Route path="login" element={<AdminLogin />} />
-        <Route element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
+        <Route
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="tracks" element={<TracksPage />} />

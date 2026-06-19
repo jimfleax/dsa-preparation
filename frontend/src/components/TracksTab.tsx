@@ -31,10 +31,12 @@ export default function TracksTab() {
   const [globalMetrics, setGlobalMetrics] = useState<any>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string | null>(
-    localStorage.getItem("activeTrackId")
+    localStorage.getItem("activeTrackId"),
   );
   const [activePartIndex, setActivePartIndex] = useState<number | null>(
-    localStorage.getItem("activePartIndex") ? parseInt(localStorage.getItem("activePartIndex")!) : null
+    localStorage.getItem("activePartIndex")
+      ? parseInt(localStorage.getItem("activePartIndex")!)
+      : null,
   );
   const { getToken } = useAuth();
 
@@ -64,13 +66,16 @@ export default function TracksTab() {
     } else {
       setLoading(true);
     }
-    
+
     try {
       const token = await getToken();
-      
-      const tracksPromise = apiFetch(`${apiBase}/api/tracks?page=${pageNum}&limit=6`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      const tracksPromise = apiFetch(
+        `${apiBase}/api/tracks?page=${pageNum}&limit=6`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       let tracksRes;
       let progressRes;
@@ -84,21 +89,25 @@ export default function TracksTab() {
         const metricsPromise = apiFetch(`${apiBase}/api/tracks/metrics`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        [tracksRes, progressRes, metricsRes] = await Promise.all([tracksPromise, progressPromise, metricsPromise]);
+        [tracksRes, progressRes, metricsRes] = await Promise.all([
+          tracksPromise,
+          progressPromise,
+          metricsPromise,
+        ]);
       } else {
         // Just fetch more tracks
         tracksRes = await tracksPromise;
       }
 
       const tracksData = await tracksRes.json();
-      
+
       if (tracksData.success) {
         if (pageNum === 1) {
           setTracks(tracksData.tracks);
         } else {
-          setTracks(prev => [...prev, ...tracksData.tracks]);
+          setTracks((prev) => [...prev, ...tracksData.tracks]);
         }
-        
+
         if (tracksData.pagination) {
           setTotalTrackCount(tracksData.pagination.total);
           setHasMore(pageNum < tracksData.pagination.pages);
@@ -135,7 +144,9 @@ export default function TracksTab() {
         setActiveTrackId(savedActiveId);
       }
       const savedActivePartIndexStr = localStorage.getItem("activePartIndex");
-      const savedActivePartIndex = savedActivePartIndexStr ? parseInt(savedActivePartIndexStr) : null;
+      const savedActivePartIndex = savedActivePartIndexStr
+        ? parseInt(savedActivePartIndexStr)
+        : null;
       if (savedActivePartIndex !== activePartIndex) {
         setActivePartIndex(savedActivePartIndex);
       }
@@ -179,8 +190,9 @@ export default function TracksTab() {
   // Categorize tracks into incomplete and completed
   const categorizedTracks = tracks.reduce(
     (acc, track) => {
-      const isCompleted = globalMetrics?.completedTrackIds?.includes(track._id) || false;
-      
+      const isCompleted =
+        globalMetrics?.completedTrackIds?.includes(track._id) || false;
+
       const isActive = track._id === activeTrackId;
       if (isActive) {
         acc.isActiveCompleted = isCompleted;
@@ -194,11 +206,18 @@ export default function TracksTab() {
       }
       return acc;
     },
-    { isActiveCompleted: false, incomplete: [] as Track[], completed: [] as Track[] },
+    {
+      isActiveCompleted: false,
+      incomplete: [] as Track[],
+      completed: [] as Track[],
+    },
   );
 
-  const { isActiveCompleted, incomplete: incompleteTracks, completed: completedTracks } =
-    categorizedTracks;
+  const {
+    isActiveCompleted,
+    incomplete: incompleteTracks,
+    completed: completedTracks,
+  } = categorizedTracks;
 
   const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
     if (a._id === activeTrackId) return -1;
@@ -260,11 +279,22 @@ export default function TracksTab() {
             </h3>
             <p className="text-neutral-500 text-xs sm:text-sm mt-1">
               You have completed{" "}
-              <strong className="text-emerald-600"><AnimatedNumber value={totalSolved} /></strong> out of{" "}
-              <strong className="text-neutral-800"><AnimatedNumber value={totalProblems} /></strong>{" "}
+              <strong className="text-emerald-600">
+                <AnimatedNumber value={totalSolved} />
+              </strong>{" "}
+              out of{" "}
+              <strong className="text-neutral-800">
+                <AnimatedNumber value={totalProblems} />
+              </strong>{" "}
               track problems, mastering{" "}
-              <strong className="text-purple-600"><AnimatedNumber value={masteredTracksCount} /></strong> out of{" "}
-              <strong className="text-neutral-800"><AnimatedNumber value={totalGlobalTracks} /></strong> tracks.
+              <strong className="text-purple-600">
+                <AnimatedNumber value={masteredTracksCount} />
+              </strong>{" "}
+              out of{" "}
+              <strong className="text-neutral-800">
+                <AnimatedNumber value={totalGlobalTracks} />
+              </strong>{" "}
+              tracks.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
               <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-4">
@@ -301,7 +331,12 @@ export default function TracksTab() {
                     Tracks Left
                   </p>
                   <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
-                    <AnimatedNumber value={Math.max(0, totalGlobalTracks - masteredTracksCount)} />
+                    <AnimatedNumber
+                      value={Math.max(
+                        0,
+                        totalGlobalTracks - masteredTracksCount,
+                      )}
+                    />
                   </p>
                 </div>
               </div>
@@ -334,7 +369,10 @@ export default function TracksTab() {
 
       {/* Infinite Scroll Sentinel */}
       {hasMore && (
-        <div ref={sentinelRef} className="py-4 flex justify-center items-center h-16">
+        <div
+          ref={sentinelRef}
+          className="py-4 flex justify-center items-center h-16"
+        >
           {isFetchingMore && (
             <div className="flex items-center gap-2 text-neutral-400 text-sm font-medium">
               <Loader2 className="w-4 h-4 animate-spin" />

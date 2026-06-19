@@ -26,7 +26,7 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
 
     setUploadError("");
 
-    if (!file.name.endsWith('.md')) {
+    if (!file.name.endsWith(".md")) {
       setUploadError("Please upload a valid Markdown file (.md)");
       return;
     }
@@ -39,7 +39,9 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
 
       // Basic binary / corrupt file check
       if (/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text.slice(0, 1024))) {
-        setUploadError("The file appears to be corrupt or is not a valid text document.");
+        setUploadError(
+          "The file appears to be corrupt or is not a valid text document.",
+        );
         setContent("");
         return;
       }
@@ -52,15 +54,17 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
       // Parse YAML frontmatter
       const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
       const match = text.match(frontmatterRegex);
-      
+
       if (match) {
         const fmContent = match[1];
         const titleMatch = fmContent.match(/title:\s*['"]?(.*?)['"]?(\r?\n|$)/);
         if (titleMatch) extractedTitle = titleMatch[1].trim();
-        
+
         const tagsMatch = fmContent.match(/tags:\s*\[(.*?)\]/);
         if (tagsMatch) {
-          extractedTags = tagsMatch[1].split(',').map(t => t.trim().replace(/['"]/g, ''));
+          extractedTags = tagsMatch[1]
+            .split(",")
+            .map((t) => t.trim().replace(/['"]/g, ""));
         }
       } else {
         // Fallback to first # Heading
@@ -71,7 +75,8 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
       }
 
       if (extractedTitle) setTitle(extractedTitle);
-      else if (!title) setTitle(file.name.replace(".md", "").replace(/-/g, " "));
+      else if (!title)
+        setTitle(file.name.replace(".md", "").replace(/-/g, " "));
 
       if (extractedTags.length > 0) {
         setTags(extractedTags.join(", "));
@@ -89,19 +94,25 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
       return;
     }
 
-    const tagArray = tags.split(",").map(t => t.trim()).filter(Boolean);
+    const tagArray = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     setIsUploading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/docs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${adminToken}`
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({ title, filename, tags: tagArray, content }),
         },
-        body: JSON.stringify({ title, filename, tags: tagArray, content })
-      });
-      
+      );
+
       if (res.ok) {
         onSuccess();
         onClose();
@@ -123,8 +134,12 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
           <div>
-            <h2 className="text-xl font-bold text-neutral-900">Upload New Document</h2>
-            <p className="text-sm text-neutral-500 font-medium mt-1">Upload a markdown file to add to learning docs.</p>
+            <h2 className="text-xl font-bold text-neutral-900">
+              Upload New Document
+            </h2>
+            <p className="text-sm text-neutral-500 font-medium mt-1">
+              Upload a markdown file to add to learning docs.
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -143,15 +158,19 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
                 {uploadError}
               </div>
             )}
-            
+
             <div className="p-6 border-2 border-dashed border-neutral-200 rounded-2xl bg-neutral-50/50 hover:bg-neutral-50 transition-colors relative group">
               <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full text-center">
                 <FileUp className="w-8 h-8 text-indigo-400 group-hover:text-indigo-600 transition-colors mb-3" />
-                <span className="text-sm font-semibold text-neutral-700">Click to select a markdown file</span>
-                <span className="text-xs text-neutral-500 mt-1">.md files only</span>
-                <input 
-                  type="file" 
-                  accept=".md" 
+                <span className="text-sm font-semibold text-neutral-700">
+                  Click to select a markdown file
+                </span>
+                <span className="text-xs text-neutral-500 mt-1">
+                  .md files only
+                </span>
+                <input
+                  type="file"
+                  accept=".md"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -168,42 +187,50 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-2">Filename</label>
-                <input 
-                  type="text" 
-                  value={filename} 
-                  onChange={e => setFilename(e.target.value)} 
-                  required 
-                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor" 
+                <label className="block text-sm font-bold text-neutral-700 mb-2">
+                  Filename
+                </label>
+                <input
+                  type="text"
+                  value={filename}
+                  onChange={(e) => setFilename(e.target.value)}
+                  required
+                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
                   placeholder="e.g. basics.md"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-2">Title</label>
-                <input 
-                  type="text" 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)} 
-                  required 
-                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor" 
+                <label className="block text-sm font-bold text-neutral-700 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
                   placeholder="Document Title"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-neutral-700 mb-2">Tags (comma separated)</label>
-              <input 
-                type="text" 
-                value={tags} 
-                onChange={e => setTags(e.target.value)} 
-                className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor" 
+              <label className="block text-sm font-bold text-neutral-700 mb-2">
+                Tags (comma separated)
+              </label>
+              <input
+                type="text"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
                 placeholder="e.g. arrays, strings, algorithms"
               />
             </div>
-            
+
             {content && (
               <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-2">Preview Content (truncated)</label>
+                <label className="block text-sm font-bold text-neutral-700 mb-2">
+                  Preview Content (truncated)
+                </label>
                 <div className="bg-neutral-900 p-4 rounded-xl border border-neutral-800 text-sm text-neutral-300 max-h-40 overflow-y-auto whitespace-pre-wrap font-mono scrollbar-hide">
                   {content.slice(0, 500)} {content.length > 500 && "..."}
                 </div>
@@ -221,8 +248,8 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             form="add-doc-form"
             disabled={isUploading || !content}
             className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
@@ -237,7 +264,6 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

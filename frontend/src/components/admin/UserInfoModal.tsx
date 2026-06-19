@@ -1,8 +1,23 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
-import { X, Code2, Award, Star, Activity, FileText, Loader2, Calendar } from "lucide-react";
+import {
+  X,
+  Code2,
+  Award,
+  Star,
+  Activity,
+  FileText,
+  Loader2,
+  Calendar,
+} from "lucide-react";
 
-export default function UserInfoModal({ user, onClose }: { user: any; onClose: () => void }) {
+export default function UserInfoModal({
+  user,
+  onClose,
+}: {
+  user: any;
+  onClose: () => void;
+}) {
   const { adminToken } = useAdminAuth();
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState<any[]>([]);
@@ -12,12 +27,20 @@ export default function UserInfoModal({ user, onClose }: { user: any; onClose: (
     const fetchData = async () => {
       try {
         const [progRes, lcRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/progress`, {
-            headers: { Authorization: `Bearer ${adminToken}` }
-          }),
-          user.leetcodeUsername ? fetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/leetcode`, {
-            headers: { Authorization: `Bearer ${adminToken}` }
-          }) : Promise.resolve({ ok: true, json: () => null })
+          fetch(
+            `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/progress`,
+            {
+              headers: { Authorization: `Bearer ${adminToken}` },
+            },
+          ),
+          user.leetcodeUsername
+            ? fetch(
+                `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/leetcode`,
+                {
+                  headers: { Authorization: `Bearer ${adminToken}` },
+                },
+              )
+            : Promise.resolve({ ok: true, json: () => null }),
         ]);
 
         if (progRes.ok) setProgress(await progRes.json());
@@ -31,28 +54,49 @@ export default function UserInfoModal({ user, onClose }: { user: any; onClose: (
     fetchData();
   }, [user, adminToken]);
 
-  const easySolved = leetcodeData?.submitStats?.acSubmissionNum?.find((x: any) => x.difficulty === "Easy")?.count || 0;
-  const mediumSolved = leetcodeData?.submitStats?.acSubmissionNum?.find((x: any) => x.difficulty === "Medium")?.count || 0;
-  const hardSolved = leetcodeData?.submitStats?.acSubmissionNum?.find((x: any) => x.difficulty === "Hard")?.count || 0;
-  const totalSolved = leetcodeData?.submitStats?.acSubmissionNum?.find((x: any) => x.difficulty === "All")?.count || 0;
+  const easySolved =
+    leetcodeData?.submitStats?.acSubmissionNum?.find(
+      (x: any) => x.difficulty === "Easy",
+    )?.count || 0;
+  const mediumSolved =
+    leetcodeData?.submitStats?.acSubmissionNum?.find(
+      (x: any) => x.difficulty === "Medium",
+    )?.count || 0;
+  const hardSolved =
+    leetcodeData?.submitStats?.acSubmissionNum?.find(
+      (x: any) => x.difficulty === "Hard",
+    )?.count || 0;
+  const totalSolved =
+    leetcodeData?.submitStats?.acSubmissionNum?.find(
+      (x: any) => x.difficulty === "All",
+    )?.count || 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl">
               {leetcodeData?.profile?.userAvatar ? (
-                <img src={leetcodeData.profile.userAvatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+                <img
+                  src={leetcodeData.profile.userAvatar}
+                  alt="avatar"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : user.name ? (
+                user.name.charAt(0).toUpperCase()
               ) : (
-                user.name ? user.name.charAt(0).toUpperCase() : "U"
+                "U"
               )}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-900">{user.name || "Unknown"}</h2>
-              <p className="text-sm text-neutral-500 font-medium">{user.email}</p>
+              <h2 className="text-xl font-bold text-neutral-900">
+                {user.name || "Unknown"}
+              </h2>
+              <p className="text-sm text-neutral-500 font-medium">
+                {user.email}
+              </p>
             </div>
           </div>
           <button
@@ -84,33 +128,54 @@ export default function UserInfoModal({ user, onClose }: { user: any; onClose: (
                         @{user.leetcodeUsername}
                       </span>
                     </div>
-                    
+
                     {leetcodeData ? (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                          <p className="text-xs font-bold text-neutral-500 uppercase mb-1">Ranking</p>
-                          <p className="text-lg font-extrabold text-neutral-900">{leetcodeData.profile?.ranking?.toLocaleString() || "N/A"}</p>
+                          <p className="text-xs font-bold text-neutral-500 uppercase mb-1">
+                            Ranking
+                          </p>
+                          <p className="text-lg font-extrabold text-neutral-900">
+                            {leetcodeData.profile?.ranking?.toLocaleString() ||
+                              "N/A"}
+                          </p>
                         </div>
                         <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                          <p className="text-xs font-bold text-emerald-600 uppercase mb-1">Easy</p>
-                          <p className="text-lg font-extrabold text-emerald-700">{easySolved}</p>
+                          <p className="text-xs font-bold text-emerald-600 uppercase mb-1">
+                            Easy
+                          </p>
+                          <p className="text-lg font-extrabold text-emerald-700">
+                            {easySolved}
+                          </p>
                         </div>
                         <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                          <p className="text-xs font-bold text-amber-600 uppercase mb-1">Medium</p>
-                          <p className="text-lg font-extrabold text-amber-700">{mediumSolved}</p>
+                          <p className="text-xs font-bold text-amber-600 uppercase mb-1">
+                            Medium
+                          </p>
+                          <p className="text-lg font-extrabold text-amber-700">
+                            {mediumSolved}
+                          </p>
                         </div>
                         <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
-                          <p className="text-xs font-bold text-rose-600 uppercase mb-1">Hard</p>
-                          <p className="text-lg font-extrabold text-rose-700">{hardSolved}</p>
+                          <p className="text-xs font-bold text-rose-600 uppercase mb-1">
+                            Hard
+                          </p>
+                          <p className="text-lg font-extrabold text-rose-700">
+                            {hardSolved}
+                          </p>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-neutral-500">LeetCode data could not be retrieved.</p>
+                      <p className="text-sm text-neutral-500">
+                        LeetCode data could not be retrieved.
+                      </p>
                     )}
                   </div>
                 ) : (
                   <div className="p-4 bg-neutral-50 border border-neutral-100 rounded-xl text-center">
-                    <p className="text-sm text-neutral-500 font-medium">This user hasn't linked a LeetCode account yet.</p>
+                    <p className="text-sm text-neutral-500 font-medium">
+                      This user hasn't linked a LeetCode account yet.
+                    </p>
                   </div>
                 )}
               </div>
@@ -118,29 +183,43 @@ export default function UserInfoModal({ user, onClose }: { user: any; onClose: (
               {/* Local Progress Stats */}
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-emerald-500" /> Platform Progress
+                  <Activity className="w-4 h-4 text-emerald-500" /> Platform
+                  Progress
                 </h3>
                 <div className="bg-white border border-neutral-100 rounded-xl shadow-sm overflow-hidden">
                   <div className="p-5 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
-                    <span className="font-bold text-neutral-700">Total Problems Tracked</span>
-                    <span className="text-xl font-extrabold text-emerald-600">{progress.length}</span>
+                    <span className="font-bold text-neutral-700">
+                      Total Problems Tracked
+                    </span>
+                    <span className="text-xl font-extrabold text-emerald-600">
+                      {progress.length}
+                    </span>
                   </div>
                   <div className="max-h-60 overflow-y-auto p-2">
                     {progress.length > 0 ? (
                       <ul className="space-y-1">
                         {progress.map((p: any) => (
-                          <li key={p._id} className="p-3 hover:bg-neutral-50 rounded-lg flex items-center justify-between transition-colors">
-                            <span className="font-medium text-sm text-neutral-900">{p.title}</span>
+                          <li
+                            key={p._id}
+                            className="p-3 hover:bg-neutral-50 rounded-lg flex items-center justify-between transition-colors"
+                          >
+                            <span className="font-medium text-sm text-neutral-900">
+                              {p.title}
+                            </span>
                             <span className="text-xs font-bold px-2 py-1 bg-neutral-100 text-neutral-500 rounded-md flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
-                              {new Date(p.lastAttemptedDate).toLocaleDateString()}
+                              {new Date(
+                                p.lastAttemptedDate,
+                              ).toLocaleDateString()}
                             </span>
                           </li>
                         ))}
                       </ul>
                     ) : (
                       <div className="p-8 text-center">
-                        <p className="text-sm text-neutral-500 font-medium">No progress tracked yet.</p>
+                        <p className="text-sm text-neutral-500 font-medium">
+                          No progress tracked yet.
+                        </p>
                       </div>
                     )}
                   </div>

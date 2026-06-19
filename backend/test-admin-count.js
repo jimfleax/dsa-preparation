@@ -6,8 +6,12 @@ dotenv.config({ path: "./.env" });
 async function test() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    const count = await mongoose.connection.collection("admins").countDocuments();
-    const userCount = await mongoose.connection.collection("users").countDocuments();
+    const count = await mongoose.connection
+      .collection("admins")
+      .countDocuments();
+    const userCount = await mongoose.connection
+      .collection("users")
+      .countDocuments();
     console.log("Admins count:", count);
     console.log("Users count:", userCount);
   } catch (error) {
