@@ -7,52 +7,40 @@ interface StepperProps {
 }
 
 export function Stepper({ steps, currentStep }: StepperProps) {
+  // Ensure we don't go out of bounds
+  const activeIndex = Math.max(0, Math.min(currentStep - 1, steps.length - 1));
+  const activeLabel = steps[activeIndex];
+
   return (
-    <div className="flex items-center w-full min-w-[200px] max-w-sm mt-2 mb-2 pb-1">
-      {steps.map((step, index) => {
-        const stepNum = index + 1;
-        const isActive = stepNum === currentStep;
-        const isCompleted = stepNum < currentStep;
+    <div className="flex flex-col gap-2.5 w-full mt-2 mb-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <span className="text-xs font-extrabold text-indigo-600 tracking-tight">
+          {activeLabel}
+        </span>
+        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+          Step {currentStep} of {steps.length}
+        </span>
+      </div>
+      <div className="flex gap-1.5 w-full">
+        {steps.map((_, idx) => {
+          const stepNum = idx + 1;
+          const isActive = stepNum === currentStep;
+          const isCompleted = stepNum < currentStep;
 
-        return (
-          <React.Fragment key={step}>
-            {/* Step Node */}
-            <div className="relative flex flex-col items-center group shrink-0">
-              <div
-                className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border-2 transition-colors z-10 ${
-                  isActive
-                    ? "bg-white border-indigo-600 text-indigo-600"
-                    : isCompleted
-                      ? "bg-indigo-600 border-indigo-600 text-white"
-                      : "bg-white border-neutral-200 text-neutral-400"
-                }`}
-              >
-                {isCompleted ? <Check className="w-3 h-3 stroke-[3]" /> : stepNum}
-              </div>
-              <span
-                className={`absolute top-6 whitespace-nowrap text-[9px] font-bold transition-colors ${
-                  isActive
-                    ? "text-indigo-600"
-                    : isCompleted
-                      ? "text-neutral-500"
-                      : "text-neutral-400"
-                }`}
-              >
-                {step}
-              </span>
-            </div>
-
-            {/* Connecting Line */}
-            {index < steps.length - 1 && (
-              <div
-                className={`flex-1 h-0.5 mx-2 transition-colors rounded-full ${
-                  isCompleted ? "bg-indigo-600" : "bg-neutral-200"
-                }`}
-              />
-            )}
-          </React.Fragment>
-        );
-      })}
+          return (
+            <div
+              key={idx}
+              className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
+                isActive
+                  ? "bg-indigo-600 flex-[2]"
+                  : isCompleted
+                  ? "bg-indigo-200 flex-1"
+                  : "bg-neutral-200 flex-1"
+              }`}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
