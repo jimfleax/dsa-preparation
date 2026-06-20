@@ -97,11 +97,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-8 text-center">
           <p className="text-xs text-neutral-400">
             By continuing, you agree to our{" "}
-            <a href="/terms" className="underline hover:text-neutral-500">
+            <a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-500">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="underline hover:text-neutral-500">
+            <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-500">
               Privacy Policy
             </a>
             .
