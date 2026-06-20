@@ -39,7 +39,7 @@ export default function BaseModal({
   if (!isOpen) return null;
 
   const closeButtonClasses =
-    "p-2 rounded-xl text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer bg-white border border-neutral-200 shadow-sm hover:bg-neutral-50 shrink-0";
+    "p-2 rounded-xl text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer hover:bg-neutral-100 shrink-0";
 
   return (
     <>
