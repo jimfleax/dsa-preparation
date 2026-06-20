@@ -16,6 +16,8 @@ import {
   scrapeLeetCodeTitle,
   getLeetCodeCalendar,
 } from "./src/controllers/trackerController.ts";
+import { httpMetricsMiddleware } from "./src/middleware/httpMetrics.ts";
+import { metricsCollector } from "./src/lib/metricsCollector.ts";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -84,6 +86,9 @@ app.use(
 app.options("*", cors() as any);
 
 app.use(express.json());
+
+// Track all HTTP metrics
+app.use(httpMetricsMiddleware);
 
 // ──────────────────────────────────────────────────────────
 //  PUBLIC ENDPOINTS (no auth required)
@@ -181,6 +186,9 @@ async function startServer() {
   try {
     // Connect to MongoDB before accepting requests
     await connectDB();
+    
+    // Start background metrics collection
+    metricsCollector.start();
 
     app.listen(PORT, "0.0.0.0", () => {
       // Startup diagnostic banner — summarizes which services are active

@@ -12,6 +12,7 @@ const UsersPage = lazy(() => import("./pages/admin/UsersPage"));
 const TracksPage = lazy(() => import("./pages/admin/TracksPage"));
 const DocsPage = lazy(() => import("./pages/admin/DocsPage"));
 const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
+const SystemMetricsPage = lazy(() => import("./pages/admin/SystemMetricsPage"));
 
 function AdminLoading() {
   return (
@@ -70,6 +71,14 @@ function AdminApp() {
             element={
               <Suspense fallback={<AdminLoading />}>
                 <AnalyticsPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="system" 
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <SystemMetricsPage />
               </Suspense>
             } 
           />

@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   User,
+  Server,
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -23,6 +24,7 @@ export default function AdminLayout() {
     { name: "Tracks", href: "/admin/tracks", icon: Map },
     { name: "Docs", href: "/admin/docs", icon: FileText },
     { name: "Analytics", href: "/admin/analytics", icon: BarChart },
+    { name: "System", href: "/admin/system", icon: Server },
   ];
 
   return (

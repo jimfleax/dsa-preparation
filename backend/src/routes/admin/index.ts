@@ -4,6 +4,7 @@ import userRoutes from "./userRoutes.js";
 import trackRoutes from "./trackRoutes.js";
 import analyticsRoutes from "./analyticsRoutes.js";
 import docsRoutes from "./docsRoutes.js";
+import metricsRoutes from "./metricsRoutes.js";
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use("/users", userRoutes);
 router.use("/tracks", trackRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/docs", docsRoutes);
+router.use("/metrics", metricsRoutes);
 
 export default router;
