@@ -63,7 +63,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       <div className="relative p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight">
-            Welcome Back
+            Welcome!
           </h2>
           <p className="mt-3 text-sm font-medium text-neutral-500">
             Sign in to sync your DSA progress securely.
@@ -96,8 +96,15 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         <div className="mt-8 text-center">
           <p className="text-xs text-neutral-400">
-            By continuing, you agree to our Terms of Service and Privacy
-            Policy.
+            By continuing, you agree to our{" "}
+            <a href="/terms" className="underline hover:text-neutral-500">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="underline hover:text-neutral-500">
+              Privacy Policy
+            </a>
+            .
           </p>
         </div>
       </div>
