@@ -14,4 +14,9 @@ scripts/
 feature_plans/
 assets/
 CODEBASE_AUDIT.md
+ORIGINAL_REQUEST.md
+refactoring_plan.md
+tsc_output.txt
 .agent/
+.agents/
+.planning/

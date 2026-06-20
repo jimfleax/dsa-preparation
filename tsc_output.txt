@@ -1,7 +1,0 @@
-src/controllers/admin/docsController.ts(30,39): error TS2349: This expression is not callable.
-  Each member of the union type '{ <ResultDoc = any>(id: any, options: QueryOptions<any> & { includeResultMetadata: true; lean: true; }): Query<ModifyResult<any>, ResultDoc, {}, any, "findOneAndDelete", {}>; <ResultDoc = any>(id: any, options: QueryOptions<...> & { ...; }): Query<...>; <ResultDoc = any>(id: any, options: QueryOptions<...> & { ...; ...' has signatures, but none of those signatures are compatible with each other.
-src/scripts/test_analytics.ts(21,5): error TS2769: No overload matches this call.
-  The last overload gave the following error.
-    Object literal may only specify known properties, and 'auth0Id' does not exist in type '{ name?: string | RegExp; email?: string | RegExp; googleId?: string | RegExp; leetcodeUsername?: string | RegExp; tokenVersion?: number; createdAt?: DateQueryTypeCasting; ... 59 more ...; validateSync?: { ...; }; }'.
-src/scripts/test_analytics.ts(45,13): error TS18047: 'user' is possibly 'null'.
-src/scripts/test_analytics.ts(53,13): error TS18047: 'user' is possibly 'null'.
