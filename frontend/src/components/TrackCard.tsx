@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, CheckCircle2, Circle } from "lucide-react";
 import { TrackedProblem, Track, TrackProblem } from "../types";
 import AttemptProblemModal from "./AttemptProblemModal";
@@ -17,7 +17,7 @@ interface TrackCardProps {
   isActive?: boolean;
 }
 
-export default function TrackCard({
+const TrackCard = React.memo(function TrackCard({
   track,
   trackedProblems,
   onUpdate,
@@ -430,4 +430,6 @@ export default function TrackCard({
       )}
     </Card>
   );
-}
+});
+
+export default TrackCard;

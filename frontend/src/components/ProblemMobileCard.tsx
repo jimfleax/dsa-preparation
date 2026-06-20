@@ -1,3 +1,4 @@
+import React from "react";
 import {
   ExternalLink,
   CalendarClock,
@@ -24,7 +25,7 @@ interface ProblemMobileCardProps {
   onSchedule: (problem: TrackedProblem) => void;
 }
 
-export function ProblemMobileCard({
+export const ProblemMobileCard = React.memo(function ProblemMobileCard({
   problem,
   revisitingId,
   deletingId,
@@ -151,4 +152,4 @@ export function ProblemMobileCard({
       </div>
     </Card>
   );
-}
+});

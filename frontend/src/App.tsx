@@ -10,7 +10,7 @@ import {
 import { SignedIn, SignedOut, useAuth } from "./context/AuthContext";
 import { useNetworkStatus } from "./context/NetworkStatusContext";
 import { motion, AnimatePresence } from "framer-motion";
-import AuthModal from "./components/AuthModal";
+const AuthModal = lazy(() => import("./components/AuthModal"));
 import {
   Search,
   BookOpen,

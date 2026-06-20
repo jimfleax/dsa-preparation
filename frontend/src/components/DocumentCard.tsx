@@ -1,4 +1,5 @@
-import { BookOpen, MapPin, Terminal, ChevronRight } from "lucide-react";
+import React from "react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { DocumentMetadata } from "../types";
 
 import { Card } from "./ui/Card";
@@ -9,7 +10,7 @@ interface DocumentCardProps {
   onSelect: () => void;
 }
 
-export default function DocumentCard({
+const DocumentCard = React.memo(function DocumentCard({
   doc,
   isActive,
   onSelect,
@@ -109,4 +110,6 @@ export default function DocumentCard({
       </div>
     </Card>
   );
-}
+});
+
+export default DocumentCard;
