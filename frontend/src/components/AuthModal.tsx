@@ -32,6 +32,20 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: credentialResponse.credential }),
       });
+
+      if (!res.ok) {
+        // Server returned a non-2xx status (e.g. 503 from HF Space cold start).
+        // The body may be HTML, not JSON — avoid parsing it directly.
+        const errorText = await res.text();
+        console.error(`[Auth] Server responded with ${res.status}:`, errorText.substring(0, 200));
+        setError(
+          res.status >= 500
+            ? "Server is starting up. Please try again in a few seconds."
+            : "Authentication failed. Please try again."
+        );
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         login(data.token, data.user);

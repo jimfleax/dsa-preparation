@@ -24,9 +24,22 @@ export default function AdminLogin() {
           body: JSON.stringify({ token: credentialResponse.credential }),
         },
       );
+
+      if (!response.ok) {
+        // Server returned a non-2xx status (e.g. 503 from HF Space cold start).
+        // The body may be HTML, not JSON — avoid parsing it directly.
+        const errorText = await response.text();
+        console.error(`[AdminAuth] Server responded with ${response.status}:`, errorText.substring(0, 200));
+        throw new Error(
+          response.status >= 500
+            ? "Server is starting up. Please try again in a few seconds."
+            : "Authentication failed. Please try again."
+        );
+      }
+
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || "Failed to authenticate with Google");
       }
 
