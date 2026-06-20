@@ -3,6 +3,7 @@ import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { apiFetch } from "../lib/apiFetch";
+import BaseModal from "./BaseModal";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -51,68 +52,59 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      modalId="auth-modal"
+      hideHeader
+      absoluteClose
     >
-      <div
-        className="w-full max-w-md bg-white/90 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="relative p-8">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-700 bg-neutral-100/50 hover:bg-neutral-200/50 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+      <div className="relative p-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight">
+            Welcome Back
+          </h2>
+          <p className="mt-3 text-sm font-medium text-neutral-500">
+            Sign in to sync your DSA progress securely.
+          </p>
+        </div>
 
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight">
-              Welcome Back
-            </h2>
-            <p className="mt-3 text-sm font-medium text-neutral-500">
-              Sign in to sync your DSA progress securely.
-            </p>
-          </div>
+        <div className="flex flex-col items-center justify-center space-y-6">
+          {error && (
+            <div className="w-full p-4 bg-rose-50/80 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center shadow-inner">
+              {error}
+            </div>
+          )}
 
-          <div className="flex flex-col items-center justify-center space-y-6">
-            {error && (
-              <div className="w-full p-4 bg-rose-50/80 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center shadow-inner">
-                {error}
-              </div>
-            )}
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center p-6 space-y-4">
+              <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+              <p className="text-sm font-semibold text-neutral-600">
+                Authenticating...
+              </p>
+            </div>
+          ) : (
+            <div className="w-full flex justify-center py-4 transform hover:scale-[1.02] transition-transform duration-200">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                shape="pill"
+                width="300"
+                useOneTap
+              />
+            </div>
+          )}
+        </div>
 
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center p-6 space-y-4">
-                <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-                <p className="text-sm font-semibold text-neutral-600">
-                  Authenticating...
-                </p>
-              </div>
-            ) : (
-              <div className="w-full flex justify-center py-4 transform hover:scale-[1.02] transition-transform duration-200">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                  width="300"
-                  useOneTap
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-xs text-neutral-400">
-              By continuing, you agree to our Terms of Service and Privacy
-              Policy.
-            </p>
-          </div>
+        <div className="mt-8 text-center">
+          <p className="text-xs text-neutral-400">
+            By continuing, you agree to our Terms of Service and Privacy
+            Policy.
+          </p>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 }

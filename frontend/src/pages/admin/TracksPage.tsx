@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
-import { Map, Plus, Edit2, Trash2 } from "lucide-react";
+import { Map, Plus, Edit2, Trash2, Upload } from "lucide-react";
 import TrackModal from "../../components/admin/TrackModal";
+import RawUploadModal from "../../components/admin/RawUploadModal";
 import { Card } from "../../components/ui/Card";
 
 export default function TracksPage() {
@@ -10,6 +11,7 @@ export default function TracksPage() {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRawUploadOpen, setIsRawUploadOpen] = useState(false);
   const [editingTrack, setEditingTrack] = useState<any>(null);
 
   const fetchTracks = async () => {
@@ -63,6 +65,12 @@ export default function TracksPage() {
     setIsModalOpen(true);
   };
 
+  const handleRawUploadComplete = (trackData: any) => {
+    setEditingTrack(trackData);
+    setIsRawUploadOpen(false);
+    setIsModalOpen(true);
+  };
+
   const handleSaveTrack = async (trackJson: any) => {
     const url = editingTrack
       ? `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${editingTrack._id}`
@@ -98,13 +106,22 @@ export default function TracksPage() {
             Manage the learning paths and problem sequences.
           </p>
         </div>
-        <button
-          onClick={handleAddClick}
-          className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-max"
-        >
-          <Plus className="w-4 h-4" />
-          Add Track
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsRawUploadOpen(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-white border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 text-neutral-700 rounded-xl text-sm font-bold shadow-sm transition-all w-max"
+          >
+            <Upload className="w-4 h-4" />
+            Raw Upload
+          </button>
+          <button
+            onClick={handleAddClick}
+            className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all w-max"
+          >
+            <Plus className="w-4 h-4" />
+            Add Track
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -168,6 +185,12 @@ export default function TracksPage() {
           ))}
         </div>
       )}
+
+      <RawUploadModal
+        isOpen={isRawUploadOpen}
+        onClose={() => setIsRawUploadOpen(false)}
+        onComplete={handleRawUploadComplete}
+      />
 
       <TrackModal
         isOpen={isModalOpen}

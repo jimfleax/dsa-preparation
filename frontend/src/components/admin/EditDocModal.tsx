@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { X, FileEdit } from "lucide-react";
+import BaseModal from "../BaseModal";
 
 interface EditDocModalProps {
   doc: any;
@@ -74,120 +75,105 @@ export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[95vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-          <div>
-            <h2 className="text-xl font-bold text-neutral-900">
-              Edit Document
-            </h2>
-            <p className="text-sm text-neutral-500 font-medium mt-1">
-              Modify the properties and markdown content.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <form id="edit-doc-form" onSubmit={handleSubmit} className="space-y-6">
-            {saveError && (
-              <div className="p-4 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
-                {saveError}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-2">
-                  Filename
-                </label>
-                <input
-                  type="text"
-                  value={filename}
-                  onChange={(e) => setFilename(e.target.value)}
-                  required
-                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
-                  placeholder="e.g. basics.md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-2">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
-                  placeholder="Document Title"
-                />
-              </div>
+    <BaseModal
+      isOpen={true}
+      onClose={onClose}
+      modalId="edit-doc-modal"
+      title="Edit Document"
+      subtitle="Modify the properties and markdown content."
+      maxWidthClass="max-w-4xl"
+    >
+      <div className="flex-1 overflow-y-auto p-6">
+        <form id="edit-doc-form" onSubmit={handleSubmit} className="space-y-6">
+          {saveError && (
+            <div className="p-4 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+              {saveError}
             </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-bold text-neutral-700 mb-2">
-                Tags (comma separated)
+                Filename
               </label>
               <input
                 type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
-                placeholder="e.g. arrays, strings, algorithms"
-              />
-            </div>
-
-            <div className="flex flex-col flex-1 h-[400px]">
-              <label className="block text-sm font-bold text-neutral-700 mb-2 flex items-center gap-2">
-                <FileEdit className="w-4 h-4 text-indigo-500" />
-                Markdown Content
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
                 required
-                className="w-full h-full p-4 rounded-xl border border-neutral-200 bg-neutral-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all font-mono text-sm text-neutral-800 resize-none shadow-inner"
-                placeholder="Write your markdown content here..."
-                spellCheck={false}
+                className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
+                placeholder="e.g. basics.md"
               />
             </div>
-          </form>
-        </div>
+            <div>
+              <label className="block text-sm font-bold text-neutral-700 mb-2">
+                Title
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
+                placeholder="Document Title"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-neutral-700 mb-2">
+              Tags (comma separated)
+            </label>
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="block w-full rounded-xl border-neutral-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border outline-none note-editor"
+              placeholder="e.g. arrays, strings, algorithms"
+            />
+          </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 flex justify-end gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-bold text-neutral-600 hover:bg-neutral-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="edit-doc-form"
-            disabled={isSaving || !content}
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </button>
-        </div>
+          <div className="flex flex-col flex-1 h-[400px]">
+            <label className="block text-sm font-bold text-neutral-700 mb-2 flex items-center gap-2">
+              <FileEdit className="w-4 h-4 text-indigo-500" />
+              Markdown Content
+            </label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              className="w-full h-full p-4 rounded-xl border border-neutral-200 bg-neutral-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all font-mono text-sm text-neutral-800 resize-none shadow-inner"
+              placeholder="Write your markdown content here..."
+              spellCheck={false}
+            />
+          </div>
+        </form>
       </div>
-    </div>
+
+      <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 flex justify-end gap-3 shrink-0 rounded-b-2xl">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-5 py-2.5 rounded-xl font-bold text-neutral-600 hover:bg-neutral-200 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="edit-doc-form"
+          disabled={isSaving || !content}
+          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+        >
+          {isSaving ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
+        </button>
+      </div>
+    </BaseModal>
   );
 }

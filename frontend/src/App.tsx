@@ -28,22 +28,23 @@ import {
 } from "lucide-react";
 import { DocumentMetadata, UserSettings, TrackedProblem } from "./types";
 import DocumentCard from "./components/DocumentCard";
-import TracksTab from "./components/TracksTab";
 
+const TracksTab = lazy(() => import("./components/TracksTab"));
 const PreviewPanel = lazy(() => import("./components/PreviewPanel"));
 const TrackerTab = lazy(() => import("./components/TrackerTab"));
-import AddProblemModal from "./components/AddProblemModal";
-import SettingsModal from "./components/SettingsModal";
-import SyncToast from "./components/SyncToast";
-import HomeTab from "./components/HomeTab";
-import AboutMeModal from "./components/AboutMeModal";
+const AddProblemModal = lazy(() => import("./components/AddProblemModal"));
+const SettingsModal = lazy(() => import("./components/SettingsModal"));
+const SyncToast = lazy(() => import("./components/SyncToast"));
+const HomeTab = lazy(() => import("./components/HomeTab"));
+const AboutMeModal = lazy(() => import("./components/AboutMeModal"));
 import Tooltip from "./components/Tooltip";
-import ReviewDuePopup from "./components/ReviewDuePopup";
-import CommandPalette from "./components/CommandPalette";
+const ReviewDuePopup = lazy(() => import("./components/ReviewDuePopup"));
+const CommandPalette = lazy(() => import("./components/CommandPalette"));
+const GlobalContextMenu = lazy(() => import("./components/GlobalContextMenu"));
+
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import { useDocuments } from "./hooks/useDocuments";
 import LandingPage from "./components/LandingPage";
-import GlobalContextMenu from "./components/GlobalContextMenu";
 
 import { apiFetch } from "@/src/lib/apiFetch";
 import { forceGlobalLogout } from "@/src/lib/logoutUtil";
@@ -681,14 +682,18 @@ export default function App() {
           role="main"
           className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:py-8 flex flex-col gap-6 overflow-x-hidden relative"
         >
-          <GlobalContextMenu
-            onNavigate={setActiveMainTab}
-            onOpenShortcuts={togglePalette}
-          />
-          <ReviewDuePopup
-            refreshKey={problemsRefreshKey}
-            onRevisited={() => setProblemsRefreshKey((k) => k + 1)}
-          />
+          <Suspense fallback={null}>
+            <GlobalContextMenu
+              onNavigate={setActiveMainTab}
+              onOpenShortcuts={togglePalette}
+            />
+          </Suspense>
+          <Suspense fallback={null}>
+            <ReviewDuePopup
+              refreshKey={problemsRefreshKey}
+              onRevisited={() => setProblemsRefreshKey((k) => k + 1)}
+            />
+          </Suspense>
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             {/* === HOME TAB VIEW === */}
             {activeMainTab === "home" && (
@@ -705,11 +710,19 @@ export default function App() {
                 }}
                 className="w-full flex-1 flex flex-col gap-6"
               >
-                <HomeTab
-                  totalDocuments={documents.length}
-                  onNavigate={setActiveMainTab}
-                  refreshKey={problemsRefreshKey}
-                />
+                <Suspense
+                  fallback={
+                    <div className="h-64 flex flex-col items-center justify-center text-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    </div>
+                  }
+                >
+                  <HomeTab
+                    totalDocuments={documents.length}
+                    onNavigate={setActiveMainTab}
+                    refreshKey={problemsRefreshKey}
+                  />
+                </Suspense>
               </motion.div>
             )}
 
@@ -758,7 +771,15 @@ export default function App() {
                 }}
                 className="w-full flex-1 flex flex-col gap-6"
               >
-                <TracksTab />
+                <Suspense
+                  fallback={
+                    <div className="h-64 flex flex-col items-center justify-center text-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    </div>
+                  }
+                >
+                  <TracksTab />
+                </Suspense>
               </motion.div>
             )}
 
@@ -1025,19 +1046,21 @@ export default function App() {
 
       {/* Modals — rendered at root level for proper z-index stacking */}
       <SignedIn>
-        <CommandPalette
-          isOpen={isPaletteOpen}
-          onClose={closePalette}
-          leetcodeUsername={userSettings?.leetcodeUsername}
-          calendarData={calendarData}
-          isLoadingCalendar={isCalendarLoading}
-          calendarError={calendarError}
-          documents={documents}
-          trackedProblems={trackedProblemsForPalette}
-          onNavigate={setActiveMainTab}
-          onSelectDocument={handleSelectDocument}
-          onOpenSettings={() => setShowSettingsModal(true)}
-        />
+        <Suspense fallback={null}>
+          <CommandPalette
+            isOpen={isPaletteOpen}
+            onClose={closePalette}
+            leetcodeUsername={userSettings?.leetcodeUsername}
+            calendarData={calendarData}
+            isLoadingCalendar={isCalendarLoading}
+            calendarError={calendarError}
+            documents={documents}
+            trackedProblems={trackedProblemsForPalette}
+            onNavigate={setActiveMainTab}
+            onSelectDocument={handleSelectDocument}
+            onOpenSettings={() => setShowSettingsModal(true)}
+          />
+        </Suspense>
         {isPreviewOpen && (
           <Suspense fallback={null}>
             <PreviewPanel
@@ -1053,52 +1076,62 @@ export default function App() {
           </Suspense>
         )}
         {showSyncToast && (
-          <SyncToast
-            count={newSubmissionsCount}
-            revisitCount={revisitedSubmissionsCount}
-            onTrack={handleTrackAll}
-            onDismiss={handleDismissSync}
-            isProcessing={isSyncing}
-          />
+          <Suspense fallback={null}>
+            <SyncToast
+              count={newSubmissionsCount}
+              revisitCount={revisitedSubmissionsCount}
+              onTrack={handleTrackAll}
+              onDismiss={handleDismissSync}
+              isProcessing={isSyncing}
+            />
+          </Suspense>
         )}
         {showAddModal && (
-          <AddProblemModal
-            isOpen={showAddModal}
-            onClose={() => setShowAddModal(false)}
-            onAdded={() => setProblemsRefreshKey((k) => k + 1)}
-          />
+          <Suspense fallback={null}>
+            <AddProblemModal
+              isOpen={showAddModal}
+              onClose={() => setShowAddModal(false)}
+              onAdded={() => setProblemsRefreshKey((k) => k + 1)}
+            />
+          </Suspense>
         )}
         {showSettingsModal && (
-          <SettingsModal
-            isOpen={showSettingsModal}
-            onClose={() => setShowSettingsModal(false)}
-            currentUsername={userSettings?.leetcodeUsername || ""}
-            onSaved={(username) => {
-              setUserSettings((prev) =>
-                prev ? { ...prev, leetcodeUsername: username } : prev,
-              );
-              setShowSettingsModal(false);
-              if (username) {
-                checkLeetCodeSync();
-              }
-            }}
-          />
+          <Suspense fallback={null}>
+            <SettingsModal
+              isOpen={showSettingsModal}
+              onClose={() => setShowSettingsModal(false)}
+              currentUsername={userSettings?.leetcodeUsername || ""}
+              onSaved={(username) => {
+                setUserSettings((prev) =>
+                  prev ? { ...prev, leetcodeUsername: username } : prev,
+                );
+                setShowSettingsModal(false);
+                if (username) {
+                  checkLeetCodeSync();
+                }
+              }}
+            />
+          </Suspense>
         )}
       </SignedIn>
       <SignedOut>
         {showAuthModal && (
-          <AuthModal
-            isOpen={showAuthModal}
-            onClose={() => setShowAuthModal(false)}
-          />
+          <Suspense fallback={null}>
+            <AuthModal
+              isOpen={showAuthModal}
+              onClose={() => setShowAuthModal(false)}
+            />
+          </Suspense>
         )}
       </SignedOut>
 
       {showAboutMeModal && (
-        <AboutMeModal
-          isOpen={showAboutMeModal}
-          onClose={() => setShowAboutMeModal(false)}
-        />
+        <Suspense fallback={null}>
+          <AboutMeModal
+            isOpen={showAboutMeModal}
+            onClose={() => setShowAboutMeModal(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
