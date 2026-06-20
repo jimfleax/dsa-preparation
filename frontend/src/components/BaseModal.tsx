@@ -87,9 +87,9 @@ export default function BaseModal({
                     {title}
                   </h2>
                   {subtitle && (
-                    <p className="text-[11px] text-neutral-400 font-medium line-clamp-1 mt-0.5">
+                    <div className="text-[11px] text-neutral-400 font-medium line-clamp-1 mt-0.5">
                       {subtitle}
-                    </p>
+                    </div>
                   )}
                 </div>
               </div>

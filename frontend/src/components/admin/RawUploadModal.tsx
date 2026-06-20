@@ -14,6 +14,7 @@ import {
   Loader2,
   XCircle
 } from "lucide-react";
+import { Stepper } from "../ui/Stepper";
 
 interface RawUploadModalProps {
   isOpen: boolean;
@@ -182,17 +183,10 @@ export default function RawUploadModal({
       }}
       modalId="raw-upload-wizard"
       title="Raw Track Upload"
-      subtitle={
-        phase === 1 
-          ? "Step 1 of 3 — Copy Instructions" 
-          : phase === 2 
-            ? "Step 2 of 3 — Paste Response" 
-            : "Step 3 of 3 — Fetching from LeetCode"
-      }
+      subtitle={<Stepper steps={["Copy Instructions", "Paste Response", "Fetch from LeetCode"]} currentStep={phase} />}
       icon={<Upload className="w-5 h-5" />}
       maxWidthClass="max-w-3xl"
       hideHeader={false}
-      absoluteClose={!isFetching}
     >
       <div className="relative overflow-hidden min-h-[500px]">
         

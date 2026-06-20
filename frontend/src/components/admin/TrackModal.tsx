@@ -10,6 +10,7 @@ import {
   Loader2,
   ListTree,
 } from "lucide-react";
+import { Stepper } from "../ui/Stepper";
 
 interface TrackModalProps {
   isOpen: boolean;
@@ -339,7 +340,7 @@ export default function TrackModal({
       onClose={onClose}
       modalId="track-wizard"
       title={initialData ? "Edit Track" : "Add New Track"}
-      subtitle={phase === 1 ? "Track Details" : "Track Structure Builder"}
+      subtitle={<Stepper steps={["Track Details", "Track Structure"]} currentStep={phase} />}
       icon={<ListTree className="w-5 h-5" />}
       maxWidthClass="max-w-3xl"
       error={error || null}
