@@ -72,11 +72,12 @@ export default function TracksPage() {
   };
 
   const handleSaveTrack = async (trackJson: any) => {
-    const url = editingTrack
+    const isUpdate = editingTrack && editingTrack._id;
+    const url = isUpdate
       ? `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${editingTrack._id}`
       : `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks`;
 
-    const method = editingTrack ? "PUT" : "POST";
+    const method = isUpdate ? "PUT" : "POST";
 
     const res = await adminFetch(url, {
       method,
