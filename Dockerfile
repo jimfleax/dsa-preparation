@@ -33,9 +33,6 @@ RUN npm install --omit=dev
 # Copy the built server from the builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy content directory which is required by the server
-COPY --from=builder /app/content ./content
-
 # Expose the requested port
 EXPOSE 7860
 
