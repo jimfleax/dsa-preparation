@@ -138,6 +138,7 @@ export default function ScheduleReviewModal({
       title="Schedule Review"
       subtitle={problem.title}
       icon={<CalendarPlus className="w-4 h-4" />}
+      error={error || null}
     >
       <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto">
         {problem.reviewDurationDays ? (
@@ -189,8 +190,6 @@ export default function ScheduleReviewModal({
             Leave empty if you want to cancel an existing scheduled review.
           </p>
         </div>
-
-        {error && <FormAlert type="error" message={error} />}
         {success && (
           <FormAlert type="success" message="Review schedule updated!" />
         )}

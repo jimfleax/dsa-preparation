@@ -165,6 +165,7 @@ export default function AddProblemModal({
       title="Add Problem"
       subtitle="Track a new LeetCode problem"
       icon={<Link2 className="w-4 h-4" />}
+      error={error || null}
     >
       {/* Form Body */}
       <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
@@ -250,9 +251,6 @@ export default function AddProblemModal({
             Leave empty if you don't want to schedule a review.
           </p>
         </div>
-
-        {/* Error Message */}
-        {error && <FormAlert type="error" message={error} />}
 
         {/* Success Message */}
         {success && (

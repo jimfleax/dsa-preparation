@@ -104,6 +104,7 @@ export default function SettingsModal({
       title="Settings"
       subtitle="Configure your LeetCode integration"
       icon={<Settings className="w-4 h-4" />}
+      error={error || null}
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
         {/* Info banner when no username is set */}
@@ -142,9 +143,6 @@ export default function SettingsModal({
             This is used to sync your solved problems from LeetCode.
           </p>
         </div>
-
-        {/* Error Message */}
-        {error && <FormAlert type="error" message={error} />}
 
         {/* Success Message */}
         {success && (

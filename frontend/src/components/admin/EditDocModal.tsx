@@ -80,17 +80,12 @@ export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalPr
       onClose={onClose}
       modalId="edit-doc-modal"
       title="Edit Document"
-      subtitle="Modify the properties and markdown content."
+      subtitle={`Editing ${doc?.filename}`}
       maxWidthClass="max-w-4xl"
+      error={saveError || null}
     >
       <div className="flex-1 overflow-y-auto p-6">
         <form id="edit-doc-form" onSubmit={handleSubmit} className="space-y-6">
-          {saveError && (
-            <div className="p-4 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
-              {saveError}
-            </div>
-          )}
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>

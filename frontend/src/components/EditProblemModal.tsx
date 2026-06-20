@@ -214,6 +214,7 @@ export default function EditProblemModal({
       title="Edit Problem"
       subtitle="Update problem details"
       icon={<Link2 className="w-4 h-4" />}
+      error={error || null}
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
         <div className="space-y-1.5">
@@ -297,8 +298,6 @@ export default function EditProblemModal({
             Leave empty if you don't want to schedule a review.
           </p>
         </div>
-
-        {error && <FormAlert type="error" message={error} />}
 
         {success && (
           <FormAlert type="success" message="Problem updated successfully!" />

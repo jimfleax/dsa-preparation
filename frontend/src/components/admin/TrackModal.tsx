@@ -342,14 +342,9 @@ export default function TrackModal({
       subtitle={phase === 1 ? "Track Details" : "Track Structure Builder"}
       icon={<ListTree className="w-5 h-5" />}
       maxWidthClass="max-w-3xl"
+      error={error || null}
     >
       <div className="relative overflow-hidden min-h-[450px]">
-        {error && (
-          <div className="m-6 mb-0 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium">
-            {error}
-          </div>
-        )}
-
         {/* Phase 1: Details */}
         <div
           className={`absolute inset-0 p-6 transition-transform duration-300 ${phase === 1 ? "translate-x-0" : "-translate-x-full"}`}

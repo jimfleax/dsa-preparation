@@ -88,6 +88,7 @@ export default function AttemptProblemModal({
       title="Attempt Problem"
       icon={<Play className="w-5 h-5 text-indigo-500" />}
       maxWidthClass="max-w-md"
+      error={error || null}
     >
       <div className="p-5 overflow-y-auto">
         <div className="text-center mb-6">
@@ -115,12 +116,6 @@ export default function AttemptProblemModal({
             </p>
           )}
         </div>
-
-        {error && (
-          <div className="mb-4">
-            <FormAlert type="error" message={error} />
-          </div>
-        )}
 
         {phase === "reveal" ? (
           <div className="flex flex-col gap-4">

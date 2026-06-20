@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { X } from "lucide-react";
 import { useEscapeKey } from "../hooks/useEscapeKey";
+import FormAlert from "./FormAlert";
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface BaseModalProps {
   maxWidthClass?: string;
   hideHeader?: boolean;
   absoluteClose?: boolean;
+  error?: string | null;
 }
 
 export default function BaseModal({
@@ -30,10 +32,14 @@ export default function BaseModal({
   maxWidthClass = "max-w-md",
   hideHeader = false,
   absoluteClose = false,
+  error = null,
 }: BaseModalProps) {
   useEscapeKey(isOpen, onClose, 50, modalId);
 
   if (!isOpen) return null;
+
+  const closeButtonClasses =
+    "p-2 rounded-xl text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer bg-white border border-neutral-200 shadow-sm hover:bg-neutral-50 shrink-0";
 
   return (
     <>
@@ -59,9 +65,9 @@ export default function BaseModal({
             <button
               onClick={onClose}
               aria-label="Close modal"
-              className="absolute right-4 top-4 text-neutral-400 hover:text-neutral-700 bg-neutral-50 hover:bg-neutral-100 p-1.5 rounded-full transition-colors z-10"
+              className={`absolute right-4 top-4 z-10 ${closeButtonClasses}`}
             >
-              <X className="w-5 h-5" aria-hidden="true" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           )}
 
@@ -90,10 +96,16 @@ export default function BaseModal({
               <button
                 onClick={onClose}
                 aria-label="Close modal"
-                className="p-2 hover:bg-neutral-200 rounded-lg text-neutral-400 hover:text-neutral-700 transition-all cursor-pointer bg-white border border-neutral-200 shadow-sm ml-4 shrink-0"
+                className={`ml-4 ${closeButtonClasses}`}
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
+            </div>
+          )}
+
+          {error && (
+            <div className="px-6 pt-4 pb-0 shrink-0 relative z-20">
+              <FormAlert type="error" message={error} />
             </div>
           )}
 

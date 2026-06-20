@@ -161,6 +161,7 @@ export default function NoteModal({
       subtitle={problem.title}
       icon={<StickyNote className="w-4 h-4" />}
       maxWidthClass="max-w-2xl"
+      error={error || null}
     >
       <form
         onSubmit={handleSave}
@@ -189,8 +190,6 @@ export default function NoteModal({
               </span>
             </div>
           </div>
-
-          {error && <FormAlert type="error" message={error} />}
           {success && (
             <FormAlert type="success" message="Note saved successfully!" />
           )}

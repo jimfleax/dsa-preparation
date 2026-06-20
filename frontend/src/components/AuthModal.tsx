@@ -58,6 +58,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       modalId="auth-modal"
       hideHeader
       absoluteClose
+      error={error || null}
     >
       <div className="relative p-8">
         <div className="text-center mb-8">
@@ -70,11 +71,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         <div className="flex flex-col items-center justify-center space-y-6">
-          {error && (
-            <div className="w-full p-4 bg-rose-50/80 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center shadow-inner">
-              {error}
-            </div>
-          )}
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center p-6 space-y-4">

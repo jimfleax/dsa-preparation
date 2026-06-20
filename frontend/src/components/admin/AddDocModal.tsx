@@ -139,15 +139,10 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
       title="Upload New Document"
       subtitle="Upload a markdown file to add to learning docs."
       maxWidthClass="max-w-2xl"
+      error={uploadError || null}
     >
       <div className="flex-1 overflow-y-auto p-6">
         <form id="add-doc-form" onSubmit={handleSubmit} className="space-y-6">
-          {uploadError && (
-            <div className="p-4 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
-              {uploadError}
-            </div>
-          )}
 
           <div className="p-6 border-2 border-dashed border-neutral-200 rounded-2xl bg-neutral-50/50 hover:bg-neutral-50 transition-colors relative group">
             <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full text-center">
