@@ -29,7 +29,6 @@ const TrackedProblemSchema = new Schema<ITrackedProblem>(
     userId: {
       type: String,
       required: [true, "userId is required"],
-      index: true,
     },
     titleSlug: {
       type: String,
@@ -44,6 +43,7 @@ const TrackedProblemSchema = new Schema<ITrackedProblem>(
     url: {
       type: String,
       trim: true,
+      required: false, // Deprecated: derived from titleSlug
     },
     difficulty: {
       type: String,
@@ -79,10 +79,8 @@ const TrackedProblemSchema = new Schema<ITrackedProblem>(
 // Compound unique index: a user can only have one progress record per problem
 TrackedProblemSchema.index({ userId: 1, titleSlug: 1 }, { unique: true });
 
-// Index for sorting by last attempted date
-TrackedProblemSchema.index({ lastAttemptedDate: -1 });
+// Index for sorting by last attempted date (within user scope)
 TrackedProblemSchema.index({ userId: 1, notrack: 1, lastAttemptedDate: -1 });
-TrackedProblemSchema.index({ title: "text" });
 
 export default mongoose.model<ITrackedProblem>(
   "TrackedProblem",

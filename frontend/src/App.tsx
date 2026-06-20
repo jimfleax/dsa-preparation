@@ -167,7 +167,7 @@ export default function App() {
       const fetchProblems = async () => {
         try {
           const token = await getToken();
-          const res = await apiFetch(`${apiBase}/api/tracker`, {
+          const res = await apiFetch(`${apiBase}/api/tracker/slim`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();

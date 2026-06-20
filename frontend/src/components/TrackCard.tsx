@@ -9,7 +9,7 @@ import { Card } from "./ui/Card";
 
 interface TrackCardProps {
   track: Track;
-  trackedProblems: Record<string, TrackedProblem>;
+  trackedProblems: Set<string>;
   onUpdate: () => void;
   activeTrackId?: string | null;
   activePartIndex?: number | null;
@@ -54,7 +54,7 @@ const TrackCard = React.memo(function TrackCard({
       const activePart = track.parts[activePartIndex];
       const partSolved = activePart.problems.filter((p) => {
         const slug = extractTitleSlug(p.url);
-        return slug && !!trackedProblems[slug];
+        return slug && trackedProblems.has(slug);
       }).length;
       const isPartCompleted =
         activePart.problems.length > 0 &&
@@ -71,7 +71,7 @@ const TrackCard = React.memo(function TrackCard({
         if (firstIncompleteFound) return;
         const partSolved = part.problems.filter((p) => {
           const slug = extractTitleSlug(p.url);
-          return slug && !!trackedProblems[slug];
+          return slug && trackedProblems.has(slug);
         }).length;
         const isPartCompleted =
           part.problems.length > 0 && partSolved === part.problems.length;
@@ -112,7 +112,7 @@ const TrackCard = React.memo(function TrackCard({
   const totalProblems = allProblems.length;
   const completedCount = allProblems.filter((p) => {
     const slug = extractTitleSlug(p.url);
-    return slug && !!trackedProblems[slug];
+    return slug && trackedProblems.has(slug);
   }).length;
   const progressPercent =
     Math.round((completedCount / totalProblems) * 100) || 0;
@@ -139,8 +139,7 @@ const TrackCard = React.memo(function TrackCard({
     partIndex?: number,
   ) => {
     const slug = extractTitleSlug(problem.url);
-    const tracked = slug ? trackedProblems[slug] : undefined;
-    const isSolved = !!tracked;
+    const isSolved = slug ? trackedProblems.has(slug) : false;
 
     return (
       <div
@@ -187,11 +186,6 @@ const TrackCard = React.memo(function TrackCard({
               >
                 {problem.difficulty}
               </span>
-              {tracked && (
-                <span className="text-[10px] text-neutral-400 font-bold bg-neutral-100 px-1.5 py-0.5 rounded">
-                  Attempts: {tracked.attemptCount}
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -254,7 +248,7 @@ const TrackCard = React.memo(function TrackCard({
                 {track.parts.map((part, idx) => {
                   const partSolved = part.problems.filter((p) => {
                     const slug = extractTitleSlug(p.url);
-                    return slug && !!trackedProblems[slug];
+                    return slug && trackedProblems.has(slug);
                   }).length;
                   const partPercent =
                     Math.round((partSolved / part.problems.length) * 100) || 0;
@@ -316,7 +310,7 @@ const TrackCard = React.memo(function TrackCard({
               {track.parts.map((part, pIdx) => {
                 const partSolved = part.problems.filter((p) => {
                   const slug = extractTitleSlug(p.url);
-                  return slug && !!trackedProblems[slug];
+                  return slug && trackedProblems.has(slug);
                 }).length;
                 const isPartCompleted = partSolved === part.problems.length;
                 const isPartExpanded = expandedParts[pIdx];
@@ -417,10 +411,10 @@ const TrackCard = React.memo(function TrackCard({
             setSelectedProblem(null);
           }}
           problem={selectedProblem}
-          trackedProblem={
+          isSolved={
             extractTitleSlug(selectedProblem.url)
-              ? trackedProblems[extractTitleSlug(selectedProblem.url)!]
-              : undefined
+              ? trackedProblems.has(extractTitleSlug(selectedProblem.url)!)
+              : false
           }
           onUpdated={onUpdate}
           onSolveClick={() =>

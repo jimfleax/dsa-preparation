@@ -57,12 +57,12 @@ export const getTrackMetrics = async (req: Request, res: Response) => {
       userId,
       notrack: { $ne: true },
     })
-      .select("url titleSlug")
+      .select("titleSlug")
       .lean();
 
     const trackedSlugs = new Set(
       trackedProblems
-        .map((p) => p.titleSlug || extractTitleSlug(p.url))
+        .map((p) => p.titleSlug)
         .filter(Boolean),
     );
 

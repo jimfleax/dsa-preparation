@@ -51,74 +51,35 @@ export default function HomeTab({
     const fetchStats = async () => {
       try {
         const token = await getToken();
-        // Fetch tracks and tracker in parallel
-        const [trackerRes, tracksRes] = await Promise.all([
-          apiFetch(`${apiBase}/api/tracker`, {
+        // Fetch metrics and due problems in parallel
+        const [dueRes, trackerMetricsRes, trackMetricsRes] = await Promise.all([
+          apiFetch(`${apiBase}/api/tracker/due`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          apiFetch(`${apiBase}/api/tracks`, {
+          apiFetch(`${apiBase}/api/tracker/metrics`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          apiFetch(`${apiBase}/api/tracks/metrics`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
-        const trackerData = await trackerRes.json();
-        const tracksData = await tracksRes.json();
+        const dueData = await dueRes.json();
+        const trackerMetricsData = await trackerMetricsRes.json();
+        const trackMetricsData = await trackMetricsRes.json();
 
-        let solvedSlugs = new Set<string>();
-        let solvedCount = 0;
-
-        if (trackerData.success) {
-          solvedCount = trackerData.problems.length;
-          setTotalSolved(solvedCount);
-          trackerData.problems.forEach((p: any) => {
-            if (p.titleSlug) solvedSlugs.add(p.titleSlug);
-          });
-
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          const due = trackerData.problems.filter((p: any) => {
-            if (!p.reviewDurationDays) return false;
-            const lastAttempt = new Date(p.lastAttemptedDate);
-            lastAttempt.setHours(0, 0, 0, 0);
-
-            const diffTime = today.getTime() - lastAttempt.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            return diffDays >= p.reviewDurationDays;
-          });
-          setDueProblems(due);
+        if (dueData.success) {
+          setDueProblems(dueData.problems);
         }
 
-        if (tracksData.success) {
-          let completedTracks = 0;
-          let totalTracks = tracksData.tracks.length;
+        if (trackerMetricsData.success) {
+          setTotalSolved(trackerMetricsData.metrics.totalSolved);
+        }
 
-          tracksData.tracks.forEach((track: any) => {
-            const allProblems = [
-              ...(track.problems || []),
-              ...(track.parts?.flatMap((p: any) => p.problems) || []),
-            ];
-
-            let completedCount = 0;
-            allProblems.forEach((problem: any) => {
-              const slug = extractTitleSlug(problem.url);
-              if (slug && solvedSlugs.has(slug)) {
-                completedCount++;
-              }
-            });
-
-            if (
-              allProblems.length > 0 &&
-              completedCount === allProblems.length
-            ) {
-              completedTracks++;
-            }
-          });
-
+        if (trackMetricsData.success) {
           setTrackProgress({
-            completed: completedTracks,
-            total: totalTracks,
+            completed: trackMetricsData.metrics.masteredTracks,
+            total: trackMetricsData.metrics.totalTracks,
           });
         }
       } catch (error) {

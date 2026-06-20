@@ -20,9 +20,7 @@ import { apiFetch } from "@/src/lib/apiFetch";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [trackedProblems, setTrackedProblems] = useState<
-    Record<string, TrackedProblem>
-  >({});
+  const [trackedProblems, setTrackedProblems] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
@@ -83,7 +81,7 @@ export default function TracksTab() {
 
       if (pageNum === 1) {
         // Fetch tracks and progress map together on initial load
-        const progressPromise = apiFetch(`${apiBase}/api/tracker?limit=all`, {
+        const progressPromise = apiFetch(`${apiBase}/api/tracker/solved-slugs`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const metricsPromise = apiFetch(`${apiBase}/api/tracks/metrics`, {
@@ -121,13 +119,13 @@ export default function TracksTab() {
       if (pageNum === 1 && progressRes) {
         const progressData = await progressRes.json();
         if (progressData.success) {
-          const progressMap: Record<string, TrackedProblem> = {};
-          progressData.problems.forEach((p: TrackedProblem) => {
-            if (p.titleSlug) {
-              progressMap[p.titleSlug] = p;
+          const progressSet = new Set<string>();
+          progressData.slugs.forEach((slug: string) => {
+            if (slug) {
+              progressSet.add(slug);
             }
           });
-          setTrackedProblems(progressMap);
+          setTrackedProblems(progressSet);
         }
       }
 

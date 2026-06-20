@@ -13,3 +13,13 @@ export function extractTitleSlug(url: string): string | null {
     return null;
   }
 }
+
+/**
+ * Builds a canonical LeetCode problem URL from a titleSlug.
+ * 
+ * @param slug The titleSlug string
+ * @returns The full LeetCode URL
+ */
+export function buildLeetCodeUrl(slug: string): string {
+  return `https://leetcode.com/problems/${slug}/`;
+}

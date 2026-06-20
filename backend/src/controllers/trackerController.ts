@@ -202,14 +202,20 @@ export const listProblems = async (req: Request, res: Response) => {
 
     // Execute queries in parallel for performance
     const [problems, totalCount] = await Promise.all([
-      query.lean(),
+      query.select("-notes").lean(), // Exclude notes from list view
       TrackedProblem.countDocuments(filter),
     ]);
 
+    // Derive URL dynamically for backward compatibility
+    const processedProblems = problems.map((p) => ({
+      ...p,
+      url: p.url || `https://leetcode.com/problems/${p.titleSlug}/`,
+    }));
+
     res.json({
       success: true,
-      problems,
-      count: problems.length,
+      problems: processedProblems,
+      count: processedProblems.length,
       pagination: isLimitAll
         ? null
         : {
@@ -384,6 +390,59 @@ export const revisitProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error recording revisit:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * PATCH /api/problems/slug/:titleSlug/revisit
+ * Records a revisit by titleSlug instead of _id.
+ */
+export const revisitProblemBySlug = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const { titleSlug } = req.params;
+    if (!titleSlug) {
+      return res
+        .status(400)
+        .json({ success: false, error: "titleSlug is required." });
+    }
+
+    const problem = await TrackedProblem.findOne({ titleSlug, userId });
+    if (!problem) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Problem not found." });
+    }
+
+    const { timestamp, reviewDurationDays } = req.body || {};
+
+    problem.attemptCount += 1;
+    if (timestamp) {
+      problem.lastAttemptedDate = new Date(Number(timestamp) * 1000);
+    } else {
+      problem.lastAttemptedDate = new Date();
+    }
+
+    if (reviewDurationDays !== undefined) {
+      if (reviewDurationDays === null) {
+        problem.reviewDurationDays = undefined;
+      } else {
+        problem.reviewDurationDays = reviewDurationDays;
+      }
+    }
+
+    await problem.save();
+
+    res.json({ success: true, problem });
+  } catch (error: unknown) {
+    console.error("Error recording revisit by slug:", error);
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });
@@ -595,6 +654,103 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     res.json({ success: true, problem });
   } catch (error: unknown) {
     console.error("Error toggling track status:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * GET /api/problems/solved-slugs
+ * Returns an array of slugs for tracked problems. Used for fast lookup.
+ */
+export const getSolvedSlugs = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const problems = await TrackedProblem.find({
+      userId,
+      notrack: { $ne: true },
+    })
+      .select("titleSlug -_id")
+      .lean();
+
+    const slugs = problems.map((p: any) => p.titleSlug).filter(Boolean);
+
+    res.json({ success: true, slugs, count: slugs.length });
+  } catch (error: unknown) {
+    console.error("Error fetching solved slugs:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * GET /api/problems/due
+ * Returns problems due for review today or earlier.
+ */
+export const getDueProblems = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const problems = await TrackedProblem.find({
+      userId,
+      notrack: { $ne: true },
+      reviewDurationDays: { $exists: true, $ne: null },
+    })
+      .select("titleSlug title difficulty lastAttemptedDate reviewDurationDays attemptCount -_id")
+      .lean();
+
+    const dueProblems = problems.filter((p: any) => {
+      const lastAttempt = new Date(p.lastAttemptedDate);
+      lastAttempt.setHours(0, 0, 0, 0);
+
+      const diffTime = today.getTime() - lastAttempt.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      return diffDays >= p.reviewDurationDays;
+    });
+
+    res.json({ success: true, problems: dueProblems, count: dueProblems.length });
+  } catch (error: unknown) {
+    console.error("Error fetching due problems:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * GET /api/problems/slim
+ * Returns a slimmed down version of all tracked problems, used for search.
+ */
+export const getSlimProblems = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const problems = await TrackedProblem.find({
+      userId,
+      notrack: { $ne: true },
+    })
+      .select("titleSlug title difficulty attemptCount -_id")
+      .lean();
+
+    res.json({ success: true, problems, count: problems.length });
+  } catch (error: unknown) {
+    console.error("Error fetching slim problems:", error);
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });

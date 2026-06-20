@@ -12,7 +12,7 @@ interface AttemptProblemModalProps {
   isOpen: boolean;
   onClose: () => void;
   problem: any; // from Track
-  trackedProblem?: TrackedProblem; // existing record, if any
+  isSolved?: boolean; // whether the user has already solved this problem
   onUpdated: () => void;
   onSolveClick?: () => void;
 }
@@ -21,7 +21,7 @@ export default function AttemptProblemModal({
   isOpen,
   onClose,
   problem,
-  trackedProblem,
+  isSolved,
   onUpdated,
   onSolveClick,
 }: AttemptProblemModalProps) {
@@ -42,10 +42,11 @@ export default function AttemptProblemModal({
     try {
       const token = await getToken();
 
-      if (trackedProblem) {
-        // PATCH existing
+      if (isSolved) {
+        // PATCH existing via titleSlug
+        const titleSlug = problem.url.split("/problems/")[1].replace("/", "");
         const res = await apiFetch(
-          `${apiBase}/api/tracker/${trackedProblem._id}/revisit`,
+          `${apiBase}/api/tracker/slug/${titleSlug}/revisit`,
           {
             method: "PATCH",
             headers: {
@@ -106,13 +107,9 @@ export default function AttemptProblemModal({
           >
             {problem.difficulty}
           </span>
-          {trackedProblem && (
+          {isSolved && (
             <p className="text-sm text-neutral-500 mt-3 font-medium bg-neutral-50 p-3 rounded-xl border border-neutral-100">
-              You've attempted this{" "}
-              <strong className="text-indigo-600">
-                <AnimatedNumber value={trackedProblem.attemptCount} />
-              </strong>{" "}
-              times.
+              You've already solved this problem! 
             </p>
           )}
         </div>
@@ -149,7 +146,7 @@ export default function AttemptProblemModal({
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
-              ) : trackedProblem ? (
+              ) : isSolved ? (
                 "Log Revisit"
               ) : (
                 "Mark as Solved"
