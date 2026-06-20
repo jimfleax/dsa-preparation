@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { metricsCollector } from "../../lib/metricsCollector";
-import { getHttpMetricsSnapshot } from "../../middleware/httpMetrics";
+import { metricsCollector } from "../../lib/metricsCollector.js";
+import { getHttpMetricsSnapshot } from "../../middleware/httpMetrics.js";
 
 export const getMetrics = async (req: Request, res: Response) => {
   try {
