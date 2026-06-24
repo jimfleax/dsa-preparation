@@ -759,7 +759,7 @@ export const getSlimProblems = async (req: Request, res: Response) => {
 
 /**
  * GET /api/tracker/metrics
- * Returns global metrics for the user's tracked problems (total count, difficulty distribution).
+ * Returns global metrics for the user's tracked problems (total count, difficulty distribution, new today).
  */
 export const getTrackerMetrics = async (req: Request, res: Response) => {
   try {
@@ -772,25 +772,37 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
       userId,
       notrack: { $ne: true },
     })
-      .select("difficulty")
+      .select("difficulty lastAttemptedDate")
       .lean();
 
     let easy = 0,
       medium = 0,
       hard = 0,
       unrated = 0;
+      
+    let newToday = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     problems.forEach((p: any) => {
       if (p.difficulty === "Easy") easy++;
       else if (p.difficulty === "Medium") medium++;
       else if (p.difficulty === "Hard") hard++;
       else unrated++;
+      
+      if (p.lastAttemptedDate) {
+        const attemptedDate = new Date(p.lastAttemptedDate);
+        if (attemptedDate >= today) {
+          newToday++;
+        }
+      }
     });
 
     res.json({
       success: true,
       metrics: {
         totalSolved: problems.length,
+        newToday,
         difficulty: {
           Easy: easy,
           Medium: medium,

@@ -17,6 +17,7 @@ import {
   Sparkles,
   CalendarPlus,
   StickyNote,
+  TrendingUp,
 } from "lucide-react";
 import {
   PieChart,
@@ -313,6 +314,12 @@ export default function ProblemsTab({
               />
             </p>
           </div>
+          {globalMetrics?.newToday > 0 && (
+            <div className="relative z-10 -mt-1 sm:-mt-2 flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-600">
+              <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span>+{globalMetrics.newToday} new today</span>
+            </div>
+          )}
         </Card>
 
         {/* Difficulty Distribution Chart */}
