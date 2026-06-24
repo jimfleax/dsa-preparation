@@ -772,7 +772,7 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
       userId,
       notrack: { $ne: true },
     })
-      .select("difficulty lastAttemptedDate")
+      .select("difficulty lastAttemptedDate attemptCount")
       .lean();
 
     let easy = 0,
@@ -790,7 +790,7 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
       else if (p.difficulty === "Hard") hard++;
       else unrated++;
       
-      if (p.lastAttemptedDate) {
+      if (p.lastAttemptedDate && p.attemptCount === 1) {
         const attemptedDate = new Date(p.lastAttemptedDate);
         if (attemptedDate >= today) {
           newToday++;
