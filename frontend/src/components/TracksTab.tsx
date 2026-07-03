@@ -408,23 +408,27 @@ export default function TracksTab() {
             </div>
           </div>
 
-          {showCompleted && (
-            <div className="border-t border-emerald-100 p-6 pt-2">
-              <div className="grid gap-6 mt-4 opacity-80 hover:opacity-100 transition-opacity duration-300">
-                {completedTracks.map((track) => (
-                  <TrackCard
-                    key={track._id}
-                    track={track}
-                    activeTrackId={activeTrackId}
-                    activePartIndex={activePartIndex}
-                    onTrackActive={handleTrackActive}
-                    trackedProblems={trackedProblems}
-                    onUpdate={fetchTracksAndProgress}
-                  />
-                ))}
+          <div
+            className={`grid transition-all duration-500 ease-in-out ${showCompleted ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+          >
+            <div className="overflow-hidden">
+              <div className="border-t border-emerald-100 p-6 pt-2">
+                <div className="grid gap-6 mt-4 opacity-80 hover:opacity-100 transition-opacity duration-300">
+                  {completedTracks.map((track) => (
+                    <TrackCard
+                      key={track._id}
+                      track={track}
+                      activeTrackId={activeTrackId}
+                      activePartIndex={activePartIndex}
+                      onTrackActive={handleTrackActive}
+                      trackedProblems={trackedProblems}
+                      onUpdate={fetchTracksAndProgress}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

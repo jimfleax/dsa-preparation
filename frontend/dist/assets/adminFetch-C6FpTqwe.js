@@ -1,1 +1,0 @@
-import{z as e}from"./index-CqJgIcTT.js";const r=async(t,a)=>{const o=await fetch(t,a);if(o.status===401)throw console.warn("[adminFetch] Unauthorized token detected. Triggering global logout."),await e("/admin/login"),new Error("Unauthorized");return o};export{r as a};
