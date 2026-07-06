@@ -1,14 +1,11 @@
 import { motion } from "framer-motion";
 import {
   GraduationCap,
-  Code2,
   Map,
   ArrowRight,
   Github,
   RefreshCcw,
   CheckCircle2,
-  Calendar,
-  Layers,
 } from "lucide-react";
 
 interface LandingPageProps {
@@ -99,11 +96,26 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           title="LeetCode Auto-Sync"
           description="Seamlessly synchronize your solved problems directly from LeetCode. Never manually log a completion again. Our system fetches your recent submissions, updates your tracker, and keeps everything perfectly in sync."
           illustration={
-            <div className="relative w-full max-w-sm aspect-square bg-indigo-50/50 rounded-3xl border border-indigo-100 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100/30 to-transparent"></div>
-              <Code2 className="w-32 h-32 text-indigo-400 relative z-10 animate-pulse" />
-              <div className="absolute bottom-10 right-10 bg-white p-3 rounded-2xl shadow-lg border border-neutral-100 z-20">
-                <CheckCircle2 className="w-10 h-10 text-green-500" />
+            <div className="relative w-full max-w-sm aspect-video sm:aspect-square bg-[#0f172a] rounded-3xl border border-neutral-800 flex flex-col overflow-hidden shadow-2xl">
+              {/* Fake Mac Header */}
+              <div className="h-10 bg-white/5 border-b border-white/10 flex items-center px-4 gap-2 shrink-0">
+                <div className="w-3 h-3 rounded-full bg-rose-500/80"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+              </div>
+              {/* Code Area */}
+              <div className="p-6 flex flex-col gap-4 relative flex-1">
+                <div className="w-3/4 h-3 bg-neutral-700/50 rounded-full"></div>
+                <div className="w-1/2 h-3 bg-indigo-500/50 rounded-full ml-4"></div>
+                <div className="w-5/6 h-3 bg-neutral-700/50 rounded-full ml-4"></div>
+                <div className="w-2/3 h-3 bg-neutral-700/50 rounded-full ml-4"></div>
+                <div className="w-1/3 h-3 bg-neutral-700/50 rounded-full"></div>
+                {/* Glowing Sync Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-indigo-500/20 to-transparent">
+                  <div className="bg-indigo-500/20 p-5 rounded-2xl backdrop-blur-md border border-indigo-500/30 shadow-2xl">
+                    <RefreshCcw className="w-10 h-10 text-indigo-300 animate-[spin_3s_linear_infinite]" />
+                  </div>
+                </div>
               </div>
             </div>
           }
@@ -114,11 +126,22 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           title="Curated Roadmaps"
           description="Follow expertly designed tracks and subtracks to master DSA topics progressively and efficiently. Unlock new levels as you solve problems, track your completion percentage, and never wonder what to learn next."
           illustration={
-            <div className="relative w-full max-w-sm aspect-square bg-blue-50/50 rounded-3xl border border-blue-100 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-100/30 to-transparent"></div>
-              <Map className="w-32 h-32 text-blue-400 relative z-10" />
-              <div className="absolute top-10 left-10 bg-white p-3 rounded-2xl shadow-lg border border-neutral-100 z-20">
-                <Layers className="w-10 h-10 text-indigo-500" />
+            <div className="relative w-full max-w-sm aspect-video sm:aspect-square bg-white rounded-3xl border border-neutral-200 flex items-center justify-center overflow-hidden shadow-xl shadow-blue-900/5">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 to-transparent"></div>
+              {/* Roadmap nodes */}
+              <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-8">
+                 <div className="w-full flex justify-between items-center relative">
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-neutral-100 -z-10"></div>
+                    <div className="w-12 h-12 rounded-full bg-white border-4 border-blue-100 shadow-sm flex items-center justify-center z-10">
+                      <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div className="w-14 h-14 rounded-full bg-indigo-600 border-4 border-indigo-100 shadow-md flex items-center justify-center z-10 scale-110">
+                      <Map className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-white border-4 border-neutral-100 shadow-sm flex items-center justify-center z-10">
+                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-300"></div>
+                    </div>
+                 </div>
               </div>
             </div>
           }
@@ -130,11 +153,21 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           title="Smart Review Tracker"
           description="Log your attempts, utilize spaced repetition for optimal review intervals, and attach detailed notes to every problem. Our system will proactively remind you when a problem is due for review so you never forget what you've learned."
           illustration={
-            <div className="relative w-full max-w-sm aspect-square bg-purple-50/50 rounded-3xl border border-purple-100 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-purple-100/30 to-transparent"></div>
-              <RefreshCcw className="w-32 h-32 text-purple-400 relative z-10" />
-              <div className="absolute bottom-10 left-10 bg-white p-3 rounded-2xl shadow-lg border border-neutral-100 z-20">
-                <Calendar className="w-10 h-10 text-purple-500" />
+            <div className="relative w-full max-w-sm aspect-video sm:aspect-square bg-white rounded-3xl border border-neutral-200 flex flex-col overflow-hidden shadow-xl shadow-purple-900/5 p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent pointer-events-none"></div>
+              <div className="relative z-10 w-full flex-1 flex flex-col gap-6">
+                 <div className="flex justify-between items-end mb-2">
+                   <div className="w-1/3 h-4 bg-neutral-200 rounded-full"></div>
+                   <div className="w-1/4 h-3 bg-purple-200 rounded-full"></div>
+                 </div>
+                 {/* Bar Chart representation */}
+                 <div className="flex-1 flex items-end justify-between gap-3 h-full">
+                   {[40, 70, 45, 90, 65, 80].map((h, i) => (
+                     <div key={i} className="w-full bg-purple-50 rounded-t-lg relative group overflow-hidden" style={{ height: `${h}%` }}>
+                       <div className="absolute bottom-0 w-full bg-purple-500 rounded-t-lg" style={{ height: `${h - 20}%` }}></div>
+                     </div>
+                   ))}
+                 </div>
               </div>
             </div>
           }
