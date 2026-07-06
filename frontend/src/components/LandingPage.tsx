@@ -87,7 +87,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-[100px] -z-10"></div>
           <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-[80px] translate-x-10 translate-y-10 -z-10"></div>
           <GraduationCap
-            className="w-64 h-64 md:w-80 md:h-80 text-indigo-500/80 drop-shadow-2xl"
+            className="w-64 h-64 md:w-80 md:h-80 text-indigo-500/80 drop-shadow-lg"
             strokeWidth={1}
           />
         </motion.div>
