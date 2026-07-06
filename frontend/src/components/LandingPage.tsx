@@ -7,6 +7,7 @@ import {
   RefreshCcw,
   CheckCircle2,
 } from "lucide-react";
+import PublicFooter from "./PublicFooter";
 
 interface LandingPageProps {
   onSignIn: () => void;
@@ -175,26 +176,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         />
       </section>
 
-      {/* Footer */}
-      <footer className="w-full mt-auto py-8 bg-white border-t border-neutral-100 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
-          <p>&copy; 2026 DSA Preparation. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a
-              href="/privacy-policy.html"
-              className="hover:text-indigo-600 transition-colors font-medium"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="/terms-of-service.html"
-              className="hover:text-indigo-600 transition-colors font-medium"
-            >
-              Terms of Service
-            </a>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

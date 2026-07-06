@@ -28,7 +28,7 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/admin/*" element={<AdminApp />} />
           <Route
-            path="/"
+            path="/*"
             element={
               <NetworkStatusProvider>
                 <AuthProvider>
@@ -39,7 +39,6 @@ createRoot(document.getElementById("root")!).render(
               </NetworkStatusProvider>
             }
           />
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>
