@@ -225,12 +225,18 @@ function FeatureSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          className="flex-1 text-center md:text-left"
+          className="flex-1 text-left"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-6 tracking-tight">
-            {title}
+          <h2 
+            className="text-4xl md:text-5xl font-medium text-neutral-900 mb-6 tracking-tight"
+            style={{ fontFamily: "'Instrument Serif', serif" }}
+          >
+            <span className="italic">{title.substring(0, title.lastIndexOf(" "))}</span>{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 italic pr-2">
+              {title.substring(title.lastIndexOf(" ") + 1)}
+            </span>
           </h2>
-          <p className="text-base font-light text-neutral-500 leading-relaxed max-w-xl mx-auto md:mx-0">
+          <p className="text-base font-light text-neutral-500 leading-relaxed max-w-xl">
             {description}
           </p>
         </motion.div>
