@@ -44,7 +44,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-neutral-500 mb-10 max-w-xl leading-relaxed"
+            className="text-sm sm:text-base md:text-lg font-light text-neutral-500 mb-10 max-w-xl leading-relaxed"
           >
             Track your problem-solving journey, organize study materials, follow
             structured roadmaps, and auto-sync your LeetCode progress — all in one
@@ -197,7 +197,7 @@ function FeatureSection({
           <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-6 tracking-tight">
             {title}
           </h2>
-          <p className="text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto md:mx-0">
+          <p className="text-base font-light text-neutral-500 leading-relaxed max-w-xl mx-auto md:mx-0">
             {description}
           </p>
         </motion.div>
