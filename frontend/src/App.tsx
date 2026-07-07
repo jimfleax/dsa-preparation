@@ -83,6 +83,7 @@ export default function App() {
   const [activeDoc, setActiveDoc] = useState<DocumentMetadata | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
+  const [highlightedProblemId, setHighlightedProblemId] = useState<string | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -760,6 +761,8 @@ export default function App() {
                         <TrackerTab
                           onOpenAddModal={() => setShowAddModal(true)}
                           refreshKey={problemsRefreshKey}
+                          highlightedProblemId={highlightedProblemId}
+                          setHighlightedProblemId={setHighlightedProblemId}
                         />
                       </Suspense>
                     </motion.div>
@@ -1072,6 +1075,10 @@ export default function App() {
             onNavigate={setActiveMainTab}
             onSelectDocument={handleSelectDocument}
             onOpenSettings={() => setShowSettingsModal(true)}
+            onSelectTrackedProblem={(id) => {
+              setHighlightedProblemId(id);
+              setActiveMainTab("tracker");
+            }}
           />
         </Suspense>
         {isPreviewOpen && (

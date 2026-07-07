@@ -46,6 +46,8 @@ import { apiFetch } from "@/src/lib/apiFetch";
 interface ProblemsTabProps {
   onOpenAddModal: () => void;
   refreshKey?: number;
+  highlightedProblemId?: string | null;
+  setHighlightedProblemId?: (id: string | null) => void;
 }
 
 import { timeAgo } from "../lib/dateUtils";
@@ -55,6 +57,8 @@ import { Card } from "./ui/Card";
 export default function ProblemsTab({
   onOpenAddModal,
   refreshKey,
+  highlightedProblemId,
+  setHighlightedProblemId,
 }: ProblemsTabProps) {
   const [problems, setProblems] = useState<TrackedProblem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -97,6 +101,35 @@ export default function ProblemsTab({
     50,
     "delete-problem-confirm",
   );
+
+  useEffect(() => {
+    if (!highlightedProblemId) return;
+
+    // Small delay to allow render, and find element
+    const timeout = setTimeout(() => {
+      const el = document.getElementById(`problem-row-${highlightedProblemId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
+
+    const handleClickOutside = () => {
+      if (setHighlightedProblemId) {
+        setHighlightedProblemId(null);
+      }
+    };
+    
+    // Add document listener with delay so current click doesn't trigger it
+    const clickTimeout = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(clickTimeout);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [highlightedProblemId, problems, setHighlightedProblemId]);
 
   const fetchProblems = async (pageNum: number = 1) => {
     if (pageNum > 1) {
@@ -524,6 +557,8 @@ export default function ProblemsTab({
             {filteredProblems.map((problem) => (
               <ProblemMobileCard
                 key={problem._id}
+                id={`problem-row-${problem._id}`}
+                isHighlighted={highlightedProblemId === problem._id}
                 problem={problem}
                 revisitingId={revisitingId}
                 deletingId={deletingId}
@@ -573,8 +608,13 @@ export default function ProblemsTab({
               <tbody>
                 {filteredProblems.map((problem) => (
                   <tr
+                    id={`problem-row-${problem._id}`}
                     key={problem._id}
-                    className="border-b border-neutral-50 hover:bg-indigo-50/20 transition-colors group"
+                    className={`border-b border-neutral-50 transition-all duration-500 ease-in-out group ${
+                      highlightedProblemId === problem._id
+                        ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
+                        : "hover:bg-indigo-50/20"
+                    }`}
                   >
                     {/* Problem Title + Link */}
                     <td className="px-5 py-3.5">

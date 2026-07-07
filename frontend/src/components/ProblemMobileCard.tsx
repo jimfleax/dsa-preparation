@@ -23,6 +23,8 @@ interface ProblemMobileCardProps {
   onEdit: (problem: TrackedProblem) => void;
   onNote: (problem: TrackedProblem) => void;
   onSchedule: (problem: TrackedProblem) => void;
+  id?: string;
+  isHighlighted?: boolean;
 }
 
 export const ProblemMobileCard = React.memo(function ProblemMobileCard({
@@ -34,9 +36,19 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
   onEdit,
   onNote,
   onSchedule,
+  id,
+  isHighlighted,
 }: ProblemMobileCardProps) {
   return (
-    <Card padding="sm" className="hover:bg-indigo-50/20 flex flex-col gap-3 rounded-none border-x-0 border-t-0 shadow-none">
+    <Card 
+      id={id} 
+      padding="sm" 
+      className={`flex flex-col gap-3 rounded-none border-x-0 border-t-0 shadow-none transition-all duration-500 ease-in-out ${
+        isHighlighted 
+          ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative" 
+          : "hover:bg-indigo-50/20"
+      }`}
+    >
       <div className="flex justify-between items-start gap-3">
         <div className="flex-1">
           <a

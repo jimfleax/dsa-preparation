@@ -31,6 +31,7 @@ interface CommandPaletteProps {
   trackedProblems: TrackedProblem[];
   onNavigate: (tab: "home" | "learn" | "tracker" | "tracks") => void;
   onSelectDocument: (doc: DocumentMetadata) => void;
+  onSelectTrackedProblem?: (problemId: string) => void;
   onOpenSettings: () => void;
 }
 
@@ -45,6 +46,7 @@ export default function CommandPalette({
   trackedProblems,
   onNavigate,
   onSelectDocument,
+  onSelectTrackedProblem,
   onOpenSettings,
 }: CommandPaletteProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -259,7 +261,12 @@ export default function CommandPalette({
         onSelectDocument(activeItem.data);
         onClose();
       } else if (activeItem.type === "problem") {
-        handleNavigate("tracker");
+        if (onSelectTrackedProblem) {
+          onSelectTrackedProblem(activeItem.data._id);
+          onClose();
+        } else {
+          handleNavigate("tracker");
+        }
       } else if (activeItem.type === "nav") {
         if (activeItem.tab === "settings") {
           handleOpenSettings();
@@ -502,7 +509,14 @@ export default function CommandPalette({
                             <button
                               key={p._id}
                               ref={isFocused ? activeItemRef : undefined}
-                              onClick={() => handleNavigate("tracker")}
+                              onClick={() => {
+                                if (onSelectTrackedProblem) {
+                                  onSelectTrackedProblem(p._id);
+                                  onClose();
+                                } else {
+                                  handleNavigate("tracker");
+                                }
+                              }}
                               onMouseEnter={() => setFocusedIndex(globalIndex)}
                               className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 group transition-colors ${
                                 isFocused
