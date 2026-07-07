@@ -238,8 +238,8 @@ export default function TracksTab() {
         acc.isActiveCompleted = isCompleted;
       }
 
-      // If active, it stays in the main list even if completed, so it shows at the top
-      if (isCompleted && !isActive) {
+      // Completed tracks always go to the completed container
+      if (isCompleted) {
         acc.completed.push(track);
       } else {
         acc.incomplete.push(track);
@@ -258,6 +258,17 @@ export default function TracksTab() {
     incomplete: incompleteTracks,
     completed: completedTracks,
   } = categorizedTracks;
+
+  // Clear active track when it becomes completed — prevents stale localStorage
+  // from pinning a completed track in the main list
+  useEffect(() => {
+    if (isActiveCompleted && activeTrackId) {
+      localStorage.removeItem("activeTrackId");
+      localStorage.removeItem("activePartIndex");
+      setActiveTrackId(null);
+      setActivePartIndex(null);
+    }
+  }, [isActiveCompleted, activeTrackId]);
 
   const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
     if (a._id === activeTrackId) return -1;
