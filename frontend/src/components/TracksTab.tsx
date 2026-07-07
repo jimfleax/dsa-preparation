@@ -156,6 +156,36 @@ export default function TracksTab() {
     }
   };
 
+  const refreshProgressAndMetrics = async () => {
+    try {
+      const token = await getToken();
+      const [progressRes, metricsRes] = await Promise.all([
+        apiFetch(`${apiBase}/api/tracker/solved-slugs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`${apiBase}/api/tracks/metrics`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const progressData = await progressRes.json();
+      if (progressData.success) {
+        const progressSet = new Set<string>();
+        progressData.slugs.forEach((slug: string) => {
+          if (slug) progressSet.add(slug);
+        });
+        setTrackedProblems(progressSet);
+      }
+
+      const metricsData = await metricsRes.json();
+      if (metricsData.success && metricsData.metrics) {
+        setGlobalMetrics(metricsData.metrics);
+      }
+    } catch (err) {
+      console.error("Error refreshing progress", err);
+    }
+  };
+
   const { sentinelRef } = useInfiniteScroll({
     onLoadMore: () => {
       if (!isFetchingMore && hasMore) {
@@ -185,11 +215,23 @@ export default function TracksTab() {
     },
   ].filter((d) => d.value > 0);
 
+  // Client-side completion check — single source of truth matching TrackCard logic
+  const isTrackCompleted = (track: Track): boolean => {
+    const allProblems = [
+      ...(track.problems || []),
+      ...(track.parts?.flatMap((p) => p.problems) || []),
+    ];
+    if (allProblems.length === 0) return false;
+    return allProblems.every((p) => {
+      const slug = extractTitleSlug(p.url);
+      return slug && trackedProblems.has(slug);
+    });
+  };
+
   // Categorize tracks into incomplete and completed
   const categorizedTracks = tracks.reduce(
     (acc, track) => {
-      const isCompleted =
-        globalMetrics?.completedTrackIds?.includes(track._id) || false;
+      const isCompleted = isTrackCompleted(track);
 
       const isActive = track._id === activeTrackId;
       if (isActive) {
@@ -353,7 +395,7 @@ export default function TracksTab() {
             activePartIndex={activePartIndex}
             onTrackActive={handleTrackActive}
             trackedProblems={trackedProblems}
-            onUpdate={fetchTracksAndProgress}
+            onUpdate={refreshProgressAndMetrics}
           />
         ))}
         {incompleteTracks.length === 0 && completedTracks.length === 0 && (
@@ -422,7 +464,7 @@ export default function TracksTab() {
                       activePartIndex={activePartIndex}
                       onTrackActive={handleTrackActive}
                       trackedProblems={trackedProblems}
-                      onUpdate={fetchTracksAndProgress}
+                      onUpdate={refreshProgressAndMetrics}
                     />
                   ))}
                 </div>
