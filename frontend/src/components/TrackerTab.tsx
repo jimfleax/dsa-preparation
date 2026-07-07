@@ -48,6 +48,8 @@ interface ProblemsTabProps {
   refreshKey?: number;
   highlightedProblemId?: string | null;
   setHighlightedProblemId?: (id: string | null) => void;
+  externalSearchQuery?: string;
+  setExternalSearchQuery?: (q: string) => void;
 }
 
 import { timeAgo } from "../lib/dateUtils";
@@ -59,6 +61,8 @@ export default function ProblemsTab({
   refreshKey,
   highlightedProblemId,
   setHighlightedProblemId,
+  externalSearchQuery,
+  setExternalSearchQuery,
 }: ProblemsTabProps) {
   const [problems, setProblems] = useState<TrackedProblem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -72,7 +76,17 @@ export default function ProblemsTab({
   const [problemToDelete, setProblemToDelete] = useState<TrackedProblem | null>(
     null,
   );
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [internalSearchQuery, setInternalSearchQuery] = useState<string>("");
+  const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
+  const setSearchQuery = setExternalSearchQuery || setInternalSearchQuery;
+
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(searchQuery);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const [sortBy, setSortBy] = useState<"date" | "title" | "attempts">("date");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingProblem, setEditingProblem] = useState<TrackedProblem | null>(
@@ -131,7 +145,9 @@ export default function ProblemsTab({
     };
   }, [highlightedProblemId, problems, setHighlightedProblemId]);
 
-  const fetchProblems = async (pageNum: number = 1) => {
+  const fetchProblems = async (pageNum: number = 1, searchOverride?: string) => {
+    const q = searchOverride !== undefined ? searchOverride : debouncedSearchQuery;
+    
     if (pageNum > 1) {
       setIsFetchingMore(true);
     } else {
@@ -140,9 +156,10 @@ export default function ProblemsTab({
 
     try {
       const token = await getToken();
-
+      
+      const searchParam = q.trim() ? `&search=${encodeURIComponent(q.trim())}` : "";
       const promises: Promise<Response>[] = [
-        apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20`, {
+        apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20${searchParam}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ];
@@ -252,19 +269,12 @@ export default function ProblemsTab({
   };
 
   useEffect(() => {
-    fetchProblems(1);
-  }, [refreshKey]);
+    fetchProblems(1, debouncedSearchQuery);
+  }, [refreshKey, debouncedSearchQuery]);
 
-  // Client-side filtering and sorting
+  // Client-side sorting (filtering is now handled by the server)
   const filteredProblems = useMemo(() => {
     let result = [...problems];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (p) => p.title.toLowerCase().includes(q) || p.titleSlug.includes(q),
-      );
-    }
 
     result.sort((a, b) => {
       const isADue =
@@ -290,7 +300,7 @@ export default function ProblemsTab({
     });
 
     return result;
-  }, [problems, searchQuery, sortBy]);
+  }, [problems, sortBy]);
 
   // Calculate stats
   const easyCount =

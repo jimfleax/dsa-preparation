@@ -84,6 +84,7 @@ export default function App() {
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
   const [highlightedProblemId, setHighlightedProblemId] = useState<string | null>(null);
+  const [trackerSearchQuery, setTrackerSearchQuery] = useState<string>("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -763,6 +764,8 @@ export default function App() {
                           refreshKey={problemsRefreshKey}
                           highlightedProblemId={highlightedProblemId}
                           setHighlightedProblemId={setHighlightedProblemId}
+                          externalSearchQuery={trackerSearchQuery}
+                          setExternalSearchQuery={setTrackerSearchQuery}
                         />
                       </Suspense>
                     </motion.div>
@@ -1075,8 +1078,9 @@ export default function App() {
             onNavigate={setActiveMainTab}
             onSelectDocument={handleSelectDocument}
             onOpenSettings={() => setShowSettingsModal(true)}
-            onSelectTrackedProblem={(id) => {
+            onSelectTrackedProblem={(id, title) => {
               setHighlightedProblemId(id);
+              setTrackerSearchQuery(title);
               setActiveMainTab("tracker");
             }}
           />

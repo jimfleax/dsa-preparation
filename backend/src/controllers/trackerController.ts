@@ -745,7 +745,7 @@ export const getSlimProblems = async (req: Request, res: Response) => {
       userId,
       notrack: { $ne: true },
     })
-      .select("titleSlug title difficulty attemptCount -_id")
+      .select("titleSlug title difficulty attemptCount")
       .lean();
 
     res.json({ success: true, problems, count: problems.length });

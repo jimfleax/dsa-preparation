@@ -31,7 +31,7 @@ interface CommandPaletteProps {
   trackedProblems: TrackedProblem[];
   onNavigate: (tab: "home" | "learn" | "tracker" | "tracks") => void;
   onSelectDocument: (doc: DocumentMetadata) => void;
-  onSelectTrackedProblem?: (problemId: string) => void;
+  onSelectTrackedProblem?: (problemId: string, title: string) => void;
   onOpenSettings: () => void;
 }
 
@@ -262,7 +262,7 @@ export default function CommandPalette({
         onClose();
       } else if (activeItem.type === "problem") {
         if (onSelectTrackedProblem) {
-          onSelectTrackedProblem(activeItem.data._id);
+          onSelectTrackedProblem(activeItem.data._id, activeItem.data.title);
           onClose();
         } else {
           handleNavigate("tracker");
@@ -511,7 +511,7 @@ export default function CommandPalette({
                               ref={isFocused ? activeItemRef : undefined}
                               onClick={() => {
                                 if (onSelectTrackedProblem) {
-                                  onSelectTrackedProblem(p._id);
+                                  onSelectTrackedProblem(p._id, p.title);
                                   onClose();
                                 } else {
                                   handleNavigate("tracker");
