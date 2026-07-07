@@ -126,6 +126,32 @@ export default function TracksTab() {
             }
           });
           setTrackedProblems(progressSet);
+
+          // Clear active track if it's now completed
+          const currentActiveId = localStorage.getItem("activeTrackId");
+          if (currentActiveId && tracksData.success) {
+            const activeTrack = tracksData.tracks.find(
+              (t: any) => t._id === currentActiveId,
+            );
+            if (activeTrack) {
+              const allProblems = [
+                ...(activeTrack.problems || []),
+                ...(activeTrack.parts?.flatMap((p: any) => p.problems) || []),
+              ];
+              const allSolved =
+                allProblems.length > 0 &&
+                allProblems.every((p: any) => {
+                  const slug = extractTitleSlug(p.url);
+                  return slug && progressSet.has(slug);
+                });
+              if (allSolved) {
+                localStorage.removeItem("activeTrackId");
+                localStorage.removeItem("activePartIndex");
+                setActiveTrackId(null);
+                setActivePartIndex(null);
+              }
+            }
+          }
         }
       }
 
@@ -175,6 +201,30 @@ export default function TracksTab() {
           if (slug) progressSet.add(slug);
         });
         setTrackedProblems(progressSet);
+
+        // Clear active track if it's now completed
+        const currentActiveId = localStorage.getItem("activeTrackId");
+        if (currentActiveId) {
+          const activeTrack = tracks.find((t) => t._id === currentActiveId);
+          if (activeTrack) {
+            const allProblems = [
+              ...(activeTrack.problems || []),
+              ...(activeTrack.parts?.flatMap((p) => p.problems) || []),
+            ];
+            const allSolved =
+              allProblems.length > 0 &&
+              allProblems.every((p) => {
+                const slug = extractTitleSlug(p.url);
+                return slug && progressSet.has(slug);
+              });
+            if (allSolved) {
+              localStorage.removeItem("activeTrackId");
+              localStorage.removeItem("activePartIndex");
+              setActiveTrackId(null);
+              setActivePartIndex(null);
+            }
+          }
+        }
       }
 
       const metricsData = await metricsRes.json();
@@ -233,11 +283,6 @@ export default function TracksTab() {
     (acc, track) => {
       const isCompleted = isTrackCompleted(track);
 
-      const isActive = track._id === activeTrackId;
-      if (isActive) {
-        acc.isActiveCompleted = isCompleted;
-      }
-
       // Completed tracks always go to the completed container
       if (isCompleted) {
         acc.completed.push(track);
@@ -247,28 +292,15 @@ export default function TracksTab() {
       return acc;
     },
     {
-      isActiveCompleted: false,
       incomplete: [] as Track[],
       completed: [] as Track[],
     },
   );
 
   const {
-    isActiveCompleted,
     incomplete: incompleteTracks,
     completed: completedTracks,
   } = categorizedTracks;
-
-  // Clear active track when it becomes completed — prevents stale localStorage
-  // from pinning a completed track in the main list
-  useEffect(() => {
-    if (isActiveCompleted && activeTrackId) {
-      localStorage.removeItem("activeTrackId");
-      localStorage.removeItem("activePartIndex");
-      setActiveTrackId(null);
-      setActivePartIndex(null);
-    }
-  }, [isActiveCompleted, activeTrackId]);
 
   const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
     if (a._id === activeTrackId) return -1;
