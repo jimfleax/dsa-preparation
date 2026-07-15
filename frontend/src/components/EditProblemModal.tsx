@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link2, Loader2, Hash, Trash2 } from "lucide-react";
@@ -34,8 +35,7 @@ export default function EditProblemModal({
 
   const { getToken } = useAuth();
   const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+    getBackendUrl();
 
   useEffect(() => {
     if (problem && isOpen) {

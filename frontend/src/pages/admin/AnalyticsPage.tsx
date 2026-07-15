@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
@@ -37,7 +38,7 @@ export default function AnalyticsPage() {
     const fetchAnalytics = async () => {
       try {
         const res = await adminFetch(
-          `${import.meta.env.VITE_API_URL || ""}/api/admin/analytics`,
+          `${getBackendUrl()}/api/admin/analytics`,
           {
             headers: { Authorization: `Bearer ${adminToken}` },
           },

@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Admin } from "../../models/Admin";
+import { getRequiredEnv } from "../../lib/envUtils.ts";
 import { OAuth2Client } from "google-auth-library";
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
 
 export const adminGoogleLogin = async (
   req: Request,
@@ -20,7 +21,7 @@ export const adminGoogleLogin = async (
     try {
       ticket = await client.verifyIdToken({
         idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+        audience: getRequiredEnv("GOOGLE_CLIENT_ID"),
       });
     } catch (verifyError: any) {
       console.warn(
@@ -78,10 +79,7 @@ export const adminGoogleLogin = async (
       await admin.save();
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET environment variable is not set.");
-    }
+    const secret = getRequiredEnv("JWT_SECRET");
 
     const jwtToken = jwt.sign(
       { id: admin._id },

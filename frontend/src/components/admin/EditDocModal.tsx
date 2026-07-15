@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { X, FileEdit } from "lucide-react";
@@ -48,7 +49,7 @@ export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalPr
     setIsSaving(true);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${doc._id}`,
+        `${getBackendUrl()}/api/admin/docs/${doc._id}`,
         {
           method: "PUT",
           headers: {

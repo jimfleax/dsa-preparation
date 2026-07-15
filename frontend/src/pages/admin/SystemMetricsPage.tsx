@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
@@ -68,7 +69,7 @@ export default function SystemMetricsPage() {
 
   const fetchMetrics = async () => {
     try {
-      const res = await adminFetch(`${import.meta.env.VITE_API_URL || ""}/api/admin/metrics`, {
+      const res = await adminFetch(`${getBackendUrl()}/api/admin/metrics`, {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
       if (!res.ok) throw new Error("Failed to fetch metrics");

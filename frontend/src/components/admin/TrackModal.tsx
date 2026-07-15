@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import BaseModal from "../BaseModal";
 import { useAdminAuth } from "../../context/AdminAuthContext";
@@ -210,7 +211,7 @@ export default function TrackModal({
     setIsFetchingProblem(true);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/problems/scrape-title`,
+        `${getBackendUrl()}/api/problems/scrape-title`,
         {
           method: "POST",
           headers: {

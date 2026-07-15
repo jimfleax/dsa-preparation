@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { X, FileUp, FileText } from "lucide-react";
@@ -105,7 +106,7 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
     setIsUploading(true);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs`,
+        `${getBackendUrl()}/api/admin/docs`,
         {
           method: "POST",
           headers: {

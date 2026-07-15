@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect, useRef } from "react";
 import { X, FileText, BookOpen, Code, Loader2 } from "lucide-react";
 import Markdown from "react-markdown";
@@ -71,8 +72,7 @@ export default function PreviewPanel({
       setError(null);
       try {
         const apiBase =
-          (import.meta as any).env.VITE_API_URL ||
-          "https://dsa-preparation-788547842951.asia-south1.run.app";
+          getBackendUrl();
         const response = await apiFetch(
           `${apiBase}/api/document?filename=${activeDoc.filename}`,
         );

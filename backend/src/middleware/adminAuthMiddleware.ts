@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/Admin";
+import { getRequiredEnv } from "../lib/envUtils.ts";
 
 export const requireAdminAuth = async (
   req: Request,
@@ -13,10 +14,7 @@ export const requireAdminAuth = async (
   }
 
   try {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET environment variable is not set.");
-    }
+    const secret = getRequiredEnv("JWT_SECRET");
     const decoded = jwt.verify(token, secret) as { id: string };
     const admin = await Admin.findById(decoded.id);
 

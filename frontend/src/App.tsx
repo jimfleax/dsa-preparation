@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import {
   useState,
   useEffect,
@@ -55,8 +56,7 @@ import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 export default function App() {
   const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+    getBackendUrl();
 
   const isMac =
     typeof window !== "undefined" &&

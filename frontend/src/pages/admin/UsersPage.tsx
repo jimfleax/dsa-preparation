@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
@@ -19,7 +20,7 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       const res = await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/users`,
+        `${getBackendUrl()}/api/admin/users`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
         },
@@ -41,7 +42,7 @@ export default function UsersPage() {
     if (!selectedUserForDelete) return;
     try {
       const res = await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${selectedUserForDelete._id}?deleteProgress=${deleteProgress}`,
+        `${getBackendUrl()}/api/admin/users/${selectedUserForDelete._id}?deleteProgress=${deleteProgress}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${adminToken}` },

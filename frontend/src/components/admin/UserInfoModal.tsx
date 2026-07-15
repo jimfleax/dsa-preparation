@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import {
@@ -28,14 +29,14 @@ export default function UserInfoModal({
       try {
         const [progRes, lcRes] = await Promise.all([
           fetch(
-            `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/progress`,
+            `${getBackendUrl()}/api/admin/users/${user._id}/progress`,
             {
               headers: { Authorization: `Bearer ${adminToken}` },
             },
           ),
           user.leetcodeUsername
             ? fetch(
-                `${import.meta.env.VITE_API_URL || ""}/api/admin/users/${user._id}/leetcode`,
+                `${getBackendUrl()}/api/admin/users/${user._id}/leetcode`,
                 {
                   headers: { Authorization: `Bearer ${adminToken}` },
                 },

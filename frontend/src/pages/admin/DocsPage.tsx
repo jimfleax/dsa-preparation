@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
@@ -16,7 +17,7 @@ export default function DocsPage() {
   const fetchDocs = async () => {
     try {
       const res = await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs`,
+        `${getBackendUrl()}/api/admin/docs`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
         },
@@ -38,7 +39,7 @@ export default function DocsPage() {
     if (!window.confirm("Delete this document?")) return;
     try {
       await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/docs/${id}`,
+        `${getBackendUrl()}/api/admin/docs/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${adminToken}` },

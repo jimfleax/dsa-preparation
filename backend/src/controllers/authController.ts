@@ -1,17 +1,13 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.ts";
+import { getRequiredEnv } from "../lib/envUtils.ts";
 import { OAuth2Client } from "google-auth-library";
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
 
 const generateToken = (userId: string, tokenVersion: number): string => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error(
-      "JWT_SECRET environment variable is not set. Cannot sign tokens.",
-    );
-  }
+  const secret = getRequiredEnv("JWT_SECRET");
   return jwt.sign({ userId, tokenVersion }, secret, {
     expiresIn: "30d",
   });
@@ -32,7 +28,7 @@ export const googleLogin = async (
     try {
       ticket = await client.verifyIdToken({
         idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+        audience: getRequiredEnv("GOOGLE_CLIENT_ID"),
       });
     } catch (verifyError: any) {
       console.warn("Token verification failed:", verifyError.message);

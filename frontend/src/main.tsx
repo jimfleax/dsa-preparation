@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound.tsx";
 import "./index.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { registerSW } from "virtual:pwa-register";
+import { getGoogleClientId } from "./lib/envUtils";
 
 const updateSW = registerSW({
   onNeedRefresh() {
@@ -23,7 +24,7 @@ const updateSW = registerSW({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+    <GoogleOAuthProvider clientId={getGoogleClientId()}>
       <BrowserRouter>
         <Routes>
           <Route path="/admin/*" element={<AdminApp />} />

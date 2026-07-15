@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect, useCallback } from "react";
 
 import { apiFetch } from "@/src/lib/apiFetch";
@@ -19,8 +20,7 @@ export function useCommandPalette(leetcodeUsername?: string) {
   const [error, setError] = useState<string | null>(null);
 
   const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+    getBackendUrl();
 
   const fetchCalendarData = useCallback(async () => {
     if (!leetcodeUsername) return;

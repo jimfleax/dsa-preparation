@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Settings, Loader2, AlertCircle } from "lucide-react";
@@ -26,8 +27,7 @@ export default function SettingsModal({
 
   const { getToken } = useAuth();
   const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+    getBackendUrl();
 
   // Sync local state when the modal opens with a new value
   useEffect(() => {

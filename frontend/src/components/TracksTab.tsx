@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import TrackCard from "./TrackCard";
@@ -51,8 +52,7 @@ export default function TracksTab() {
   };
 
   const apiBase =
-    (import.meta as any).env.VITE_API_URL ||
-    "https://dsa-preparation-788547842951.asia-south1.run.app";
+    getBackendUrl();
 
   useEffect(() => {
     fetchTracksAndProgress(1);

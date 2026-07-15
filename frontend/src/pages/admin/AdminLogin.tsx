@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     setError(null);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/auth/google`,
+        `${getBackendUrl()}/api/admin/auth/google`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

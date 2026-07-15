@@ -1,3 +1,4 @@
+import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect } from "react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
@@ -17,7 +18,7 @@ export default function TracksPage() {
   const fetchTracks = async () => {
     try {
       const res = await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks`,
+        `${getBackendUrl()}/api/admin/tracks`,
         {
           headers: { Authorization: `Bearer ${adminToken}` },
         },
@@ -43,7 +44,7 @@ export default function TracksPage() {
     if (!window.confirm("Delete this track?")) return;
     try {
       await adminFetch(
-        `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${id}`,
+        `${getBackendUrl()}/api/admin/tracks/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${adminToken}` },
@@ -74,8 +75,8 @@ export default function TracksPage() {
   const handleSaveTrack = async (trackJson: any) => {
     const isUpdate = editingTrack && editingTrack._id;
     const url = isUpdate
-      ? `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks/${editingTrack._id}`
-      : `${import.meta.env.VITE_API_URL || ""}/api/admin/tracks`;
+      ? `${getBackendUrl()}/api/admin/tracks/${editingTrack._id}`
+      : `${getBackendUrl()}/api/admin/tracks`;
 
     const method = isUpdate ? "PUT" : "POST";
 

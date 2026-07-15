@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 import User from "../models/User.ts";
+import { getRequiredEnv } from "../lib/envUtils.ts";
 
 interface DecodedToken {
   userId: string;
@@ -26,7 +27,7 @@ export const requireAuth = async (
 
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET as string,
+        getRequiredEnv("JWT_SECRET")
       ) as DecodedToken;
 
       const user = await User.findById(decoded.userId).select("tokenVersion");
