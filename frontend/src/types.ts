@@ -23,6 +23,7 @@ export interface TrackedProblem {
   reviewDurationDays?: number;
   notrack?: boolean;
   notes?: string;
+  hasNotes?: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -26,30 +26,54 @@ export default function NoteModal({
   const [success, setSuccess] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const [loadingNotes, setLoadingNotes] = useState<boolean>(false);
+
   const { getToken } = useAuth();
   const apiBase =
     (import.meta as any).env.VITE_API_URL ||
     "https://dsa-preparation-788547842951.asia-south1.run.app";
 
+  // Fetch the full problem data (including notes) when modal opens
   useEffect(() => {
-    if (problem && isOpen) {
-      setNotes(problem.notes || "");
-      setError(null);
-      setSuccess(false);
+    if (!problem || !isOpen) return;
 
-      // Auto focus the textarea after render
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-          // Put cursor at the end
-          textareaRef.current.setSelectionRange(
-            textareaRef.current.value.length,
-            textareaRef.current.value.length,
-          );
+    setError(null);
+    setSuccess(false);
+    setNotes(problem.notes || ""); // Optimistic: show whatever we have
+
+    const fetchNotes = async () => {
+      setLoadingNotes(true);
+      try {
+        const token = await getToken();
+        const response = await apiFetch(
+          `${apiBase}/api/tracker/${problem._id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        const data = await response.json();
+        if (data.success && data.problem) {
+          setNotes(data.problem.notes || "");
         }
-      }, 50);
-    }
-  }, [problem, isOpen]);
+      } catch (err) {
+        console.error("Error fetching problem notes:", err);
+        // Keep whatever we had from the list data
+      } finally {
+        setLoadingNotes(false);
+        // Auto focus the textarea after loading
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.focus();
+            textareaRef.current.setSelectionRange(
+              textareaRef.current.value.length,
+              textareaRef.current.value.length,
+            );
+          }
+        }, 50);
+      }
+    };
+    fetchNotes();
+  }, [problem?._id, isOpen]);
 
   const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -173,7 +197,7 @@ export default function NoteModal({
               ref={textareaRef}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              disabled={saving}
+              disabled={saving || loadingNotes}
               placeholder="Write down your thoughts, approaches, or key takeaways for this problem..."
               className="note-editor w-full h-full min-h-[200px] flex-1 p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-sans shadow-inner resize-none"
             />

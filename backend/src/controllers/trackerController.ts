@@ -202,15 +202,19 @@ export const listProblems = async (req: Request, res: Response) => {
 
     // Execute queries in parallel for performance
     const [problems, totalCount] = await Promise.all([
-      query.select("-notes").lean(), // Exclude notes from list view
+      query.lean(),
       TrackedProblem.countDocuments(filter),
     ]);
 
-    // Derive URL dynamically for backward compatibility
-    const processedProblems = problems.map((p) => ({
-      ...p,
-      url: p.url || `https://leetcode.com/problems/${p.titleSlug}/`,
-    }));
+    // Derive URL dynamically, add hasNotes flag, strip full notes text
+    const processedProblems = problems.map((p) => {
+      const { notes, ...rest } = p as any;
+      return {
+        ...rest,
+        url: p.url || `https://leetcode.com/problems/${p.titleSlug}/`,
+        hasNotes: !!notes,
+      };
+    });
 
     res.json({
       success: true,
@@ -813,6 +817,40 @@ export const getTrackerMetrics = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error("Error getting tracker metrics:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ success: false, error: message });
+  }
+};
+
+/**
+ * GET /api/tracker/:id
+ * Returns a single tracked problem with full data (including notes).
+ */
+export const getProblemById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid ID format." });
+    }
+
+    const problem = await TrackedProblem.findOne({ _id: id, userId }).lean();
+    if (!problem) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Problem not found." });
+    }
+
+    res.json({ success: true, problem });
+  } catch (error: unknown) {
+    console.error("Error getting problem by ID:", error);
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
     res.status(500).json({ success: false, error: message });

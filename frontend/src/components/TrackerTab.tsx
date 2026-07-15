@@ -637,7 +637,7 @@ export default function ProblemsTab({
                         <span className="truncate max-w-[300px]">
                           {problem.title}
                         </span>
-                        {problem.notes && (
+                        {(problem.notes || problem.hasNotes) && (
                           <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
                         )}
                         <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -740,11 +740,11 @@ export default function ProblemsTab({
                             setIsNoteModalOpen(true);
                           }}
                           className={`p-1.5 rounded-lg active:scale-90 transition-all duration-200 cursor-pointer ${
-                            problem.notes
+                            problem.notes || problem.hasNotes
                               ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
                               : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
                           }`}
-                          title={problem.notes ? "View/Edit Note" : "Add Note"}
+                          title={problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"}
                         >
                           <StickyNote className="w-3.5 h-3.5" />
                         </button>

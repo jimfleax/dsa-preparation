@@ -12,6 +12,7 @@ import {
   getDueProblems,
   getSlimProblems,
   revisitProblemBySlug,
+  getProblemById,
 } from "../controllers/trackerController.ts";
 
 const router = Router();
@@ -45,6 +46,9 @@ router.patch("/:id/toggle-track", toggleTrackProblem);
 
 // PATCH /api/tracker/slug/:titleSlug/revisit — Record a revisit by title slug
 router.patch("/slug/:titleSlug/revisit", revisitProblemBySlug);
+
+// GET /api/tracker/:id — Get a single problem with full data (including notes)
+router.get("/:id", getProblemById);
 
 // PUT /api/tracker/:id — Update a problem (URL, attempts)
 router.put("/:id", updateProblem);

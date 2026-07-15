@@ -58,7 +58,7 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
             className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors inline-flex items-center gap-1.5"
           >
             <span className="line-clamp-2">{problem.title}</span>
-            {problem.notes && (
+            {(problem.notes || problem.hasNotes) && (
               <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
             )}
             <ExternalLink className="w-3 h-3 text-neutral-400 shrink-0" />
@@ -137,7 +137,7 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
         <button
           onClick={() => onNote(problem)}
           className={`px-3 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer ${
-            problem.notes
+            problem.notes || problem.hasNotes
               ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
               : "text-neutral-400 bg-neutral-50 hover:text-amber-600 hover:bg-amber-50"
           }`}
