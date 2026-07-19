@@ -24,6 +24,7 @@ export interface TrackedProblem {
   notrack?: boolean;
   notes?: string;
   hasNotes?: boolean;
+  isDueToday?: boolean;
   createdAt: string;
   updatedAt: string;
 }

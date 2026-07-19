@@ -7,6 +7,14 @@ import {
 import { extractTitleSlug } from "../lib/slugUtils.ts";
 import mongoose from "mongoose";
 import { z } from "zod";
+import { calculateIsDue } from "../lib/dateUtils.ts";
+
+const withDueFlag = (doc: any) => {
+  if (!doc) return doc;
+  const obj = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+  if (!obj.lastAttemptedDate) return obj;
+  return { ...obj, isDueToday: calculateIsDue(obj.lastAttemptedDate, obj.reviewDurationDays) };
+};
 
 const addProblemSchema = z.object({
   url: z.string().url("A valid LeetCode URL is required."),
@@ -213,6 +221,7 @@ export const listProblems = async (req: Request, res: Response) => {
         ...rest,
         url: p.url || `https://leetcode.com/problems/${p.titleSlug}/`,
         hasNotes: !!notes,
+        isDueToday: calculateIsDue(p.lastAttemptedDate, p.reviewDurationDays),
       };
     });
 
@@ -314,7 +323,7 @@ export const addProblem = async (req: Request, res: Response) => {
       ...(reviewDurationDays ? { reviewDurationDays } : {}),
     });
 
-    res.status(201).json({ success: true, problem });
+    res.status(201).json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error adding problem:", error);
     if (
@@ -391,7 +400,7 @@ export const revisitProblem = async (req: Request, res: Response) => {
 
     await problem.save();
 
-    res.json({ success: true, problem });
+    res.json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error recording revisit:", error);
     const message =
@@ -444,7 +453,7 @@ export const revisitProblemBySlug = async (req: Request, res: Response) => {
 
     await problem.save();
 
-    res.json({ success: true, problem });
+    res.json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error recording revisit by slug:", error);
     const message =
@@ -559,7 +568,7 @@ export const updateProblem = async (req: Request, res: Response) => {
     }
 
     await problem.save();
-    res.json({ success: true, problem });
+    res.json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error updating problem:", error);
     const message =
@@ -618,7 +627,9 @@ export const listUntrackedProblems = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    res.json({ success: true, problems, count: problems.length });
+    const problemsWithFlag = problems.map((p: any) => withDueFlag(p));
+
+    res.json({ success: true, problems: problemsWithFlag, count: problemsWithFlag.length });
   } catch (error: unknown) {
     console.error("Error listing untracked problems:", error);
     const message =
@@ -655,7 +666,7 @@ export const toggleTrackProblem = async (req: Request, res: Response) => {
     problem.notrack = !problem.notrack;
     await problem.save();
 
-    res.json({ success: true, problem });
+    res.json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error toggling track status:", error);
     const message =
@@ -715,17 +726,10 @@ export const getDueProblems = async (req: Request, res: Response) => {
       .select("titleSlug title difficulty lastAttemptedDate reviewDurationDays attemptCount url")
       .lean();
 
-    const dueProblems = problems.filter((p: any) => {
-      const lastAttempt = new Date(p.lastAttemptedDate);
-      lastAttempt.setHours(0, 0, 0, 0);
+    const dueProblems = problems.filter((p: any) => calculateIsDue(p.lastAttemptedDate, p.reviewDurationDays));
+    const dueProblemsWithFlag = dueProblems.map((p: any) => withDueFlag(p));
 
-      const diffTime = today.getTime() - lastAttempt.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-      return diffDays >= p.reviewDurationDays;
-    });
-
-    res.json({ success: true, problems: dueProblems, count: dueProblems.length });
+    res.json({ success: true, problems: dueProblemsWithFlag, count: dueProblemsWithFlag.length });
   } catch (error: unknown) {
     console.error("Error fetching due problems:", error);
     const message =
@@ -752,7 +756,9 @@ export const getSlimProblems = async (req: Request, res: Response) => {
       .select("titleSlug title difficulty attemptCount")
       .lean();
 
-    res.json({ success: true, problems, count: problems.length });
+    const problemsWithFlag = problems.map((p: any) => withDueFlag(p));
+
+    res.json({ success: true, problems: problemsWithFlag, count: problemsWithFlag.length });
   } catch (error: unknown) {
     console.error("Error fetching slim problems:", error);
     const message =
@@ -848,7 +854,7 @@ export const getProblemById = async (req: Request, res: Response) => {
         .json({ success: false, error: "Problem not found." });
     }
 
-    res.json({ success: true, problem });
+    res.json({ success: true, problem: withDueFlag(problem) });
   } catch (error: unknown) {
     console.error("Error getting problem by ID:", error);
     const message =

@@ -277,16 +277,8 @@ export default function ProblemsTab({
     let result = [...problems];
 
     result.sort((a, b) => {
-      const isADue =
-        a.reviewDurationDays &&
-        (Date.now() - new Date(a.lastAttemptedDate).getTime()) /
-          (1000 * 60 * 60 * 24) >=
-          a.reviewDurationDays;
-      const isBDue =
-        b.reviewDurationDays &&
-        (Date.now() - new Date(b.lastAttemptedDate).getTime()) /
-          (1000 * 60 * 60 * 24) >=
-          b.reviewDurationDays;
+      const isADue = !!a.isDueToday;
+      const isBDue = !!b.isDueToday;
 
       if (isADue && !isBDue) return -1;
       if (!isADue && isBDue) return 1;
@@ -306,12 +298,7 @@ export default function ProblemsTab({
     const due: TrackedProblem[] = [];
     const other: TrackedProblem[] = [];
     filteredProblems.forEach((p) => {
-      if (
-        p.reviewDurationDays &&
-        (Date.now() - new Date(p.lastAttemptedDate).getTime()) /
-          (1000 * 60 * 60 * 24) >=
-          p.reviewDurationDays
-      ) {
+      if (p.isDueToday) {
         due.push(p);
       } else {
         other.push(p);
