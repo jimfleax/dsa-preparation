@@ -12,6 +12,9 @@ import authRoutes from "./src/routes/authRoutes.ts";
 import documentRoutes from "./src/routes/documentRoutes.ts";
 import adminRoutes from "./src/routes/admin/index.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
+import { globalErrorHandler } from "./src/middleware/errorHandler.ts";
+import { validateRequest } from "./src/middleware/validateRequest.ts";
+import { scrapeTitleSchema, getLeetCodeCalendarSchema } from "./src/lib/validations/tracker.ts";
 import {
   scrapeLeetCodeTitle,
   getLeetCodeCalendar,
@@ -118,11 +121,11 @@ const scrapeLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.post("/api/problems/scrape-title", scrapeLimiter, scrapeLeetCodeTitle);
+app.post("/api/problems/scrape-title", scrapeLimiter, validateRequest(scrapeTitleSchema), scrapeLeetCodeTitle);
 
 // PUBLIC UTILITY: LeetCode profile calendar proxy (no auth required)
 // Used by the Command Palette to render user heatmaps
-app.get("/api/leetcode/calendar/:username", scrapeLimiter, getLeetCodeCalendar);
+app.get("/api/leetcode/calendar/:username", scrapeLimiter, validateRequest(getLeetCodeCalendarSchema), getLeetCodeCalendar);
 
 // Native Auth routes
 app.use("/api/auth", authRoutes);
@@ -149,38 +152,7 @@ app.use("/api/admin", adminRoutes);
 // ──────────────────────────────────────────────────────────
 //  GLOBAL ERROR HANDLER
 // ──────────────────────────────────────────────────────────
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    console.error("[SERVER ERROR] ✗ Unhandled Exception in Middleware/Route");
-    console.error(`[SERVER ERROR]   Path: ${req.method} ${req.path}`);
-    console.error(`[SERVER ERROR]   Message: ${err.message}`);
-
-    if (err.stack) {
-      console.error(err.stack);
-    }
-
-    // Ensure JSON response for API routes
-    if (req.path.startsWith("/api/")) {
-      const status = err.status || 500;
-      res.status(status).json({
-        success: false,
-        error: status === 500 ? "Internal Server Error" : "Client Error",
-        message:
-          process.env.NODE_ENV === "production" && status === 500
-            ? "An unexpected error occurred"
-            : err.message,
-      });
-    } else {
-      // For non-API routes, fall back to default express handler or custom HTML
-      next(err);
-    }
-  },
-);
+app.use(globalErrorHandler);
 
 async function startServer() {
   try {

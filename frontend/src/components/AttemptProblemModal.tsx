@@ -8,6 +8,7 @@ import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { getApiError } from "@/src/lib/errorUtils";
 
 interface AttemptProblemModalProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ export default function AttemptProblemModal({
   const { getToken } = useAuth();
   const [phase, setPhase] = useState<"reveal" | "confirm">("reveal");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
 
   const apiBase =
     getBackendUrl();
@@ -56,7 +57,7 @@ export default function AttemptProblemModal({
           },
         );
         const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        if (!data.success) throw data;
       } else {
         // POST new
         const res = await apiFetch(`${apiBase}/api/tracker`, {
@@ -70,12 +71,16 @@ export default function AttemptProblemModal({
           }),
         });
         const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        if (!data.success) throw data;
       }
       onUpdated();
       onClose();
     } catch (err: any) {
-      setError(err.message || "Failed to save attempt");
+      if (err instanceof Error) {
+        setError(err.message || "Failed to save attempt");
+      } else {
+        setError(getApiError(err, "Failed to save attempt"));
+      }
     } finally {
       setLoading(false);
     }

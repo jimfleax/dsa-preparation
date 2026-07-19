@@ -1,6 +1,8 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { checkSync, trackSubmissions } from "../controllers/syncController.ts";
+import { validateRequest } from "../middleware/validateRequest.ts";
+import { trackSubmissionsSchema } from "../lib/validations/sync.ts";
 
 const router = Router();
 
@@ -19,6 +21,6 @@ const syncLimiter = rateLimit({
 router.get("/check", syncLimiter, checkSync);
 
 // POST /api/sync/track — Track or dismiss new submissions
-router.post("/track", trackSubmissions);
+router.post("/track", validateRequest(trackSubmissionsSchema), trackSubmissions);
 
 export default router;

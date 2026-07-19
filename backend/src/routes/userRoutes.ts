@@ -3,6 +3,8 @@ import {
   getUserSettings,
   updateUserSettings,
 } from "../controllers/userController.ts";
+import { validateRequest } from "../middleware/validateRequest.ts";
+import { updateUserSettingsSchema } from "../lib/validations/user.ts";
 
 const router = Router();
 
@@ -10,6 +12,6 @@ const router = Router();
 router.get("/settings", getUserSettings);
 
 // POST /api/user/settings — Update current user's settings (e.g. leetcodeUsername)
-router.post("/settings", updateUserSettings);
+router.post("/settings", validateRequest(updateUserSettingsSchema), updateUserSettings);
 
 export default router;

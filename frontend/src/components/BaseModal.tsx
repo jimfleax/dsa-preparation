@@ -18,7 +18,7 @@ interface BaseModalProps {
   maxWidthClass?: string;
   hideHeader?: boolean;
   absoluteClose?: boolean;
-  error?: string | null;
+  error?: ReactNode | null;
 }
 
 export default function BaseModal({

@@ -7,6 +7,7 @@ import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { getApiError } from "@/src/lib/errorUtils";
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export default function NoteModal({
 }: NoteModalProps) {
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -120,7 +121,7 @@ export default function NoteModal({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || "Failed to save note.");
+        setError(getApiError(data, "Failed to save note."));
         return;
       }
 
@@ -164,7 +165,7 @@ export default function NoteModal({
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          setError(data.error || "Failed to clear note.");
+          setError(getApiError(data, "Failed to clear note."));
           return;
         }
 

@@ -46,15 +46,6 @@ export const updateUserSettings = async (req: Request, res: Response) => {
 
     const { leetcodeUsername } = req.body;
 
-    if (
-      leetcodeUsername !== undefined &&
-      typeof leetcodeUsername !== "string"
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, error: "leetcodeUsername must be a string." });
-    }
-
     const user = await User.findByIdAndUpdate(
       userId,
       {

@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { googleLogin } from "../controllers/authController.ts";
+import { validateRequest } from "../middleware/validateRequest.ts";
+import { googleLoginSchema } from "../lib/validations/auth.ts";
 import rateLimit from "express-rate-limit";
 
 const authLimiter = rateLimit({
@@ -15,6 +17,6 @@ const authLimiter = rateLimit({
 
 const router = Router();
 
-router.post("/google", authLimiter, googleLogin);
+router.post("/google", authLimiter, validateRequest(googleLoginSchema), googleLogin);
 
 export default router;

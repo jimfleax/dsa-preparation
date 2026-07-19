@@ -19,10 +19,6 @@ export const googleLogin = async (
 ): Promise<void> => {
   try {
     const { token } = req.body;
-    if (!token) {
-      res.status(400).json({ success: false, message: "Token is required" });
-      return;
-    }
 
     let ticket;
     try {

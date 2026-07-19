@@ -6,7 +6,6 @@ import {
 } from "../lib/leetcodeScraperUtil.ts";
 import { extractTitleSlug } from "../lib/slugUtils.ts";
 import mongoose from "mongoose";
-import { z } from "zod";
 import { calculateIsDue } from "../lib/dateUtils.ts";
 
 const withDueFlag = (doc: any) => {
@@ -16,25 +15,7 @@ const withDueFlag = (doc: any) => {
   return { ...obj, isDueToday: calculateIsDue(obj.lastAttemptedDate, obj.reviewDurationDays) };
 };
 
-const addProblemSchema = z.object({
-  url: z.string().url("A valid LeetCode URL is required."),
-  reviewDurationDays: z.number().int().min(1).optional().nullable(),
-});
 
-const updateProblemSchema = z.object({
-  url: z.string().url("A valid URL is required.").optional(),
-  attemptCount: z.coerce
-    .number()
-    .int()
-    .min(1, "Attempt count must be at least 1.")
-    .optional(),
-  reviewDurationDays: z.number().int().min(1).optional().nullable(),
-  notes: z
-    .string()
-    .max(2000, "Notes cannot exceed 2000 characters")
-    .optional()
-    .nullable(),
-});
 
 /**
  * POST /api/problems/scrape-title
@@ -45,12 +26,6 @@ const updateProblemSchema = z.object({
 export const scrapeLeetCodeTitle = async (req: Request, res: Response) => {
   try {
     const { url } = req.body;
-
-    if (!url || typeof url !== "string") {
-      return res
-        .status(400)
-        .json({ success: false, error: "A valid LeetCode URL is required." });
-    }
 
     const titleSlug = extractTitleSlug(url.trim());
     if (!titleSlug) {
@@ -94,12 +69,6 @@ export const getLeetCodeCalendar = async (req: Request, res: Response) => {
     const year = req.query.year
       ? parseInt(req.query.year as string, 10)
       : undefined;
-
-    if (!username) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Username is required" });
-    }
 
     const graphqlQuery = {
       operationName: "userProfileCalendar",
@@ -260,13 +229,7 @@ export const addProblem = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const parseResult = addProblemSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res
-        .status(400)
-        .json({ success: false, error: parseResult.error.issues[0].message });
-    }
-    const { url, reviewDurationDays } = parseResult.data;
+    const { url, reviewDurationDays } = req.body;
 
     const titleSlug = extractTitleSlug(url.trim());
     if (!titleSlug) {
@@ -480,13 +443,7 @@ export const updateProblem = async (req: Request, res: Response) => {
         .json({ success: false, error: "Invalid ID format." });
     }
 
-    const parseResult = updateProblemSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res
-        .status(400)
-        .json({ success: false, error: parseResult.error.issues[0].message });
-    }
-    const { url, attemptCount, reviewDurationDays, notes } = parseResult.data;
+    const { url, attemptCount, reviewDurationDays, notes } = req.body;
 
     const problem = await TrackedProblem.findOne({ _id: id, userId });
     if (!problem) {

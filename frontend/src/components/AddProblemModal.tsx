@@ -6,6 +6,7 @@ import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { getApiError } from "@/src/lib/errorUtils";
 
 interface AddProblemModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export default function AddProblemModal({
   const [fetchingTitle, setFetchingTitle] = useState<boolean>(false);
   const [reviewDuration, setReviewDuration] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
@@ -124,7 +125,7 @@ export default function AddProblemModal({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || "Failed to add problem.");
+        setError(getApiError(data, "Failed to add problem."));
         return;
       }
 

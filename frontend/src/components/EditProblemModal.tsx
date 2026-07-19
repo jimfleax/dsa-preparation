@@ -7,6 +7,7 @@ import BaseModal from "./BaseModal";
 import FormAlert from "./FormAlert";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { getApiError } from "@/src/lib/errorUtils";
 
 interface EditProblemModalProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ export default function EditProblemModal({
   const [saving, setSaving] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
@@ -145,7 +146,7 @@ export default function EditProblemModal({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || "Failed to update problem.");
+        setError(getApiError(data, "Failed to update problem."));
         return;
       }
 
@@ -182,7 +183,7 @@ export default function EditProblemModal({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || "Failed to delete problem.");
+        setError(getApiError(data, "Failed to delete problem."));
         setConfirmDelete(false);
         return;
       }
