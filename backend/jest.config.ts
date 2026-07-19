@@ -20,6 +20,7 @@ const config: JestConfigWithTsJest = {
   },
   testMatch: ["**/__tests__/**/*.test.ts"],
   setupFilesAfterFramework: [],
+  setupFiles: ["dotenv/config"],
   testTimeout: 30000, // Real DB + LeetCode API calls need time
   clearMocks: true,
   // Run serially to avoid DB state collisions on shared test database

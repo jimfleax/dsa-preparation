@@ -20,7 +20,7 @@ export const getUserSettings = catchAsync(async (req: Request, res: Response) =>
 
   res.json({
     success: true,
-    settings: {
+    data: {
       userId: user._id,
       leetcodeUsername: user.leetcodeUsername || null,
     },
@@ -56,7 +56,7 @@ export const updateUserSettings = catchAsync(async (req: Request, res: Response)
 
   res.json({
     success: true,
-    settings: {
+    data: {
       userId: user._id,
       leetcodeUsername: user.leetcodeUsername || null,
     },

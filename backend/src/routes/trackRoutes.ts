@@ -1,10 +1,10 @@
-import express from "express";
+import { Router } from "express";
 import { listTracks, getTrackMetrics } from "../controllers/trackController.ts";
 import { requireAuth } from "../middleware/authMiddleware.ts";
 import { validateRequest } from "../middleware/validateRequest.ts";
 import { listTracksSchema } from "../lib/validations/track.ts";
 
-const router = express.Router();
+const router = Router();
 
 // GET /api/tracks/metrics - Returns global track metrics
 router.get("/metrics", requireAuth, getTrackMetrics);

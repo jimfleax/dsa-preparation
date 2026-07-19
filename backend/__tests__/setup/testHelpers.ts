@@ -6,6 +6,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 import User from "../../src/models/User.ts";
 import { Admin } from "../../src/models/Admin.ts";
@@ -16,18 +17,18 @@ import LearningDoc from "../../src/models/LearningDoc.ts";
 // Ensure env is loaded
 dotenv.config({ path: ".env" });
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+
+let mongoServer: MongoMemoryServer;
 
 /**
  * Connects to the test database if not already connected.
  */
 export async function connectTestDB() {
   if (mongoose.connection.readyState === 0) {
-    const testUri = process.env.TEST_MONGODB_URI;
-    if (!testUri) {
-      throw new Error("TEST_MONGODB_URI not set");
-    }
-    await mongoose.connect(testUri);
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
   }
 }
 
@@ -37,6 +38,9 @@ export async function connectTestDB() {
 export async function disconnectTestDB() {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
+  }
+  if (mongoServer) {
+    await mongoServer.stop();
   }
 }
 

@@ -1,4 +1,4 @@
-import express from "express";
+import { Router } from "express";
 import {
   getDocs,
   createDoc,
@@ -7,7 +7,7 @@ import {
 } from "../../controllers/admin/docsController.js";
 import { requireAdminAuth } from "../../middleware/adminAuthMiddleware.js";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/", requireAdminAuth, getDocs);
 router.post("/", requireAdminAuth, createDoc);
