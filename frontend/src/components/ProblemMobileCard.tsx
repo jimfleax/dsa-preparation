@@ -25,6 +25,7 @@ interface ProblemMobileCardProps {
   onSchedule: (problem: TrackedProblem) => void;
   id?: string;
   isHighlighted?: boolean;
+  isDueGroup?: boolean;
 }
 
 export const ProblemMobileCard = React.memo(function ProblemMobileCard({
@@ -38,6 +39,7 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
   onSchedule,
   id,
   isHighlighted,
+  isDueGroup,
 }: ProblemMobileCardProps) {
   return (
     <Card 
@@ -63,20 +65,11 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
             )}
             <ExternalLink className="w-3 h-3 text-neutral-400 shrink-0" />
           </a>
-          {problem.reviewDurationDays ? (
-            (Date.now() - new Date(problem.lastAttemptedDate).getTime()) /
-              (1000 * 60 * 60 * 24) >=
-            problem.reviewDurationDays ? (
-              <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100">
-                <CalendarClock className="w-3 h-3" />
-                Marked for review today
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
-                <CalendarClock className="w-3 h-3" />
-                Review Scheduled
-              </span>
-            )
+          {problem.reviewDurationDays && !isDueGroup ? (
+            <span className="inline-flex items-center gap-1 mt-1.5 w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+              <CalendarClock className="w-3 h-3" />
+              Review Scheduled
+            </span>
           ) : null}
         </div>
         <span

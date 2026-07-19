@@ -1,5 +1,5 @@
 import { getBackendUrl } from "@/src/lib/envUtils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   X,
@@ -9,6 +9,7 @@ import {
   CalendarClock,
   Hash,
   Sparkles,
+  BookOpen
 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useEscapeKey } from "../hooks/useEscapeKey";
@@ -78,6 +79,7 @@ interface SmartRevisitModalProps {
   onClose: () => void;
   problem: TrackedProblem | null;
   onRevisited: () => void;
+  mode?: "smart" | "review";
 }
 
 /**
@@ -91,10 +93,20 @@ export default function SmartRevisitModal({
   onClose,
   problem,
   onRevisited,
+  mode = "smart",
 }: SmartRevisitModalProps) {
   // Phase: 'reveal' (show problem) or 'confirm' (mark as revisited)
   const [phase, setPhase] = useState<"reveal" | "confirm">("reveal");
   const [isMarking, setIsMarking] = useState(false);
+  const [showKeepReviewing, setShowKeepReviewing] = useState(false);
+  const [keepReviewDuration, setKeepReviewDuration] = useState("7");
+
+  useEffect(() => {
+    if (isOpen) {
+      setKeepReviewDuration(problem?.reviewDurationDays?.toString() || "7");
+      setShowKeepReviewing(false);
+    }
+  }, [isOpen, problem]);
 
   const { getToken } = useAuth();
   const apiBase =
@@ -115,15 +127,22 @@ export default function SmartRevisitModal({
     setPhase("confirm");
   };
 
-  const handleMarkRevisited = async () => {
+  const handleMarkRevisited = async (reviewDurationDays: number | null = null) => {
     setIsMarking(true);
     try {
       const token = await getToken();
+      const body = mode === "review" ? JSON.stringify({ reviewDurationDays }) : undefined;
+      const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+      if (body) {
+        headers["Content-Type"] = "application/json";
+      }
+
       const response = await apiFetch(
         `${apiBase}/api/tracker/${problem._id}/revisit`,
         {
           method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
+          headers,
+          body,
         },
       );
       const data = await response.json();
@@ -161,15 +180,15 @@ export default function SmartRevisitModal({
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center text-white">
-            <Sparkles className="w-4 h-4" />
+            {mode === "smart" ? <Sparkles className="w-4 h-4" /> : <CalendarClock className="w-4 h-4" />}
           </div>
           <div>
             <h2 className="text-sm font-bold text-neutral-800">
-              Smart Revisit
+              {mode === "smart" ? "Smart Revisit" : "Review Problem"}
             </h2>
             <p className="text-[11px] text-neutral-400 font-medium">
               {phase === "reveal"
-                ? "Here's a problem to revisit"
+                ? (mode === "smart" ? "Here's a problem to revisit" : "Time to review this problem")
                 : "Did you solve it?"}
             </p>
           </div>
@@ -252,26 +271,82 @@ export default function SmartRevisitModal({
               </p>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleClose}
-                className="flex-1 px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleMarkRevisited}
-                disabled={isMarking}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-lg shadow-emerald-200/50"
-              >
-                {isMarking ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RotateCcw className="w-4 h-4" />
+            {mode === "review" && showKeepReviewing ? (
+              <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200 bg-neutral-50 p-4 rounded-xl border border-neutral-100">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Days"
+                    value={keepReviewDuration}
+                    onChange={(e) => setKeepReviewDuration(e.target.value)}
+                    className="w-20 px-3 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs text-neutral-500 font-medium">
+                    days later
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    onClick={() => setShowKeepReviewing(false)}
+                    disabled={isMarking}
+                    className="flex-1 px-3 py-2 bg-white hover:bg-neutral-50 text-neutral-600 rounded-lg text-xs font-bold transition-all disabled:opacity-50 border border-neutral-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleMarkRevisited(
+                        parseInt(keepReviewDuration) ||
+                          problem.reviewDurationDays ||
+                          1
+                      )
+                    }
+                    disabled={isMarking || !keepReviewDuration}
+                    className="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 shadow-sm"
+                  >
+                    {isMarking ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <BookOpen className="w-3.5 h-3.5" />
+                    )}
+                    Save & Revisit
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleMarkRevisited(null)}
+                    disabled={isMarking}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-lg shadow-emerald-200/50"
+                  >
+                    {isMarking ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4" />
+                    )}
+                    {isMarking ? "Saving..." : "Mark as Reviewed"}
+                  </button>
+                </div>
+                {mode === "review" && (
+                  <button
+                    onClick={() => setShowKeepReviewing(true)}
+                    disabled={isMarking}
+                    className="w-full px-4 py-2 bg-white hover:bg-neutral-50 text-neutral-600 rounded-xl text-xs font-bold transition-all disabled:opacity-50 border border-neutral-200"
+                  >
+                    Keep Reviewing...
+                  </button>
                 )}
-                {isMarking ? "Saving..." : "Mark as Revisited"}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,8 +1,9 @@
 import { getBackendUrl } from "@/src/lib/envUtils";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import { X, CalendarClock, RotateCcw, Loader2, BookOpen } from "lucide-react";
+import { X, CalendarClock, ChevronRight } from "lucide-react";
 import { TrackedProblem } from "../types";
+import SmartRevisitModal from "./SmartRevisitModal";
 
 import { apiFetch } from "@/src/lib/apiFetch";
 
@@ -11,62 +12,24 @@ interface ReviewDuePopupProps {
   refreshKey?: number;
 }
 
-export function ReviewActionCard({
+function ReviewActionCard({
   problem,
-  onRevisited,
+  onSelect,
 }: {
   problem: TrackedProblem;
-  onRevisited: (id: string) => void;
+  onSelect: (problem: TrackedProblem) => void;
 }) {
-  const [revisitingId, setRevisitingId] = useState<string | null>(null);
-  const [keepReviewDuration, setKeepReviewDuration] = useState<string>("");
-  const [showKeepReviewing, setShowKeepReviewing] = useState<boolean>(false);
-
-  const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
-
-  const handleRevisit = async (reviewDurationDays: number | null) => {
-    setRevisitingId(problem._id);
-    try {
-      const token = await getToken();
-      const response = await apiFetch(
-        `${apiBase}/api/tracker/${problem._id}/revisit`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ reviewDurationDays }),
-        },
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setShowKeepReviewing(false);
-        onRevisited(problem._id);
-      }
-    } catch (err) {
-      console.error("Error recording revisit:", err);
-    } finally {
-      setRevisitingId(null);
-    }
-  };
-
   return (
-    <div className="bg-neutral-50/50 rounded-xl border border-neutral-200 overflow-hidden animate-in slide-in-from-bottom-2 fade-in duration-300">
-      <div className="p-4 space-y-4">
+    <div 
+      onClick={() => onSelect(problem)}
+      className="bg-white hover:bg-indigo-50/50 rounded-xl border border-neutral-200 hover:border-indigo-200 overflow-hidden cursor-pointer group transition-all duration-200 shadow-sm hover:shadow-md animate-in slide-in-from-bottom-2 fade-in"
+    >
+      <div className="p-4 flex items-center justify-between">
         <div>
-          <a
-            href={problem.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors line-clamp-2"
-          >
+          <h4 className="text-sm font-bold text-neutral-800 group-hover:text-indigo-700 transition-colors line-clamp-1">
             {problem.title}
-          </a>
-          <p className="text-xs text-neutral-400 mt-1">
+          </h4>
+          <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
             Last attempted{" "}
             {Math.floor(
               (Date.now() - new Date(problem.lastAttemptedDate).getTime()) /
@@ -75,73 +38,9 @@ export function ReviewActionCard({
             days ago
           </p>
         </div>
-
-        {showKeepReviewing ? (
-          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                placeholder="Days"
-                value={keepReviewDuration}
-                onChange={(e) => setKeepReviewDuration(e.target.value)}
-                className="w-20 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm text-neutral-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <span className="text-xs text-neutral-500 font-medium">
-                days later
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowKeepReviewing(false)}
-                disabled={revisitingId === problem._id}
-                className="flex-1 px-3 py-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() =>
-                  handleRevisit(
-                    parseInt(keepReviewDuration) ||
-                      problem.reviewDurationDays ||
-                      1,
-                  )
-                }
-                disabled={revisitingId === problem._id || !keepReviewDuration}
-                className="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
-              >
-                {revisitingId === problem._id ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <BookOpen className="w-3.5 h-3.5" />
-                )}
-                Save
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => handleRevisit(null)}
-              disabled={revisitingId === problem._id}
-              className="w-full px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 border border-emerald-100"
-            >
-              {revisitingId === problem._id ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RotateCcw className="w-4 h-4" />
-              )}
-              Mark as Reviewed
-            </button>
-            <button
-              onClick={() => setShowKeepReviewing(true)}
-              disabled={revisitingId === problem._id}
-              className="w-full px-4 py-2 bg-white hover:bg-neutral-50 text-neutral-600 rounded-xl text-xs font-bold transition-all disabled:opacity-50 border border-neutral-200"
-            >
-              Keep Reviewing
-            </button>
-          </div>
-        )}
+        <div className="w-8 h-8 rounded-full bg-neutral-50 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-indigo-600" />
+        </div>
       </div>
     </div>
   );
@@ -153,37 +52,28 @@ export default function ReviewDuePopup({
 }: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
+  const [selectedProblem, setSelectedProblem] = useState<TrackedProblem | null>(null);
   const { getToken, isSignedIn } = useAuth();
   const apiBase =
     getBackendUrl();
 
   const fetchDueProblems = useCallback(async () => {
-    if (!isSignedIn) return;
+    if (!isSignedIn) return [];
     try {
       const token = await getToken();
-      const response = await apiFetch(`${apiBase}/api/tracker`, {
+      const response = await apiFetch(`${apiBase}/api/tracker/due`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
 
       if (data.success && data.problems) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const due = data.problems.filter((p: TrackedProblem) => {
-          if (!p.reviewDurationDays) return false;
-          const lastAttempt = new Date(p.lastAttemptedDate);
-          lastAttempt.setHours(0, 0, 0, 0);
-
-          const diffTime = today.getTime() - lastAttempt.getTime();
-          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          return diffDays >= p.reviewDurationDays;
-        });
-        setDueProblems(due);
+        setDueProblems(data.problems);
+        return data.problems as TrackedProblem[];
       }
     } catch (err) {
       console.error("Failed to fetch due problems:", err);
     }
+    return [];
   }, [isSignedIn, getToken, apiBase]);
 
   useEffect(() => {
@@ -191,8 +81,13 @@ export default function ReviewDuePopup({
   }, [fetchDueProblems, refreshKey]);
 
   useEffect(() => {
-    const handleOpen = () => {
-      fetchDueProblems();
+    const handleOpen = async () => {
+      const problems = await fetchDueProblems();
+      if (problems.length === 1) {
+        setSelectedProblem(problems[0]);
+      } else {
+        setSelectedProblem(null);
+      }
       setIsModalDismissed(false);
     };
     window.addEventListener("openReviewModal", handleOpen);
@@ -205,6 +100,23 @@ export default function ReviewDuePopup({
   };
 
   if (dueProblems.length === 0 || isModalDismissed) return null;
+
+  if (selectedProblem) {
+    return (
+      <SmartRevisitModal
+        isOpen={!!selectedProblem}
+        onClose={() => {
+          setSelectedProblem(null);
+          if (dueProblems.length === 1) {
+            setIsModalDismissed(true);
+          }
+        }}
+        problem={selectedProblem}
+        onRevisited={() => handleRevisitDone(selectedProblem._id)}
+        mode="review"
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -232,7 +144,7 @@ export default function ReviewDuePopup({
             <ReviewActionCard
               key={problem._id}
               problem={problem}
-              onRevisited={handleRevisitDone}
+              onSelect={setSelectedProblem}
             />
           ))}
         </div>

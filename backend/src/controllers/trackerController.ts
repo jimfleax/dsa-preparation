@@ -712,7 +712,7 @@ export const getDueProblems = async (req: Request, res: Response) => {
       notrack: { $ne: true },
       reviewDurationDays: { $exists: true, $ne: null },
     })
-      .select("titleSlug title difficulty lastAttemptedDate reviewDurationDays attemptCount -_id")
+      .select("titleSlug title difficulty lastAttemptedDate reviewDurationDays attemptCount url")
       .lean();
 
     const dueProblems = problems.filter((p: any) => {
