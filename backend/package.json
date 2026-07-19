@@ -8,7 +8,9 @@
     "build": "esbuild server.src.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --runInBand --forceExit",
+    "test:ci": "NODE_OPTIONS='--experimental-vm-modules' jest --runInBand --forceExit --testPathIgnorePatterns='leetcode-live'"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
