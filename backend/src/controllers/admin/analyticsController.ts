@@ -3,9 +3,11 @@ import User from "../../models/User";
 import Track from "../../models/Track";
 import TrackedProblem from "../../models/TrackedProblem";
 
-export const getAnalytics = async (req: Request, res: Response) => {
-  try {
-    const now = new Date();
+import { AppError } from "../../lib/AppError.ts";
+import { catchAsync } from "../../lib/catchAsync.ts";
+
+export const getAnalytics = catchAsync(async (req: Request, res: Response) => {
+  const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const [totalUsers, newUsers, totalTracks, totalSolvedGlobally, uniqueProblemsAgg, mostActiveTracks] =
@@ -113,27 +115,23 @@ export const getAnalytics = async (req: Request, res: Response) => {
       totalPossibleInteractions - (solvedCount + revisingCount),
     );
 
-    res.json({
-      users: {
-        total: totalUsers,
-        newLast30Days: newUsers,
-      },
-      content: {
-        totalTracks,
-        totalProblemsAvailable,
-      },
-      engagement: {
-        totalProblemsSolvedGlobally: totalSolvedGlobally,
-        mostActiveTracks,
-      },
-      completionRate: {
-        solved: solvedCount,
-        revising: revisingCount,
-        unsolved: unsolvedCount,
-      },
-    });
-  } catch (error) {
-    console.error("Get analytics error:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+  res.json({
+    users: {
+      total: totalUsers,
+      newLast30Days: newUsers,
+    },
+    content: {
+      totalTracks,
+      totalProblemsAvailable,
+    },
+    engagement: {
+      totalProblemsSolvedGlobally: totalSolvedGlobally,
+      mostActiveTracks,
+    },
+    completionRate: {
+      solved: solvedCount,
+      revising: revisingCount,
+      unsolved: unsolvedCount,
+    },
+  });
+});

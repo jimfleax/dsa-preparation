@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import Track from "../models/Track.ts";
 import TrackedProblem from "../models/TrackedProblem.ts";
 import { extractTitleSlug } from "../lib/slugUtils.ts";
+import { AppError } from "../lib/AppError.ts";
+import { catchAsync } from "../lib/catchAsync.ts";
 
-export const listTracks = async (req: Request, res: Response) => {
-  try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+export const listTracks = catchAsync(async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = req.query.limit
       ? Math.min(100, Math.max(1, parseInt(req.query.limit as string)))
       : null;
@@ -22,32 +23,27 @@ export const listTracks = async (req: Request, res: Response) => {
       limit ? Track.countDocuments() : Promise.resolve(0),
     ]);
 
-    if (limit) {
-      res.json({
-        success: true,
-        tracks,
-        pagination: {
-          total: totalCount,
-          page,
-          limit,
-          pages: Math.ceil(totalCount / limit),
-        },
-      });
-    } else {
-      res.json({ success: true, tracks });
-    }
-  } catch (error) {
-    console.error("Error listing tracks:", error);
-    res.status(500).json({ success: false, error: "Server error" });
+  if (limit) {
+    res.json({
+      success: true,
+      tracks,
+      pagination: {
+        total: totalCount,
+        page,
+        limit,
+        pages: Math.ceil(totalCount / limit),
+      },
+    });
+  } else {
+    res.json({ success: true, tracks });
   }
-};
+});
 
-export const getTrackMetrics = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
-    }
+export const getTrackMetrics = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw AppError.unauthorized("Unauthorized");
+  }
 
     const tracks = await Track.find()
       .select("_id problems.url parts.problems.url")
@@ -96,18 +92,14 @@ export const getTrackMetrics = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
-      success: true,
-      metrics: {
-        totalProblems,
-        totalSolved,
-        totalTracks: tracks.length,
-        masteredTracks,
-        completedTrackIds,
-      },
-    });
-  } catch (error) {
-    console.error("Error getting track metrics:", error);
-    res.status(500).json({ success: false, error: "Server error" });
-  }
-};
+  res.json({
+    success: true,
+    metrics: {
+      totalProblems,
+      totalSolved,
+      totalTracks: tracks.length,
+      masteredTracks,
+      completedTrackIds,
+    },
+  });
+});

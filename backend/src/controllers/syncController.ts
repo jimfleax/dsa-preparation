@@ -5,38 +5,40 @@ import {
   fetchRecentAcceptedSubmissions,
   getLeetCodeProblemInfo,
 } from "../lib/leetcodeScraperUtil.ts";
+import { AppError } from "../lib/AppError.ts";
+import { catchAsync } from "../lib/catchAsync.ts";
 
 /**
  * GET /api/sync/check
  * Checks for new accepted submissions on LeetCode without saving to DB.
  */
-export const checkSync = async (req: Request, res: Response) => {
+export const checkSync = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw AppError.unauthorized("Unauthorized");
+  }
+
+  const user = await User.findById(userId);
+  if (!user || !user.leetcodeUsername) {
+    // Return successful response with noUsername flag to indicate no configuration
+    res.json({
+      success: false,
+      error: "LeetCode username not configured",
+      noUsername: true,
+    });
+    return;
+  }
+
+  let recentSubmissions;
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
-    }
-
-    const user = await User.findById(userId);
-    if (!user || !user.leetcodeUsername) {
-      return res.status(200).json({
-        success: false,
-        error: "LeetCode username not configured",
-        noUsername: true,
-      });
-    }
-
-    let recentSubmissions;
-    try {
-      recentSubmissions = await fetchRecentAcceptedSubmissions(
-        user.leetcodeUsername,
-      );
-    } catch (err) {
-      // Gracefully handle rate limits or API errors
-      return res
-        .status(200)
-        .json({ success: false, error: "Failed to fetch from LeetCode API" });
-    }
+    recentSubmissions = await fetchRecentAcceptedSubmissions(
+      user.leetcodeUsername,
+    );
+  } catch (err) {
+    // Gracefully handle rate limits or API errors
+    res.json({ success: false, error: "Failed to fetch from LeetCode API" });
+    return;
+  }
 
     // Deduplicate fetched submissions by titleSlug (in case of multiple recent attempts)
     const uniqueSlugs = new Map();
@@ -98,46 +100,38 @@ export const checkSync = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
-      success: true,
-      newCount: newSubmissions.length,
-      newSubmissions,
-      revisitedCount: revisitedSubmissions.length,
-      revisitedSubmissions,
-    });
-  } catch (error: unknown) {
-    console.error("Error checking sync:", error);
-    const message =
-      error instanceof Error ? error.message : "Unknown error occurred";
-    res.status(500).json({ success: false, error: message });
-  }
-};
+  res.json({
+    success: true,
+    newCount: newSubmissions.length,
+    newSubmissions,
+    revisitedCount: revisitedSubmissions.length,
+    revisitedSubmissions,
+  });
+});
 
 /**
  * POST /api/sync/track
  * Saves the provided submissions to the DB with the given notrack flag.
  */
-export const trackSubmissions = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
-    }
+export const trackSubmissions = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw AppError.unauthorized("Unauthorized");
+  }
 
-    const { submissions, notrack } = req.body;
-    if (!Array.isArray(submissions)) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Invalid submissions payload" });
-    }
+  const { submissions, notrack } = req.body;
+  if (!Array.isArray(submissions)) {
+    throw AppError.badRequest("Invalid submissions payload");
+  }
 
-    if (submissions.length === 0) {
-      return res.json({
-        success: true,
-        message: "No submissions to process.",
-        added: 0,
-      });
-    }
+  if (submissions.length === 0) {
+    res.json({
+      success: true,
+      message: "No submissions to process.",
+      added: 0,
+    });
+    return;
+  }
 
     // 1. Fetch all existing records in a single query
     const titleSlugs = submissions.map((sub: any) => sub.titleSlug);
@@ -155,13 +149,14 @@ export const trackSubmissions = async (req: Request, res: Response) => {
       (sub: any) => !existingSet.has(sub.titleSlug),
     );
 
-    if (newSubmissions.length === 0) {
-      return res.json({
-        success: true,
-        message: "Processed 0 submissions.",
-        added: 0,
-      });
-    }
+  if (newSubmissions.length === 0) {
+    res.json({
+      success: true,
+      message: "Processed 0 submissions.",
+      added: 0,
+    });
+    return;
+  }
 
     // 2. Fetch LeetCode details in parallel
     const enrichedSubmissions = await Promise.all(
@@ -197,18 +192,12 @@ export const trackSubmissions = async (req: Request, res: Response) => {
       }),
     );
 
-    // 3. Batch insert new tracked problems
-    const results = await TrackedProblem.insertMany(enrichedSubmissions);
+  // 3. Batch insert new tracked problems
+  const results = await TrackedProblem.insertMany(enrichedSubmissions);
 
-    res.json({
-      success: true,
-      message: `Processed ${results.length} submissions.`,
-      added: results.length,
-    });
-  } catch (error: unknown) {
-    console.error("Error tracking submissions:", error);
-    const message =
-      error instanceof Error ? error.message : "Unknown error occurred";
-    res.status(500).json({ success: false, error: message });
-  }
-};
+  res.json({
+    success: true,
+    message: `Processed ${results.length} submissions.`,
+    added: results.length,
+  });
+});

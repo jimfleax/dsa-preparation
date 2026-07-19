@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/Admin";
 import { getRequiredEnv } from "../lib/envUtils.ts";
+import { AppError } from "../lib/AppError.ts";
 
 export const requireAdminAuth = async (
   req: Request,
@@ -10,7 +11,7 @@ export const requireAdminAuth = async (
 ) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
+    return next(AppError.unauthorized("Access denied. No token provided."));
   }
 
   try {
@@ -19,13 +20,13 @@ export const requireAdminAuth = async (
     const admin = await Admin.findById(decoded.id);
 
     if (!admin) {
-      return res.status(401).json({ error: "Invalid admin token." });
+      return next(AppError.unauthorized("Invalid admin token."));
     }
 
     req.admin = { id: admin.id };
     next();
   } catch (error) {
     console.error("Admin Auth Error:", error instanceof Error ? error.message : "Unknown error");
-    res.status(401).json({ error: "Invalid token." });
+    return next(AppError.unauthorized("Invalid token."));
   }
 };

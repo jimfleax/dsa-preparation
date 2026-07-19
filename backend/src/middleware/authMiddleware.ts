@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/User.ts";
 import { getRequiredEnv } from "../lib/envUtils.ts";
+import { AppError } from "../lib/AppError.ts";
 
 interface DecodedToken {
   userId: string;
@@ -32,15 +33,13 @@ export const requireAuth = async (
 
       const user = await User.findById(decoded.userId).select("tokenVersion");
       if (!user) {
-        res.status(401).json({ error: "Not authorized, user not found" });
-        return;
+        return next(AppError.unauthorized("Not authorized, user not found"));
       }
 
       const dbTokenVersion = user.tokenVersion || 0;
       const tokenVersion = decoded.tokenVersion || 0;
       if (dbTokenVersion !== tokenVersion) {
-        res.status(401).json({ error: "Not authorized, session revoked" });
-        return;
+        return next(AppError.unauthorized("Not authorized, session revoked"));
       }
 
       req.user = { id: decoded.userId };
@@ -50,12 +49,11 @@ export const requireAuth = async (
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       console.warn(`Token verification failed: ${errorMessage}`);
-      res.status(401).json({ error: "Not authorized, token failed" });
-      return;
+      return next(AppError.unauthorized("Not authorized, token failed"));
     }
   }
 
   if (!token) {
-    res.status(401).json({ error: "Not authorized, no token" });
+    return next(AppError.unauthorized("Not authorized, no token"));
   }
 };

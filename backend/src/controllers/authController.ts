@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.ts";
 import { getRequiredEnv } from "../lib/envUtils.ts";
 import { OAuth2Client } from "google-auth-library";
+import { AppError } from "../lib/AppError.ts";
+import { catchAsync } from "../lib/catchAsync.ts";
 
 const client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
 
@@ -13,12 +15,11 @@ const generateToken = (userId: string, tokenVersion: number): string => {
   });
 };
 
-export const googleLogin = async (
+export const googleLogin = catchAsync(async (
   req: Request,
   res: Response,
-): Promise<void> => {
-  try {
-    const { token } = req.body;
+) => {
+  const { token } = req.body;
 
     let ticket;
     try {
@@ -26,21 +27,15 @@ export const googleLogin = async (
         idToken: token,
         audience: getRequiredEnv("GOOGLE_CLIENT_ID"),
       });
-    } catch (verifyError: any) {
-      console.warn("Token verification failed:", verifyError.message);
-      res
-        .status(401)
-        .json({ success: false, message: "Invalid or expired Google token" });
-      return;
-    }
+  } catch (verifyError: any) {
+    console.warn("Token verification failed:", verifyError.message);
+    throw AppError.unauthorized("Invalid or expired Google token");
+  }
     const payload = ticket.getPayload();
 
-    if (!payload || !payload.email) {
-      res
-        .status(400)
-        .json({ success: false, message: "Invalid Google token payload" });
-      return;
-    }
+  if (!payload || !payload.email) {
+    throw AppError.badRequest("Invalid Google token payload");
+  }
 
     const email = payload.email.toLowerCase();
     const googleId = payload.sub;
@@ -82,33 +77,14 @@ export const googleLogin = async (
 
     const jwtToken = generateToken(user._id.toString(), user.tokenVersion || 0);
 
-    res.json({
-      success: true,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        leetcodeUsername: user.leetcodeUsername,
-      },
-      token: jwtToken,
-    });
-  } catch (error: unknown) {
-    console.error("Google Login Error:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("E11000 duplicate key error")
-    ) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message:
-            "Duplicate key error. There might be an issue with your data.",
-        });
-    } else {
-      res
-        .status(500)
-        .json({ success: false, message: "Server error during Google login" });
-    }
-  }
-};
+  res.json({
+    success: true,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      leetcodeUsername: user.leetcodeUsername,
+    },
+    token: jwtToken,
+  });
+});
