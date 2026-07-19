@@ -345,6 +345,153 @@ export default function ProblemsTab({
       : []),
   ].filter((d) => d.value > 0);
 
+  const renderDesktopRow = (problem: TrackedProblem, isDueGroup: boolean) => (
+    <tr
+      id={`problem-row-${problem._id}`}
+      key={problem._id}
+      className={`border-b border-neutral-50 transition-all duration-500 ease-in-out group ${
+        highlightedProblemId === problem._id
+          ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
+          : "hover:bg-indigo-50/20"
+      }`}
+    >
+      {/* Problem Title + Link */}
+      <td className="px-5 py-3.5">
+        <a
+          href={problem.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group/link"
+        >
+          <span className="truncate max-w-[300px]">
+            {problem.title}
+          </span>
+          {(problem.notes || problem.hasNotes) && (
+            <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+          )}
+          <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </a>
+        {problem.reviewDurationDays && !isDueGroup ? (
+          <div className="mt-1 flex">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wide">
+              <CalendarClock className="w-2.5 h-2.5" />
+              Review Scheduled
+            </span>
+          </div>
+        ) : null}
+      </td>
+
+      {/* Difficulty Badge */}
+      <td className="px-5 py-3.5 text-center">
+        <span
+          className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+            problem.difficulty === "Easy"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
+              : problem.difficulty === "Medium"
+                ? "bg-amber-50 text-amber-700 border-amber-100/50"
+                : problem.difficulty === "Hard"
+                  ? "bg-rose-50 text-rose-700 border-rose-100/50"
+                  : "bg-neutral-100 text-neutral-600 border-neutral-200"
+          }`}
+        >
+          {problem.difficulty || "N/A"}
+        </span>
+      </td>
+
+      {/* Attempt Count Badge */}
+      <td className="px-5 py-3.5 text-center">
+        <span
+          className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
+            problem.attemptCount > 1
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-indigo-50 text-indigo-700"
+          }`}
+        >
+          {problem.attemptCount}
+        </span>
+      </td>
+
+      {/* Last Attempted Date */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-center gap-1.5">
+          <CalendarClock className="w-3 h-3 text-neutral-300" />
+          <span className="text-xs font-medium text-neutral-500">
+            {timeAgo(problem.lastAttemptedDate)}
+          </span>
+        </div>
+      </td>
+
+      {/* Revisit Button */}
+      <td className="px-5 py-3.5 text-center">
+        <button
+          onClick={() => handleRevisit(problem._id)}
+          disabled={revisitingId === problem._id}
+          className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 hover:shadow-sm text-indigo-600 rounded-lg text-[11px] font-bold active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 border border-indigo-100/50 hover:border-indigo-200"
+          title="I revisited and solved this problem again"
+        >
+          {revisitingId === problem._id ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <RotateCcw className="w-3 h-3" />
+          )}
+          {revisitingId === problem._id ? "Saving..." : "Revisit"}
+        </button>
+      </td>
+
+      {/* Actions */}
+      <td className="px-5 py-3.5 text-center">
+        <div className="flex items-center justify-center gap-1">
+          <button
+            onClick={() => {
+              setEditingProblem(problem);
+              setIsEditModalOpen(true);
+            }}
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
+            title="Edit problem"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              setNoteProblem(problem);
+              setIsNoteModalOpen(true);
+            }}
+            className={`p-1.5 rounded-lg active:scale-90 transition-all duration-200 cursor-pointer ${
+              problem.notes || problem.hasNotes
+                ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
+                : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
+            }`}
+            title={problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"}
+          >
+            <StickyNote className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              setSchedulingProblem(problem);
+              setIsScheduleModalOpen(true);
+            }}
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
+            title="Schedule Review"
+          >
+            <CalendarPlus className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setProblemToDelete(problem)}
+            disabled={deletingId === problem._id}
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 active:scale-90 transition-all duration-200 cursor-pointer disabled:opacity-50"
+            title="Remove from tracker"
+          >
+            {deletingId === problem._id ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
   if (loading && problems.length === 0) {
     return (
       <div id="problems-tab-root">
@@ -683,144 +830,7 @@ export default function ProblemsTab({
                     </td>
                   </tr>
                 )}
-                {dueProblems.map((problem) => (
-                  <tr
-                    id={`problem-row-${problem._id}`}
-                    key={problem._id}
-                    className={`border-b border-neutral-50 transition-all duration-500 ease-in-out group ${
-                      highlightedProblemId === problem._id
-                        ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
-                        : "hover:bg-indigo-50/20"
-                    }`}
-                  >
-                    {/* Problem Title + Link */}
-                    <td className="px-5 py-3.5">
-                      <a
-                        href={problem.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group/link"
-                      >
-                        <span className="truncate max-w-[300px]">
-                          {problem.title}
-                        </span>
-                        {(problem.notes || problem.hasNotes) && (
-                          <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
-                        )}
-                        <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
-                    </td>
-
-                    {/* Difficulty Badge */}
-                    <td className="px-5 py-3.5 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                          problem.difficulty === "Easy"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
-                            : problem.difficulty === "Medium"
-                              ? "bg-amber-50 text-amber-700 border-amber-100/50"
-                              : problem.difficulty === "Hard"
-                                ? "bg-rose-50 text-rose-700 border-rose-100/50"
-                                : "bg-neutral-100 text-neutral-600 border-neutral-200"
-                        }`}
-                      >
-                        {problem.difficulty || "N/A"}
-                      </span>
-                    </td>
-
-                    {/* Attempt Count Badge */}
-                    <td className="px-5 py-3.5 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
-                          problem.attemptCount > 1
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-indigo-50 text-indigo-700"
-                        }`}
-                      >
-                        {problem.attemptCount}
-                      </span>
-                    </td>
-
-                    {/* Last Attempted Date */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        <CalendarClock className="w-3 h-3 text-neutral-300" />
-                        <span className="text-xs font-medium text-neutral-500">
-                          {timeAgo(problem.lastAttemptedDate)}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Revisit Button */}
-                    <td className="px-5 py-3.5 text-center">
-                      <button
-                        onClick={() => handleRevisit(problem._id)}
-                        disabled={revisitingId === problem._id}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 hover:shadow-sm text-indigo-600 rounded-lg text-[11px] font-bold active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 border border-indigo-100/50 hover:border-indigo-200"
-                        title="I revisited and solved this problem again"
-                      >
-                        {revisitingId === problem._id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <RotateCcw className="w-3 h-3" />
-                        )}
-                        {revisitingId === problem._id ? "Saving..." : "Revisit"}
-                      </button>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-5 py-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => {
-                            setEditingProblem(problem);
-                            setIsEditModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
-                          title="Edit problem"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setNoteProblem(problem);
-                            setIsNoteModalOpen(true);
-                          }}
-                          className={`p-1.5 rounded-lg active:scale-90 transition-all duration-200 cursor-pointer ${
-                            problem.notes || problem.hasNotes
-                              ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
-                              : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
-                          }`}
-                          title={problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"}
-                        >
-                          <StickyNote className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSchedulingProblem(problem);
-                            setIsScheduleModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
-                          title="Schedule Review"
-                        >
-                          <CalendarPlus className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setProblemToDelete(problem)}
-                          disabled={deletingId === problem._id}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 active:scale-90 transition-all duration-200 cursor-pointer disabled:opacity-50"
-                          title="Remove from tracker"
-                        >
-                          {deletingId === problem._id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {dueProblems.map((problem) => renderDesktopRow(problem, true))}
 
                 {showGroups && otherProblems.length > 0 && (
                   <tr>
@@ -832,152 +842,7 @@ export default function ProblemsTab({
                     </td>
                   </tr>
                 )}
-                {(showGroups ? otherProblems : filteredProblems).map((problem) => (
-                  <tr
-                    id={`problem-row-${problem._id}`}
-                    key={problem._id}
-                    className={`border-b border-neutral-50 transition-all duration-500 ease-in-out group ${
-                      highlightedProblemId === problem._id
-                        ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
-                        : "hover:bg-indigo-50/20"
-                    }`}
-                  >
-                    {/* Problem Title + Link */}
-                    <td className="px-5 py-3.5">
-                      <a
-                        href={problem.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group/link"
-                      >
-                        <span className="truncate max-w-[300px]">
-                          {problem.title}
-                        </span>
-                        {(problem.notes || problem.hasNotes) && (
-                          <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
-                        )}
-                        <ExternalLink className="w-3 h-3 text-neutral-300 group-hover/link:text-indigo-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
-                      {problem.reviewDurationDays ? (
-                        <div className="mt-1 flex">
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wide">
-                            <CalendarClock className="w-2.5 h-2.5" />
-                            Review Scheduled
-                          </span>
-                        </div>
-                      ) : null}
-                    </td>
-
-                    {/* Difficulty Badge */}
-                    <td className="px-5 py-3.5 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                          problem.difficulty === "Easy"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
-                            : problem.difficulty === "Medium"
-                              ? "bg-amber-50 text-amber-700 border-amber-100/50"
-                              : problem.difficulty === "Hard"
-                                ? "bg-rose-50 text-rose-700 border-rose-100/50"
-                                : "bg-neutral-100 text-neutral-600 border-neutral-200"
-                        }`}
-                      >
-                        {problem.difficulty || "N/A"}
-                      </span>
-                    </td>
-
-                    {/* Attempt Count Badge */}
-                    <td className="px-5 py-3.5 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold ${
-                          problem.attemptCount > 1
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-indigo-50 text-indigo-700"
-                        }`}
-                      >
-                        {problem.attemptCount}
-                      </span>
-                    </td>
-
-                    {/* Last Attempted Date */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        <CalendarClock className="w-3 h-3 text-neutral-300" />
-                        <span className="text-xs font-medium text-neutral-500">
-                          {timeAgo(problem.lastAttemptedDate)}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Revisit Button */}
-                    <td className="px-5 py-3.5 text-center">
-                      <button
-                        onClick={() => handleRevisit(problem._id)}
-                        disabled={revisitingId === problem._id}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 hover:shadow-sm text-indigo-600 rounded-lg text-[11px] font-bold active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 border border-indigo-100/50 hover:border-indigo-200"
-                        title="I revisited and solved this problem again"
-                      >
-                        {revisitingId === problem._id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <RotateCcw className="w-3 h-3" />
-                        )}
-                        {revisitingId === problem._id ? "Saving..." : "Revisit"}
-                      </button>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-5 py-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => {
-                            setEditingProblem(problem);
-                            setIsEditModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
-                          title="Edit problem"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setNoteProblem(problem);
-                            setIsNoteModalOpen(true);
-                          }}
-                          className={`p-1.5 rounded-lg active:scale-90 transition-all duration-200 cursor-pointer ${
-                            problem.notes || problem.hasNotes
-                              ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
-                              : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
-                          }`}
-                          title={problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"}
-                        >
-                          <StickyNote className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSchedulingProblem(problem);
-                            setIsScheduleModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
-                          title="Schedule Review"
-                        >
-                          <CalendarPlus className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setProblemToDelete(problem)}
-                          disabled={deletingId === problem._id}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 active:scale-90 transition-all duration-200 cursor-pointer disabled:opacity-50"
-                          title="Remove from tracker"
-                        >
-                          {deletingId === problem._id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {(showGroups ? otherProblems : filteredProblems).map((problem) => renderDesktopRow(problem, false))}
               </tbody>
             </table>
           </div>
