@@ -18,6 +18,7 @@ import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import TracksSkeleton from "./skeletons/TracksSkeleton";
 
 import { apiFetch } from "@/src/lib/apiFetch";
+import { getVerifiedActiveTrackData } from "../lib/activeTrackUtils";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -127,31 +128,11 @@ export default function TracksTab() {
           });
           setTrackedProblems(progressSet);
 
-          // Clear active track if it's now completed
-          const currentActiveId = localStorage.getItem("activeTrackId");
-          if (currentActiveId && tracksData.success) {
-            const activeTrack = tracksData.tracks.find(
-              (t: any) => t._id === currentActiveId,
-            );
-            if (activeTrack) {
-              const allProblems = [
-                ...(activeTrack.problems || []),
-                ...(activeTrack.parts?.flatMap((p: any) => p.problems) || []),
-              ];
-              const allSolved =
-                allProblems.length > 0 &&
-                allProblems.every((p: any) => {
-                  const slug = extractTitleSlug(p.url);
-                  return slug && progressSet.has(slug);
-                });
-              if (allSolved) {
-                localStorage.removeItem("activeTrackId");
-                localStorage.removeItem("activePartIndex");
-                setActiveTrackId(null);
-                setActivePartIndex(null);
-              }
-            }
-          }
+          // Clear active track/part if it's now completed
+          const { activeTrackId: validTrackId, activePartIndex: validPartIndex } = getVerifiedActiveTrackData(tracksData.tracks, progressSet);
+          
+          if (validTrackId !== activeTrackId) setActiveTrackId(validTrackId);
+          if (validPartIndex !== activePartIndex) setActivePartIndex(validPartIndex);
         }
       }
 
@@ -162,18 +143,8 @@ export default function TracksTab() {
         }
       }
 
-      // Refresh active track from localStorage when data is updated
-      const savedActiveId = localStorage.getItem("activeTrackId");
-      if (savedActiveId !== activeTrackId) {
-        setActiveTrackId(savedActiveId);
-      }
-      const savedActivePartIndexStr = localStorage.getItem("activePartIndex");
-      const savedActivePartIndex = savedActivePartIndexStr
-        ? parseInt(savedActivePartIndexStr)
-        : null;
-      if (savedActivePartIndex !== activePartIndex) {
-        setActivePartIndex(savedActivePartIndex);
-      }
+      // The states activeTrackId and activePartIndex are already correctly managed 
+      // by getVerifiedActiveTrackData, so no extra syncing is needed here.
     } catch (err) {
       console.error("Error fetching tracks", err);
     } finally {
@@ -202,29 +173,11 @@ export default function TracksTab() {
         });
         setTrackedProblems(progressSet);
 
-        // Clear active track if it's now completed
-        const currentActiveId = localStorage.getItem("activeTrackId");
-        if (currentActiveId) {
-          const activeTrack = tracks.find((t) => t._id === currentActiveId);
-          if (activeTrack) {
-            const allProblems = [
-              ...(activeTrack.problems || []),
-              ...(activeTrack.parts?.flatMap((p) => p.problems) || []),
-            ];
-            const allSolved =
-              allProblems.length > 0 &&
-              allProblems.every((p) => {
-                const slug = extractTitleSlug(p.url);
-                return slug && progressSet.has(slug);
-              });
-            if (allSolved) {
-              localStorage.removeItem("activeTrackId");
-              localStorage.removeItem("activePartIndex");
-              setActiveTrackId(null);
-              setActivePartIndex(null);
-            }
-          }
-        }
+        // Clear active track/part if it's now completed
+        const { activeTrackId: validTrackId, activePartIndex: validPartIndex } = getVerifiedActiveTrackData(tracks, progressSet);
+        
+        if (validTrackId !== activeTrackId) setActiveTrackId(validTrackId);
+        if (validPartIndex !== activePartIndex) setActivePartIndex(validPartIndex);
       }
 
       const metricsData = await metricsRes.json();
