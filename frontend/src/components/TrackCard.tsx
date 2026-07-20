@@ -89,21 +89,19 @@ const TrackCard = React.memo(function TrackCard({
   useEffect(() => {
     if (track._id === activeTrackId) {
       setExpanded(true);
-      if (activePartIndex !== undefined && activePartIndex !== null) {
-        setExpandedParts((prev) => {
-          const next = getDefaultExpandedParts();
+      setExpandedParts((prev) => {
+        const next = getDefaultExpandedParts();
 
-          // Check if it's the same to prevent unnecessary renders
-          const isSame =
-            Object.keys(prev).every(
-              (k) => prev[Number(k)] === next[Number(k)],
-            ) &&
-            Object.keys(next).every((k) => prev[Number(k)] === next[Number(k)]);
-          return isSame ? prev : next;
-        });
-      }
+        // Check if it's the same to prevent unnecessary renders
+        const isSame =
+          Object.keys(prev).every(
+            (k) => prev[Number(k)] === next[Number(k)],
+          ) &&
+          Object.keys(next).every((k) => prev[Number(k)] === next[Number(k)]);
+        return isSame ? prev : next;
+      });
     }
-  }, [activeTrackId, track._id, activePartIndex]);
+  }, [activeTrackId, track._id, activePartIndex, trackedProblems]);
 
   const allProblems = [
     ...(track.problems || []),

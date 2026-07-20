@@ -58,6 +58,25 @@ export function getVerifiedActiveTrackData(
         activePartIndex = null;
         localStorage.removeItem("activeTrackId");
         localStorage.removeItem("activePartIndex");
+
+        // 3. Fallback: Find the next incomplete track and set it as active
+        const nextIncompleteTrack = tracks.find((t) => {
+          const tProblems = [
+            ...(t.problems || []),
+            ...(t.parts?.flatMap((p) => p.problems) || []),
+          ];
+          if (tProblems.length === 0) return false;
+          
+          return !tProblems.every((p) => {
+            const slug = extractTitleSlug(p.url);
+            return slug && trackedProblems.has(slug);
+          });
+        });
+
+        if (nextIncompleteTrack) {
+          activeTrackId = nextIncompleteTrack._id;
+          localStorage.setItem("activeTrackId", activeTrackId);
+        }
       }
     }
   }
