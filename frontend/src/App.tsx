@@ -303,9 +303,9 @@ export default function App() {
       }
       const data = await response.json();
       if (data.success) {
-        setUserSettings(data.settings);
+        setUserSettings(data.data);
         // Prompt to set LeetCode username if missing
-        if (!data.settings.leetcodeUsername) {
+        if (!data.data.leetcodeUsername) {
           setShowSettingsModal(true);
         } else {
           checkLeetCodeSync();
