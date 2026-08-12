@@ -37,8 +37,7 @@ export default function HomeTab({
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const { getToken } = useAuth();
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -94,10 +93,7 @@ export default function HomeTab({
     <div className="flex flex-col flex-1 min-h-[500px] pt-8">
       {/* Header Section */}
       <div className="max-w-2xl">
-        <h1
-          className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-[0_5px_15px_rgba(139,92,246,0.4)]"
-          style={{ fontFamily: "'SN Pro', sans-serif" }}
-        >
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-tight mb-4 drop-shadow-md font-nunito">
           {greeting}
         </h1>
 
@@ -107,10 +103,10 @@ export default function HomeTab({
               onClick={() =>
                 window.dispatchEvent(new CustomEvent("openReviewModal"))
               }
-              className="flex flex-col items-start px-4 py-2.5 bg-white border border-rose-200 hover:border-rose-300 hover:shadow-md rounded-xl transition-all text-left max-w-sm"
+              className="flex flex-col items-start px-5 py-3 bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 hover:-translate-y-1 hover:shadow-clay-surface active:scale-[0.98] active:shadow-clay-pressed rounded-[24px] transition-all duration-300 text-left max-w-sm"
             >
               <div className="flex items-center gap-1.5 text-rose-600 mb-1">
-                <CalendarClock className="w-3 h-3" />
+                <CalendarClock className="w-3.5 h-3.5" />
                 <span className="text-[10px] font-bold uppercase tracking-wide">
                   Scheduled for review today
                 </span>
@@ -127,10 +123,7 @@ export default function HomeTab({
 
       {/* Sleek Metrics Section */}
       <div className="mt-8 md:mt-12 w-full flex justify-center md:justify-end">
-        <div
-          className="text-center md:text-right text-sm sm:text-base md:text-lg font-light italic text-neutral-500 leading-relaxed tracking-wider"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-        >
+        <div className="text-center md:text-right text-sm sm:text-base md:text-lg font-medium text-[#635F69] leading-relaxed tracking-wide font-sans">
           <p>
             we have a total of{" "}
             <span className="font-semibold text-indigo-500 not-italic mx-1">

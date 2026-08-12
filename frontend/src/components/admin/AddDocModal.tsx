@@ -105,17 +105,14 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
 
     setIsUploading(true);
     try {
-      const res = await fetch(
-        `${getBackendUrl()}/api/admin/docs`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({ title, filename, tags: tagArray, content }),
+      const res = await fetch(`${getBackendUrl()}/api/admin/docs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
         },
-      );
+        body: JSON.stringify({ title, filename, tags: tagArray, content }),
+      });
 
       if (res.ok) {
         onSuccess();
@@ -144,7 +141,6 @@ export default function AddDocModal({ onClose, onSuccess }: AddDocModalProps) {
     >
       <div className="flex-1 overflow-y-auto p-6">
         <form id="add-doc-form" onSubmit={handleSubmit} className="space-y-6">
-
           <div className="p-6 border-2 border-dashed border-neutral-200 rounded-2xl bg-neutral-50/50 hover:bg-neutral-50 transition-colors relative group">
             <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full text-center">
               <FileUp className="w-8 h-8 text-indigo-400 group-hover:text-indigo-600 transition-colors mb-3" />

@@ -39,7 +39,7 @@ describe("AppError", () => {
     expect(err.message).toBe("Server crashed");
     expect(err.isOperational).toBe(true);
   });
-  
+
   it("captures stack trace", () => {
     const err = AppError.badRequest();
     expect(err.stack).toBeDefined();

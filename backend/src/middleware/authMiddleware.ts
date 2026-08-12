@@ -28,7 +28,7 @@ export const requireAuth = async (
 
       const decoded = jwt.verify(
         token,
-        getRequiredEnv("JWT_SECRET")
+        getRequiredEnv("JWT_SECRET"),
       ) as DecodedToken;
 
       const user = await User.findById(decoded.userId).select("tokenVersion");

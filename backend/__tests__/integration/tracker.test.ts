@@ -1,6 +1,11 @@
 import request from "supertest";
 import app from "../../app.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections, createTestUser } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+  createTestUser,
+} from "../setup/testHelpers.ts";
 import TrackedProblem from "../../src/models/TrackedProblem.ts";
 
 describe("Tracker API", () => {
@@ -29,14 +34,26 @@ describe("Tracker API", () => {
   describe("GET /api/tracker", () => {
     it("returns user's tracked problems", async () => {
       await TrackedProblem.create([
-        { userId, titleSlug: "p1", title: "P1", difficulty: "Easy", url: "https://leetcode.com/problems/p1/" },
-        { userId, titleSlug: "p2", title: "P2", difficulty: "Medium", url: "https://leetcode.com/problems/p2/" }
+        {
+          userId,
+          titleSlug: "p1",
+          title: "P1",
+          difficulty: "Easy",
+          url: "https://leetcode.com/problems/p1/",
+        },
+        {
+          userId,
+          titleSlug: "p2",
+          title: "P2",
+          difficulty: "Medium",
+          url: "https://leetcode.com/problems/p2/",
+        },
       ]);
 
       const response = await request(app)
         .get("/api/tracker")
         .set("Authorization", `Bearer ${userToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.problems.length).toBe(2);
@@ -55,13 +72,16 @@ describe("Tracker API", () => {
         .post("/api/tracker")
         .set("Authorization", `Bearer ${userToken}`)
         .send({
-          url: "https://leetcode.com/problems/two-sum/"
+          url: "https://leetcode.com/problems/two-sum/",
         });
-        
+
       expect(response.status).toBe(201);
       expect(response.body.problem.titleSlug).toBe("two-sum");
-      
-      const inDb = await TrackedProblem.findOne({ userId, titleSlug: "two-sum" });
+
+      const inDb = await TrackedProblem.findOne({
+        userId,
+        titleSlug: "two-sum",
+      });
       expect(inDb).not.toBeNull();
     });
 
@@ -70,53 +90,67 @@ describe("Tracker API", () => {
         .post("/api/tracker")
         .set("Authorization", `Bearer ${userToken}`)
         .send({
-          url: "not-a-url"
+          url: "not-a-url",
         });
-        
+
       expect(response.status).toBe(400);
     });
 
     it("returns 409 for duplicate problem for same user", async () => {
-      await TrackedProblem.create({ 
-        userId, titleSlug: "two-sum", title: "Two Sum", difficulty: "Easy", url: "https://leetcode.com/problems/two-sum/" 
+      await TrackedProblem.create({
+        userId,
+        titleSlug: "two-sum",
+        title: "Two Sum",
+        difficulty: "Easy",
+        url: "https://leetcode.com/problems/two-sum/",
       });
 
       const response = await request(app)
         .post("/api/tracker")
         .set("Authorization", `Bearer ${userToken}`)
         .send({
-          url: "https://leetcode.com/problems/two-sum/"
+          url: "https://leetcode.com/problems/two-sum/",
         });
-        
+
       expect(response.status).toBe(409);
     });
   });
 
   describe("PUT /api/tracker/:id", () => {
     it("updates notes for a tracked problem", async () => {
-      const p = await TrackedProblem.create({ 
-        userId, titleSlug: "to-update", title: "Up", difficulty: "Easy", url: "https://leetcode.com/problems/to-update/", notes: "Old" 
+      const p = await TrackedProblem.create({
+        userId,
+        titleSlug: "to-update",
+        title: "Up",
+        difficulty: "Easy",
+        url: "https://leetcode.com/problems/to-update/",
+        notes: "Old",
       });
 
       const response = await request(app)
         .put(`/api/tracker/${p._id}`)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ notes: "New notes" });
-        
+
       expect(response.status).toBe(200);
       expect(response.body.problem.notes).toBe("New notes");
     });
 
     it("updates attempt count", async () => {
-      const p = await TrackedProblem.create({ 
-        userId, titleSlug: "to-ignore", title: "Ignore", difficulty: "Easy", url: "https://leetcode.com/problems/to-ignore/", attemptCount: 1 
+      const p = await TrackedProblem.create({
+        userId,
+        titleSlug: "to-ignore",
+        title: "Ignore",
+        difficulty: "Easy",
+        url: "https://leetcode.com/problems/to-ignore/",
+        attemptCount: 1,
       });
 
       const response = await request(app)
         .put(`/api/tracker/${p._id}`)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ attemptCount: 3 });
-        
+
       expect(response.status).toBe(200);
       expect(response.body.problem.attemptCount).toBe(3);
     });
@@ -127,24 +161,31 @@ describe("Tracker API", () => {
         .put(`/api/tracker/${missingId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .send({ notes: "test" });
-        
+
       expect(response.status).toBe(404);
     });
   });
 
   describe("DELETE /api/tracker/:id", () => {
     it("deletes a tracked problem", async () => {
-      const p = await TrackedProblem.create({ 
-        userId, titleSlug: "to-delete", title: "Del", difficulty: "Easy", url: "https://leetcode.com/problems/to-delete/" 
+      const p = await TrackedProblem.create({
+        userId,
+        titleSlug: "to-delete",
+        title: "Del",
+        difficulty: "Easy",
+        url: "https://leetcode.com/problems/to-delete/",
       });
 
       const response = await request(app)
         .delete(`/api/tracker/${p._id}`)
         .set("Authorization", `Bearer ${userToken}`);
-        
+
       expect(response.status).toBe(200);
-      
-      const inDb = await TrackedProblem.findOne({ userId, titleSlug: "to-delete" });
+
+      const inDb = await TrackedProblem.findOne({
+        userId,
+        titleSlug: "to-delete",
+      });
       expect(inDb).toBeNull();
     });
 
@@ -153,7 +194,7 @@ describe("Tracker API", () => {
       const response = await request(app)
         .delete(`/api/tracker/${missingId}`)
         .set("Authorization", `Bearer ${userToken}`);
-        
+
       expect(response.status).toBe(404);
     });
   });

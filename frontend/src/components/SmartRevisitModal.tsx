@@ -9,7 +9,7 @@ import {
   CalendarClock,
   Hash,
   Sparkles,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { useEscapeKey } from "../hooks/useEscapeKey";
@@ -109,8 +109,7 @@ export default function SmartRevisitModal({
   }, [isOpen, problem]);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   const handleClose = () => {
     setPhase("reveal");
@@ -127,12 +126,17 @@ export default function SmartRevisitModal({
     setPhase("confirm");
   };
 
-  const handleMarkRevisited = async (reviewDurationDays: number | null = null) => {
+  const handleMarkRevisited = async (
+    reviewDurationDays: number | null = null,
+  ) => {
     setIsMarking(true);
     try {
       const token = await getToken();
-      const body = mode === "review" ? JSON.stringify({ reviewDurationDays }) : undefined;
-      const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+      const body =
+        mode === "review" ? JSON.stringify({ reviewDurationDays }) : undefined;
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      };
       if (body) {
         headers["Content-Type"] = "application/json";
       }
@@ -180,7 +184,11 @@ export default function SmartRevisitModal({
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center text-white">
-            {mode === "smart" ? <Sparkles className="w-4 h-4" /> : <CalendarClock className="w-4 h-4" />}
+            {mode === "smart" ? (
+              <Sparkles className="w-4 h-4" />
+            ) : (
+              <CalendarClock className="w-4 h-4" />
+            )}
           </div>
           <div>
             <h2 className="text-sm font-bold text-neutral-800">
@@ -188,7 +196,9 @@ export default function SmartRevisitModal({
             </h2>
             <p className="text-[11px] text-neutral-400 font-medium">
               {phase === "reveal"
-                ? (mode === "smart" ? "Here's a problem to revisit" : "Time to review this problem")
+                ? mode === "smart"
+                  ? "Here's a problem to revisit"
+                  : "Time to review this problem"
                 : "Did you solve it?"}
             </p>
           </div>
@@ -299,7 +309,7 @@ export default function SmartRevisitModal({
                       handleMarkRevisited(
                         parseInt(keepReviewDuration) ||
                           problem.reviewDurationDays ||
-                          1
+                          1,
                       )
                     }
                     disabled={isMarking || !keepReviewDuration}

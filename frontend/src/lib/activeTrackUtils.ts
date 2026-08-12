@@ -4,31 +4,37 @@ import { extractTitleSlug } from "./slugUtils";
 /**
  * Validates the active track and part from localStorage against current progress.
  * If the active part or track is completed, it clears them from localStorage and returns nulls.
- * 
+ *
  * @param tracks The list of current tracks.
  * @param trackedProblems A set of solved problem slugs.
  * @returns The verified activeTrackId and activePartIndex.
  */
 export function getVerifiedActiveTrackData(
   tracks: Track[],
-  trackedProblems: Set<string>
+  trackedProblems: Set<string>,
 ): { activeTrackId: string | null; activePartIndex: number | null } {
   const currentActiveId = localStorage.getItem("activeTrackId");
   const currentActivePartIndexStr = localStorage.getItem("activePartIndex");
-  
+
   let activeTrackId = currentActiveId;
-  let activePartIndex = currentActivePartIndexStr ? parseInt(currentActivePartIndexStr) : null;
+  let activePartIndex = currentActivePartIndexStr
+    ? parseInt(currentActivePartIndexStr)
+    : null;
 
   if (activeTrackId) {
     const activeTrack = tracks.find((t) => t._id === activeTrackId);
-    
+
     if (activeTrack) {
       // 1. Check if the active part (subtrack) is completed
-      if (activePartIndex !== null && activeTrack.parts && activeTrack.parts[activePartIndex]) {
+      if (
+        activePartIndex !== null &&
+        activeTrack.parts &&
+        activeTrack.parts[activePartIndex]
+      ) {
         const activePart = activeTrack.parts[activePartIndex];
-        
-        const isPartCompleted = 
-          activePart.problems.length > 0 && 
+
+        const isPartCompleted =
+          activePart.problems.length > 0 &&
           activePart.problems.every((p) => {
             const slug = extractTitleSlug(p.url);
             return slug && trackedProblems.has(slug);
@@ -45,7 +51,7 @@ export function getVerifiedActiveTrackData(
         ...(activeTrack.problems || []),
         ...(activeTrack.parts?.flatMap((p) => p.problems) || []),
       ];
-      
+
       const allSolved =
         allProblems.length > 0 &&
         allProblems.every((p) => {
@@ -66,7 +72,7 @@ export function getVerifiedActiveTrackData(
             ...(t.parts?.flatMap((p) => p.problems) || []),
           ];
           if (tProblems.length === 0) return false;
-          
+
           return !tProblems.every((p) => {
             const slug = extractTitleSlug(p.url);
             return slug && trackedProblems.has(slug);

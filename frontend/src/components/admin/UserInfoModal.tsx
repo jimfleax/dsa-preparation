@@ -28,19 +28,13 @@ export default function UserInfoModal({
     const fetchData = async () => {
       try {
         const [progRes, lcRes] = await Promise.all([
-          fetch(
-            `${getBackendUrl()}/api/admin/users/${user._id}/progress`,
-            {
-              headers: { Authorization: `Bearer ${adminToken}` },
-            },
-          ),
+          fetch(`${getBackendUrl()}/api/admin/users/${user._id}/progress`, {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
           user.leetcodeUsername
-            ? fetch(
-                `${getBackendUrl()}/api/admin/users/${user._id}/leetcode`,
-                {
-                  headers: { Authorization: `Bearer ${adminToken}` },
-                },
-              )
+            ? fetch(`${getBackendUrl()}/api/admin/users/${user._id}/leetcode`, {
+                headers: { Authorization: `Bearer ${adminToken}` },
+              })
             : Promise.resolve({ ok: true, json: () => null }),
         ]);
 

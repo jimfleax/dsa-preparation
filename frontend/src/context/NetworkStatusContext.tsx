@@ -33,8 +33,7 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   /**
    * Perform a real network check by hitting the health endpoint.

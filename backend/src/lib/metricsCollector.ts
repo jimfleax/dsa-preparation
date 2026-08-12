@@ -28,7 +28,10 @@ class MetricsCollector {
 
   private getContainerCpuLimit(): number | null {
     try {
-      const max = fs.readFileSync("/sys/fs/cgroup/cpu.max", "utf8").trim().split(" ")[0];
+      const max = fs
+        .readFileSync("/sys/fs/cgroup/cpu.max", "utf8")
+        .trim()
+        .split(" ")[0];
       if (max !== "max") {
         return parseInt(max, 10) / 100000;
       }
@@ -44,7 +47,9 @@ class MetricsCollector {
       if (max !== "max") return parseInt(max, 10);
     } catch {
       try {
-        const limit = fs.readFileSync("/sys/fs/cgroup/memory/memory.limit_in_bytes", "utf8").trim();
+        const limit = fs
+          .readFileSync("/sys/fs/cgroup/memory/memory.limit_in_bytes", "utf8")
+          .trim();
         return parseInt(limit, 10);
       } catch {
         // Ignore
@@ -56,12 +61,20 @@ class MetricsCollector {
   private takeDiskSnapshot() {
     try {
       const stats = fs.readFileSync("/proc/diskstats", "utf8");
-      let reads = 0, writes = 0, readSectors = 0, writeSectors = 0;
-      
-      const lines = stats.split('\n');
+      let reads = 0,
+        writes = 0,
+        readSectors = 0,
+        writeSectors = 0;
+
+      const lines = stats.split("\n");
       for (const line of lines) {
         const parts = line.trim().split(/\s+/);
-        if (parts.length >= 14 && (parts[2].startsWith('sd') || parts[2].startsWith('nvme') || parts[2].startsWith('vd'))) {
+        if (
+          parts.length >= 14 &&
+          (parts[2].startsWith("sd") ||
+            parts[2].startsWith("nvme") ||
+            parts[2].startsWith("vd"))
+        ) {
           reads += parseInt(parts[3], 10);
           readSectors += parseInt(parts[5], 10);
           writes += parseInt(parts[7], 10);
@@ -74,7 +87,7 @@ class MetricsCollector {
         writes,
         readBytes: readSectors * 512,
         writeBytes: writeSectors * 512,
-        timestamp: performance.now()
+        timestamp: performance.now(),
       };
     } catch {
       this.lastDiskStats = null;
@@ -105,7 +118,7 @@ class MetricsCollector {
     const currentCpu = process.cpuUsage(this.lastCpuUsage);
     const currentTime = performance.now();
     const elapsedTime = (currentTime - this.lastCpuSnapshotTime) * 1000; // microsec
-    
+
     this.lastCpuUsage = process.cpuUsage();
     this.lastCpuSnapshotTime = currentTime;
 
@@ -127,7 +140,7 @@ class MetricsCollector {
     const mem = process.memoryUsage();
     const containerLimit = this.getContainerMemoryLimit();
     const totalBytes = containerLimit || os.totalmem();
-    
+
     return {
       rss: mem.rss,
       heapTotal: mem.heapTotal,
@@ -158,7 +171,7 @@ class MetricsCollector {
 
   public async getMongoMetrics() {
     if (mongoose.connection.readyState !== 1) return null;
-    
+
     const db = mongoose.connection.db;
     if (!db) return null;
 
@@ -169,10 +182,16 @@ class MetricsCollector {
 
       try {
         const replStatus = await db.admin().command({ replSetGetStatus: 1 });
-        const primary = replStatus.members?.find((m: any) => m.stateStr === 'PRIMARY');
-        const secondary = replStatus.members?.find((m: any) => m.stateStr === 'SECONDARY');
+        const primary = replStatus.members?.find(
+          (m: any) => m.stateStr === "PRIMARY",
+        );
+        const secondary = replStatus.members?.find(
+          (m: any) => m.stateStr === "SECONDARY",
+        );
         if (primary && secondary) {
-          replLag = (primary.optimeDate.getTime() - secondary.optimeDate.getTime()) / 1000;
+          replLag =
+            (primary.optimeDate.getTime() - secondary.optimeDate.getTime()) /
+            1000;
         }
       } catch (err) {
         replLagReason = "Not available on Atlas shared tier (M0) or standalone";

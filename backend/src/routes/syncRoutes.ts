@@ -21,6 +21,10 @@ const syncLimiter = rateLimit({
 router.get("/check", syncLimiter, checkSync);
 
 // POST /api/sync/track — Track or dismiss new submissions
-router.post("/track", validateRequest(trackSubmissionsSchema), trackSubmissions);
+router.post(
+  "/track",
+  validateRequest(trackSubmissionsSchema),
+  trackSubmissions,
+);
 
 export default router;

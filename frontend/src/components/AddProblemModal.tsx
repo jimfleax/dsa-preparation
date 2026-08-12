@@ -29,8 +29,7 @@ export default function AddProblemModal({
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   /**
    * Extracts titleSlug from URL and fetches the real title from LeetCode via backend.

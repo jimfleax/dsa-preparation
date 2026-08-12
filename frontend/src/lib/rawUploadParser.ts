@@ -82,8 +82,8 @@ export function parseRawUploadMarkdown(md: string): ParseResult {
         hasFoundTrackDescription = true;
         expectingTrackDescription = false;
       } else if (expectingPartDescription && currentPart) {
-        currentPart.description = currentPart.description 
-          ? currentPart.description + " " + descText 
+        currentPart.description = currentPart.description
+          ? currentPart.description + " " + descText
           : descText;
         expectingPartDescription = false;
       }
@@ -97,12 +97,15 @@ export function parseRawUploadMarkdown(md: string): ParseResult {
     // LeetCode URL Matching
     if (line.includes("leetcode.com/problems/")) {
       // Basic extraction
-      const match = line.match(/https?:\/\/leetcode\.com\/problems\/([a-z0-9-]+)\/?/i);
-      
+      const match = line.match(
+        /https?:\/\/leetcode\.com\/problems\/([a-z0-9-]+)\/?/i,
+      );
+
       if (!match) {
         result.warnings.push({
           line: lineNum,
-          message: "Found text that looks like a LeetCode URL but doesn't match the valid slug pattern (lowercase, hyphens, digits).",
+          message:
+            "Found text that looks like a LeetCode URL but doesn't match the valid slug pattern (lowercase, hyphens, digits).",
         });
         continue;
       }
@@ -136,10 +139,10 @@ export function parseRawUploadMarkdown(md: string): ParseResult {
         result.rootUrls.push(parsedUrl);
       }
     } else if (line.startsWith("http")) {
-       result.warnings.push({
-         line: lineNum,
-         message: "Found a non-LeetCode URL. It will be ignored."
-       });
+      result.warnings.push({
+        line: lineNum,
+        message: "Found a non-LeetCode URL. It will be ignored.",
+      });
     }
   }
 
@@ -150,7 +153,7 @@ export function parseRawUploadMarkdown(md: string): ParseResult {
       message: "Missing '# Track: <title>' header.",
     });
   } else if (!result.trackTitle) {
-     result.errors.push({
+    result.errors.push({
       line: 1,
       message: "Track title cannot be empty.",
     });

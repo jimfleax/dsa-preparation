@@ -55,8 +55,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 export default function App() {
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   const isMac =
     typeof window !== "undefined" &&
@@ -83,7 +82,9 @@ export default function App() {
   const [activeDoc, setActiveDoc] = useState<DocumentMetadata | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
-  const [highlightedProblemId, setHighlightedProblemId] = useState<string | null>(null);
+  const [highlightedProblemId, setHighlightedProblemId] = useState<
+    string | null
+  >(null);
   const [trackerSearchQuery, setTrackerSearchQuery] = useState<string>("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -451,17 +452,24 @@ export default function App() {
   return (
     <div
       id="dsa-app-root"
-      className="min-h-screen bg-[#fafafa] text-neutral-800 font-sans antialiased flex flex-col"
+      className="min-h-screen bg-[#F4F1FA] text-[#332F3A] font-sans antialiased flex flex-col relative overflow-hidden"
     >
+      {/* Animated Background Blobs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute h-[60vh] w-[60vh] rounded-full blur-3xl bg-[#7C3AED]/10 -top-[10%] -left-[10%] animate-clay-float"></div>
+        <div className="absolute h-[60vh] w-[60vh] rounded-full blur-3xl bg-[#DB2777]/10 -right-[10%] top-[20%] animate-clay-float-delayed"></div>
+        <div className="absolute h-[50vh] w-[50vh] rounded-full blur-3xl bg-[#0EA5E9]/10 left-[20%] -bottom-[10%] animate-clay-float-slow"></div>
+      </div>
+
       {/* Dynamic Navigation Top-Bar */}
       <header
         id="dsa-navbar"
         role="banner"
-        className="bg-white border-b border-neutral-100 h-16 shrink-0 sticky top-0 z-30"
+        className="shrink-0 sticky top-4 sm:top-6 z-40 w-full px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto"
       >
         <div
           id="navbar-container"
-          className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between"
+          className="h-16 w-full mx-auto px-4 sm:px-6 flex items-center justify-between bg-white/70 backdrop-blur-xl rounded-[32px] shadow-clay-surface border-2 border-white/50 transition-all duration-300"
         >
           <div id="navbar-logo-sec" className="flex items-center gap-3">
             <div
@@ -495,7 +503,7 @@ export default function App() {
               <div
                 id="main-tab-selector"
                 role="tablist"
-                className="bg-neutral-50 p-1 rounded-xl border border-neutral-100 hidden sm:flex gap-1"
+                className="bg-[#F4F1FA]/60 p-1.5 rounded-[20px] shadow-inner hidden sm:flex gap-1 border border-white/60"
               >
                 <Tooltip content="Home Dashboard" shortcut="Home">
                   <button
@@ -503,13 +511,13 @@ export default function App() {
                     role="tab"
                     aria-selected={activeMainTab === "home"}
                     onClick={() => setActiveMainTab("home")}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       activeMainTab === "home"
-                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                        : "text-neutral-500 hover:text-neutral-900"
+                        ? "bg-white text-indigo-700 shadow-clay-button border border-white/80"
+                        : "text-[#635F69] hover:text-[#332F3A] hover:bg-white/40"
                     }`}
                   >
-                    <Home className="w-3.5 h-3.5" />
+                    <Home className="w-4 h-4" />
                     <span className="hidden sm:inline">Home</span>
                   </button>
                 </Tooltip>
@@ -519,13 +527,13 @@ export default function App() {
                     role="tab"
                     aria-selected={activeMainTab === "learn"}
                     onClick={() => setActiveMainTab("learn")}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       activeMainTab === "learn"
-                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                        : "text-neutral-500 hover:text-neutral-900"
+                        ? "bg-white text-indigo-700 shadow-clay-button border border-white/80"
+                        : "text-[#635F69] hover:text-[#332F3A] hover:bg-white/40"
                     }`}
                   >
-                    <BookOpen className="w-3.5 h-3.5" />
+                    <BookOpen className="w-4 h-4" />
                     <span className="hidden sm:inline">Learn</span>
                   </button>
                 </Tooltip>
@@ -535,13 +543,13 @@ export default function App() {
                     role="tab"
                     aria-selected={activeMainTab === "tracker"}
                     onClick={() => setActiveMainTab("tracker")}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       activeMainTab === "tracker"
-                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                        : "text-neutral-500 hover:text-neutral-900"
+                        ? "bg-white text-indigo-700 shadow-clay-button border border-white/80"
+                        : "text-[#635F69] hover:text-[#332F3A] hover:bg-white/40"
                     }`}
                   >
-                    <Code2 className="w-3.5 h-3.5" />
+                    <Code2 className="w-4 h-4" />
                     <span className="hidden sm:inline">Tracker</span>
                   </button>
                 </Tooltip>
@@ -551,13 +559,13 @@ export default function App() {
                     role="tab"
                     aria-selected={activeMainTab === "tracks"}
                     onClick={() => setActiveMainTab("tracks")}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       activeMainTab === "tracks"
-                        ? "bg-white text-indigo-700 shadow-xs border border-indigo-100"
-                        : "text-neutral-500 hover:text-neutral-900"
+                        ? "bg-white text-indigo-700 shadow-clay-button border border-white/80"
+                        : "text-[#635F69] hover:text-[#332F3A] hover:bg-white/40"
                     }`}
                   >
-                    <Map className="w-3.5 h-3.5" />
+                    <Map className="w-4 h-4" />
                     <span className="hidden sm:inline">Tracks</span>
                   </button>
                 </Tooltip>
@@ -642,9 +650,9 @@ export default function App() {
             <SignedOut>
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-md shadow-indigo-100"
+                className="px-5 py-2.5 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-[20px] text-sm font-bold flex items-center gap-2 active:scale-[0.95] active:shadow-clay-pressed hover:-translate-y-1 hover:shadow-clay-button-hover transition-all duration-300 cursor-pointer shadow-clay-button font-nunito"
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <LogIn className="w-4 h-4" />
                 Sign In
               </button>
             </SignedOut>
@@ -679,387 +687,401 @@ export default function App() {
       <Routes>
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/" element={
-          <>
-            {/* === SIGNED OUT: Landing Page === */}
-            <SignedOut>
-              <LandingPage onSignIn={() => setShowAuthModal(true)} />
-            </SignedOut>
+        <Route
+          path="/"
+          element={
+            <>
+              {/* === SIGNED OUT: Landing Page === */}
+              <SignedOut>
+                <LandingPage onSignIn={() => setShowAuthModal(true)} />
+              </SignedOut>
 
-            {/* Main Workspace Frame container */}
-            <SignedIn>
-              <main
-                id="dsa-main-content-layout"
-                role="main"
-                className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:py-8 flex flex-col gap-6 overflow-x-hidden relative"
-              >
-                <Suspense fallback={null}>
-                  <GlobalContextMenu
-                    onNavigate={setActiveMainTab}
-                    onOpenShortcuts={togglePalette}
-                  />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <ReviewDuePopup
-                    refreshKey={problemsRefreshKey}
-                    onRevisited={() => setProblemsRefreshKey((k) => k + 1)}
-                  />
-                </Suspense>
-                <AnimatePresence mode="popLayout" initial={false} custom={direction}>
-                  {/* === HOME TAB VIEW === */}
-                  {activeMainTab === "home" && (
-                    <motion.div
-                      key="home"
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      className="w-full flex-1 flex flex-col gap-6"
-                    >
-                      <Suspense
-                        fallback={
-                          <div className="h-64 flex flex-col items-center justify-center text-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-                          </div>
-                        }
+              {/* Main Workspace Frame container */}
+              <SignedIn>
+                <main
+                  id="dsa-main-content-layout"
+                  role="main"
+                  className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:py-8 flex flex-col gap-6 overflow-x-hidden relative"
+                >
+                  <Suspense fallback={null}>
+                    <GlobalContextMenu
+                      onNavigate={setActiveMainTab}
+                      onOpenShortcuts={togglePalette}
+                    />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <ReviewDuePopup
+                      refreshKey={problemsRefreshKey}
+                      onRevisited={() => setProblemsRefreshKey((k) => k + 1)}
+                    />
+                  </Suspense>
+                  <AnimatePresence
+                    mode="popLayout"
+                    initial={false}
+                    custom={direction}
+                  >
+                    {/* === HOME TAB VIEW === */}
+                    {activeMainTab === "home" && (
+                      <motion.div
+                        key="home"
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="w-full flex-1 flex flex-col gap-6"
                       >
-                        <HomeTab
-                          totalDocuments={documents.length}
-                          onNavigate={setActiveMainTab}
-                          refreshKey={problemsRefreshKey}
-                        />
-                      </Suspense>
-                    </motion.div>
-                  )}
-
-                  {/* === TRACKER TAB VIEW === */}
-                  {activeMainTab === "tracker" && (
-                    <motion.div
-                      key="tracker"
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      className="w-full flex-1 flex flex-col gap-6"
-                    >
-                      <Suspense
-                        fallback={
-                          <div className="h-64 flex flex-col items-center justify-center text-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-                          </div>
-                        }
-                      >
-                        <TrackerTab
-                          onOpenAddModal={() => setShowAddModal(true)}
-                          refreshKey={problemsRefreshKey}
-                          highlightedProblemId={highlightedProblemId}
-                          setHighlightedProblemId={setHighlightedProblemId}
-                          externalSearchQuery={trackerSearchQuery}
-                          setExternalSearchQuery={setTrackerSearchQuery}
-                        />
-                      </Suspense>
-                    </motion.div>
-                  )}
-
-                  {/* === TRACKS TAB VIEW === */}
-                  {activeMainTab === "tracks" && (
-                    <motion.div
-                      key="tracks"
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      className="w-full flex-1 flex flex-col gap-6"
-                    >
-                      <Suspense
-                        fallback={
-                          <div className="h-64 flex flex-col items-center justify-center text-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-                          </div>
-                        }
-                      >
-                        <TracksTab />
-                      </Suspense>
-                    </motion.div>
-                  )}
-
-                  {/* === LEARN TAB VIEW (existing content) === */}
-                  {activeMainTab === "learn" && (
-                    <motion.div
-                      key="learn"
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      className="w-full flex-1 flex flex-col gap-6"
-                    >
-                      <div className="flex flex-col gap-6">
-                        {/* Filtration Control Panel Box */}
-                        <div
-                          id="filter-control-panel-container"
-                          className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
-                        >
-                          <div
-                            id="filter-row-primary"
-                            className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between"
-                          >
-                            {/* Search Input Box */}
-                            <div
-                              id="search-input-wrapper"
-                              className="relative flex-1"
-                            >
-                              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
-                              <Tooltip content="Quick Search" shortcut="/">
-                                <input
-                                  id="search-input-field"
-                                  ref={searchInputRef}
-                                  type="text"
-                                  placeholder="Search by title or tags..."
-                                  value={searchQuery}
-                                  onChange={(e) => setSearchQuery(e.target.value)}
-                                  className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
-                                />
-                              </Tooltip>
-                              {searchQuery && (
-                                <button
-                                  id="clear-search-btn"
-                                  onClick={() => setSearchQuery("")}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              )}
+                        <Suspense
+                          fallback={
+                            <div className="h-64 flex flex-col items-center justify-center text-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
                             </div>
-                          </div>
-
-                          {/* Tag Filter Strip */}
-                          {allTags.length > 0 && (
-                            <div
-                              id="filter-tags-strip"
-                              className="pt-3 border-t border-neutral-100 flex items-center gap-3 w-full overflow-hidden"
-                            >
-                              <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider shrink-0">
-                                Filter by Tags:
-                              </span>
-                              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1 flex-1">
-                                {displayTags.map((tag) => {
-                                  const isSelected = selectedTags.includes(tag);
-                                  return (
-                                    <button
-                                      key={tag}
-                                      onClick={() => handleToggleTag(tag)}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border active:scale-95 shrink-0 ${
-                                        isSelected
-                                          ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                                          : "bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100"
-                                      }`}
-                                    >
-                                      {tag}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                              {selectedTags.length > 0 && (
-                                <button
-                                  onClick={() => setSelectedTags([])}
-                                  className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-bold active:scale-95 transition-all cursor-pointer border border-transparent hover:border-rose-100 bg-rose-50/50 hover:bg-rose-50 px-2.5 py-1 rounded-lg shrink-0"
-                                >
-                                  <X className="w-3.5 h-3.5" /> Clear Tags
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Main interactive grid workarea */}
-                        <div
-                          id="workspace-grid-previewer-parent"
-                          className="flex-1 flex gap-6 items-start relative min-h-[400px]"
+                          }
                         >
-                          {/* Grid listing content frame */}
+                          <HomeTab
+                            totalDocuments={documents.length}
+                            onNavigate={setActiveMainTab}
+                            refreshKey={problemsRefreshKey}
+                          />
+                        </Suspense>
+                      </motion.div>
+                    )}
+
+                    {/* === TRACKER TAB VIEW === */}
+                    {activeMainTab === "tracker" && (
+                      <motion.div
+                        key="tracker"
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="w-full flex-1 flex flex-col gap-6"
+                      >
+                        <Suspense
+                          fallback={
+                            <div className="h-64 flex flex-col items-center justify-center text-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                            </div>
+                          }
+                        >
+                          <TrackerTab
+                            onOpenAddModal={() => setShowAddModal(true)}
+                            refreshKey={problemsRefreshKey}
+                            highlightedProblemId={highlightedProblemId}
+                            setHighlightedProblemId={setHighlightedProblemId}
+                            externalSearchQuery={trackerSearchQuery}
+                            setExternalSearchQuery={setTrackerSearchQuery}
+                          />
+                        </Suspense>
+                      </motion.div>
+                    )}
+
+                    {/* === TRACKS TAB VIEW === */}
+                    {activeMainTab === "tracks" && (
+                      <motion.div
+                        key="tracks"
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="w-full flex-1 flex flex-col gap-6"
+                      >
+                        <Suspense
+                          fallback={
+                            <div className="h-64 flex flex-col items-center justify-center text-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                            </div>
+                          }
+                        >
+                          <TracksTab />
+                        </Suspense>
+                      </motion.div>
+                    )}
+
+                    {/* === LEARN TAB VIEW (existing content) === */}
+                    {activeMainTab === "learn" && (
+                      <motion.div
+                        key="learn"
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="w-full flex-1 flex flex-col gap-6"
+                      >
+                        <div className="flex flex-col gap-6">
+                          {/* Filtration Control Panel Box */}
                           <div
-                            id="documents-results-scroller"
-                            className={`flex-1 transition-all duration-300 ${
-                              isPreviewOpen && !isPreviewMaximized
-                                ? "lg:mr-[600px] xl:mr-[650px]"
-                                : "mr-0"
-                            }`}
+                            id="filter-control-panel-container"
+                            className="bg-white border border-neutral-100 p-5 rounded-2xl shadow-2xs space-y-4"
                           >
-                            {loading ? (
+                            <div
+                              id="filter-row-primary"
+                              className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between"
+                            >
+                              {/* Search Input Box */}
                               <div
-                                id="main-grid-loading"
-                                className="h-64 flex flex-col items-center justify-center text-center"
+                                id="search-input-wrapper"
+                                className="relative flex-1"
                               >
-                                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
-                              </div>
-                            ) : filteredDocuments.length === 0 ? (
-                              <div
-                                id="no-matching-docs"
-                                className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto mt-8"
-                              >
-                                <FolderOpen className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
-                                <h3
-                                  id="no-matching-head"
-                                  className="text-base font-bold text-neutral-800"
-                                >
-                                  No Match Found
-                                </h3>
-                                <p
-                                  id="no-matching-desc"
-                                  className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed"
-                                >
-                                  We couldn't find any resources matching your
-                                  parameters:{" "}
-                                  <code>{searchQuery || "Multiple Filters"}</code>.
-                                  Try resetting filters or creating a new document in
-                                  the collection folders.
-                                </p>
-                                <button
-                                  id="reset-filters-hero-btn"
-                                  onClick={handleClearFilters}
-                                  className="mt-4 px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer"
-                                >
-                                  Reset Parameters
-                                </button>
-                              </div>
-                            ) : (
-                              <div
-                                id="documents-grid"
-                                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
-                              >
-                                {filteredDocuments.map((doc) => (
-                                  <DocumentCard
-                                    key={doc.id}
-                                    doc={doc}
-                                    isActive={activeDoc?.id === doc.id}
-                                    onSelect={() => handleSelectDocument(doc)}
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-450 w-4.5 h-4.5" />
+                                <Tooltip content="Quick Search" shortcut="/">
+                                  <input
+                                    id="search-input-field"
+                                    ref={searchInputRef}
+                                    type="text"
+                                    placeholder="Search by title or tags..."
+                                    value={searchQuery}
+                                    onChange={(e) =>
+                                      setSearchQuery(e.target.value)
+                                    }
+                                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
                                   />
-                                ))}
+                                </Tooltip>
+                                {searchQuery && (
+                                  <button
+                                    id="clear-search-btn"
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Tag Filter Strip */}
+                            {allTags.length > 0 && (
+                              <div
+                                id="filter-tags-strip"
+                                className="pt-3 border-t border-neutral-100 flex items-center gap-3 w-full overflow-hidden"
+                              >
+                                <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider shrink-0">
+                                  Filter by Tags:
+                                </span>
+                                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1 flex-1">
+                                  {displayTags.map((tag) => {
+                                    const isSelected =
+                                      selectedTags.includes(tag);
+                                    return (
+                                      <button
+                                        key={tag}
+                                        onClick={() => handleToggleTag(tag)}
+                                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border active:scale-95 shrink-0 ${
+                                          isSelected
+                                            ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
+                                            : "bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100"
+                                        }`}
+                                      >
+                                        {tag}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                {selectedTags.length > 0 && (
+                                  <button
+                                    onClick={() => setSelectedTags([])}
+                                    className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-bold active:scale-95 transition-all cursor-pointer border border-transparent hover:border-rose-100 bg-rose-50/50 hover:bg-rose-50 px-2.5 py-1 rounded-lg shrink-0"
+                                  >
+                                    <X className="w-3.5 h-3.5" /> Clear Tags
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>
+
+                          {/* Main interactive grid workarea */}
+                          <div
+                            id="workspace-grid-previewer-parent"
+                            className="flex-1 flex gap-6 items-start relative min-h-[400px]"
+                          >
+                            {/* Grid listing content frame */}
+                            <div
+                              id="documents-results-scroller"
+                              className={`flex-1 transition-all duration-300 ${
+                                isPreviewOpen && !isPreviewMaximized
+                                  ? "lg:mr-[600px] xl:mr-[650px]"
+                                  : "mr-0"
+                              }`}
+                            >
+                              {loading ? (
+                                <div
+                                  id="main-grid-loading"
+                                  className="h-64 flex flex-col items-center justify-center text-center"
+                                >
+                                  <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                                </div>
+                              ) : filteredDocuments.length === 0 ? (
+                                <div
+                                  id="no-matching-docs"
+                                  className="bg-white border border-neutral-100 rounded-2xl p-12 text-center max-w-lg mx-auto mt-8"
+                                >
+                                  <FolderOpen className="w-12 h-12 stroke-1 text-neutral-300 mx-auto mb-3" />
+                                  <h3
+                                    id="no-matching-head"
+                                    className="text-base font-bold text-neutral-800"
+                                  >
+                                    No Match Found
+                                  </h3>
+                                  <p
+                                    id="no-matching-desc"
+                                    className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto leading-relaxed"
+                                  >
+                                    We couldn't find any resources matching your
+                                    parameters:{" "}
+                                    <code>
+                                      {searchQuery || "Multiple Filters"}
+                                    </code>
+                                    . Try resetting filters or creating a new
+                                    document in the collection folders.
+                                  </p>
+                                  <button
+                                    id="reset-filters-hero-btn"
+                                    onClick={handleClearFilters}
+                                    className="mt-4 px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-bold rounded-xl active:scale-95 transition-all cursor-pointer"
+                                  >
+                                    Reset Parameters
+                                  </button>
+                                </div>
+                              ) : (
+                                <div
+                                  id="documents-grid"
+                                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+                                >
+                                  {filteredDocuments.map((doc) => (
+                                    <DocumentCard
+                                      key={doc.id}
+                                      doc={doc}
+                                      isActive={activeDoc?.id === doc.id}
+                                      onSelect={() => handleSelectDocument(doc)}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-                  {/* End Learn Tab conditional */}
-                </AnimatePresence>
-              </main>
-            </SignedIn>
-
-            {/* === SIGNED IN: Bottom Navigation for Mobile === */}
-            <SignedIn>
-              <nav className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe">
-                <div className="flex justify-around items-center px-4 py-2.5">
-                  <button
-                    onClick={() => setActiveMainTab("home")}
-                    className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "home" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
-                  >
-                    <Home className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setActiveMainTab("learn")}
-                    className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "learn" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
-                  >
-                    <BookOpen className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setActiveMainTab("tracker")}
-                    className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracker" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
-                  >
-                    <Code2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setActiveMainTab("tracks")}
-                    className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracks" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
-                  >
-                    <Map className="w-5 h-5" />
-                  </button>
-                </div>
-              </nav>
-            </SignedIn>
-
-            {/* Footer Info Hub */}
-            <footer
-              id="dsa-footer"
-              role="contentinfo"
-              className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400 hidden sm:block"
-            >
-              <div
-                id="footer-inner"
-                className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3"
-              >
-                <p id="footer-copy" className="font-medium">
-                  Built with ❤️ by{" "}
-                  <button
-                    onClick={() => setShowAboutMeModal(true)}
-                    className="text-indigo-600 hover:text-indigo-700 font-bold underline decoration-indigo-200 underline-offset-4 cursor-pointer transition-colors"
-                  >
-                    Reetabrata
-                  </button>
-                </p>
-                <div
-                  id="footer-meta"
-                  className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600"
-                >
-                  <div className="flex items-center gap-2 pl-2 pr-2 py-1 bg-white rounded-lg border border-neutral-100 shadow-3xs">
-                    {backendStatus === "connecting" ? (
-                      <span className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                        </span>
-                        <span className="text-amber-600 font-bold">
-                          Checking Connection...
-                        </span>
-                      </span>
-                    ) : backendStatus === "connected" ? (
-                      <span className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <span className="text-emerald-600 font-bold flex items-center gap-1">
-                          Connected{" "}
-                          {backendLatency !== null ? `(${backendLatency}ms)` : ""}
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                        </span>
-                        <span className="text-rose-600 font-bold flex items-center gap-1 text-[11px]">
-                          Unreachable / Offline
-                        </span>
-                      </span>
+                      </motion.div>
                     )}
+                    {/* End Learn Tab conditional */}
+                  </AnimatePresence>
+                </main>
+              </SignedIn>
+
+              {/* === SIGNED IN: Bottom Navigation for Mobile === */}
+              <SignedIn>
+                <nav className="sm:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-neutral-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-40 pb-safe">
+                  <div className="flex justify-around items-center px-4 py-2.5">
+                    <button
+                      onClick={() => setActiveMainTab("home")}
+                      className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "home" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+                    >
+                      <Home className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setActiveMainTab("learn")}
+                      className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "learn" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+                    >
+                      <BookOpen className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setActiveMainTab("tracker")}
+                      className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracker" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+                    >
+                      <Code2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setActiveMainTab("tracks")}
+                      className={`flex items-center justify-center p-3 rounded-xl transition-all active:scale-95 ${activeMainTab === "tracks" ? "text-indigo-600" : "text-neutral-400 hover:text-neutral-600"}`}
+                    >
+                      <Map className="w-5 h-5" />
+                    </button>
+                  </div>
+                </nav>
+              </SignedIn>
+
+              {/* Footer Info Hub */}
+              <footer
+                id="dsa-footer"
+                role="contentinfo"
+                className="bg-white border-t border-neutral-100 py-6 mt-12 text-center text-xs text-neutral-400 hidden sm:block"
+              >
+                <div
+                  id="footer-inner"
+                  className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3"
+                >
+                  <p id="footer-copy" className="font-medium">
+                    Built with ❤️ by{" "}
+                    <button
+                      onClick={() => setShowAboutMeModal(true)}
+                      className="text-indigo-600 hover:text-indigo-700 font-bold underline decoration-indigo-200 underline-offset-4 cursor-pointer transition-colors"
+                    >
+                      Reetabrata
+                    </button>
+                  </p>
+                  <div
+                    id="footer-meta"
+                    className="flex flex-wrap items-center gap-2 bg-neutral-50 p-2 border border-neutral-100 rounded-xl text-[11px] font-medium text-neutral-600"
+                  >
+                    <div className="flex items-center gap-2 pl-2 pr-2 py-1 bg-white rounded-lg border border-neutral-100 shadow-3xs">
+                      {backendStatus === "connecting" ? (
+                        <span className="flex items-center gap-1.5">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                          </span>
+                          <span className="text-amber-600 font-bold">
+                            Checking Connection...
+                          </span>
+                        </span>
+                      ) : backendStatus === "connected" ? (
+                        <span className="flex items-center gap-1.5">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            Connected{" "}
+                            {backendLatency !== null
+                              ? `(${backendLatency}ms)`
+                              : ""}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5">
+                          <span className="relative flex h-2 w-2">
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                          </span>
+                          <span className="text-rose-600 font-bold flex items-center gap-1 text-[11px]">
+                            Unreachable / Offline
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </footer>
-          </>
-        } />
+              </footer>
+            </>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
 

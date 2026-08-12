@@ -6,7 +6,7 @@ export const globalErrorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.error("[Global Error Handler] Caught Exception:", err);
 
@@ -20,7 +20,9 @@ export const globalErrorHandler = (
   if (err instanceof ZodError) {
     statusCode = 400;
     const firstIssue = err.issues[0];
-    error = firstIssue ? `Invalid input: ${firstIssue.message}` : "Validation failed.";
+    error = firstIssue
+      ? `Invalid input: ${firstIssue.message}`
+      : "Validation failed.";
     errors = err.issues;
   }
   // 2A. Database Errors: Duplicate Key (MongoDB Code 11000)
@@ -39,7 +41,10 @@ export const globalErrorHandler = (
     error = `Database validation failed: ${err.message}`;
   }
   // 3. Authentication & Authorization Errors
-  else if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+  else if (
+    err.name === "JsonWebTokenError" ||
+    err.name === "TokenExpiredError"
+  ) {
     statusCode = 401;
     error = "Session expired or invalid token. Please log in again.";
   }

@@ -7,7 +7,11 @@ import {
 } from "../../controllers/admin/trackController.js";
 import { requireAdminAuth } from "../../middleware/adminAuthMiddleware.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
-import { createTrackSchema, updateTrackSchema, getTrackSchema } from "../../lib/validations/track.js";
+import {
+  createTrackSchema,
+  updateTrackSchema,
+  getTrackSchema,
+} from "../../lib/validations/track.js";
 
 const router = Router();
 

@@ -94,9 +94,7 @@ const TrackCard = React.memo(function TrackCard({
 
         // Check if it's the same to prevent unnecessary renders
         const isSame =
-          Object.keys(prev).every(
-            (k) => prev[Number(k)] === next[Number(k)],
-          ) &&
+          Object.keys(prev).every((k) => prev[Number(k)] === next[Number(k)]) &&
           Object.keys(next).every((k) => prev[Number(k)] === next[Number(k)]);
         return isSame ? prev : next;
       });

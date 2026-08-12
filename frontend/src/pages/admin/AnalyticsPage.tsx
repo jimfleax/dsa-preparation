@@ -37,12 +37,9 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await adminFetch(
-          `${getBackendUrl()}/api/admin/analytics`,
-          {
-            headers: { Authorization: `Bearer ${adminToken}` },
-          },
-        );
+        const res = await adminFetch(`${getBackendUrl()}/api/admin/analytics`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
         const json = await res.json();
         setData(json);
       } catch (err) {

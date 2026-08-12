@@ -32,8 +32,7 @@ export default function AttemptProblemModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   if (!isOpen) return null;
 
@@ -114,7 +113,7 @@ export default function AttemptProblemModal({
           </span>
           {isSolved && (
             <p className="text-sm text-neutral-500 mt-3 font-medium bg-neutral-50 p-3 rounded-xl border border-neutral-100">
-              You've already solved this problem! 
+              You've already solved this problem!
             </p>
           )}
         </div>

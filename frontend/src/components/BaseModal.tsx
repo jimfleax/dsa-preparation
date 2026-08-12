@@ -46,7 +46,7 @@ export default function BaseModal({
       <div
         id={`${modalId}-backdrop`}
         onClick={onClose}
-        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-[100] bg-[#F4F1FA]/60 backdrop-blur-md transition-opacity"
         aria-hidden="true"
       />
 
@@ -59,7 +59,7 @@ export default function BaseModal({
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <div
-          className={`bg-white w-full ${maxWidthClass} rounded-2xl shadow-2xl border border-neutral-100 flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200 relative`}
+          className={`bg-white/80 backdrop-blur-2xl w-full ${maxWidthClass} rounded-[40px] shadow-clay-surface border-2 border-white/60 flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200 relative`}
         >
           {absoluteClose && (
             <button
@@ -72,10 +72,10 @@ export default function BaseModal({
           )}
 
           {!hideHeader && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 shrink-0 bg-neutral-50/50 rounded-t-2xl">
+            <div className="flex items-center justify-between px-6 py-4 shrink-0 rounded-t-[40px]">
               <div className="flex items-center gap-2.5">
                 {icon && (
-                  <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                  <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 shadow-clay-button border border-white/80">
                     {icon}
                   </div>
                 )}

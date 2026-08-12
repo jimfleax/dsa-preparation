@@ -16,7 +16,7 @@ export function extractTitleSlug(url: string): string | null {
 
 /**
  * Builds a canonical LeetCode problem URL from a titleSlug.
- * 
+ *
  * @param slug The titleSlug string
  * @returns The full LeetCode URL
  */

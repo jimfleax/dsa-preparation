@@ -4,7 +4,15 @@ import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminFetch } from "../../lib/adminFetch";
 import { Card } from "../../components/ui/Card";
 import { AnimatedNumber } from "../../components/AnimatedNumber";
-import { Activity, Server, Database, HardDrive, Cpu, RefreshCw, AlertCircle } from "lucide-react";
+import {
+  Activity,
+  Server,
+  Database,
+  HardDrive,
+  Cpu,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -29,7 +37,15 @@ interface MetricsData {
     containerLimited: boolean;
   };
   cpu: { cores: number; utilizationPercent: number; containerLimited: boolean };
-  eventLoop: { min: number; max: number; mean: number; p50: number; p95: number; p99: number; unit: string };
+  eventLoop: {
+    min: number;
+    max: number;
+    mean: number;
+    p50: number;
+    p95: number;
+    p99: number;
+    unit: string;
+  };
   disk: {
     readsCompleted: number;
     writesCompleted: number;
@@ -40,7 +56,14 @@ interface MetricsData {
   } | null;
   mongo: {
     connections: { current: number; available: number; totalCreated: number };
-    opcounters: { insert: number; query: number; update: number; delete: number; getmore: number; command: number };
+    opcounters: {
+      insert: number;
+      query: number;
+      update: number;
+      delete: number;
+      getmore: number;
+      command: number;
+    };
     replicationLag: number | null;
     replicationLagReason: string | null;
     pageFaults?: number;
@@ -48,7 +71,13 @@ interface MetricsData {
   http: {
     totalRequests: number;
     statusCodes: { "2xx": number; "3xx": number; "4xx": number; "5xx": number };
-    latency: { avg: number; p50: number; p95: number; p99: number; samples: number };
+    latency: {
+      avg: number;
+      p50: number;
+      p95: number;
+      p99: number;
+      samples: number;
+    };
   };
 }
 
@@ -63,7 +92,9 @@ const formatBytes = (bytes: number) => {
 export default function SystemMetricsPage() {
   const { adminToken } = useAdminAuth();
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
-  const [history, setHistory] = useState<{ time: string; memory: number; cpu: number; latency: number }[]>([]);
+  const [history, setHistory] = useState<
+    { time: string; memory: number; cpu: number; latency: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,19 +106,26 @@ export default function SystemMetricsPage() {
       if (!res.ok) throw new Error("Failed to fetch metrics");
       const data: MetricsData = await res.json();
       setMetrics(data);
-      
-      const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      setHistory(prev => {
-        const newHistory = [...prev, {
-          time: timeStr,
-          memory: data.memory.utilizationPercent,
-          cpu: data.cpu.utilizationPercent,
-          latency: data.http.latency.p95
-        }];
+
+      const timeStr = new Date(data.timestamp).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      setHistory((prev) => {
+        const newHistory = [
+          ...prev,
+          {
+            time: timeStr,
+            memory: data.memory.utilizationPercent,
+            cpu: data.cpu.utilizationPercent,
+            latency: data.http.latency.p95,
+          },
+        ];
         if (newHistory.length > 20) newHistory.shift();
         return newHistory;
       });
-      
+
       setError(null);
     } catch (err: any) {
       setError(err.message);
@@ -112,11 +150,17 @@ export default function SystemMetricsPage() {
 
   if (error && !metrics) {
     return (
-      <Card padding="lg" className="border-red-200 bg-red-50 text-red-600 flex flex-col items-center">
+      <Card
+        padding="lg"
+        className="border-red-200 bg-red-50 text-red-600 flex flex-col items-center"
+      >
         <AlertCircle className="w-8 h-8 mb-2" />
         <p className="font-bold">Error loading metrics</p>
         <p className="text-sm">{error}</p>
-        <button onClick={fetchMetrics} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">
+        <button
+          onClick={fetchMetrics}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+        >
           Retry
         </button>
       </Card>
@@ -134,10 +178,11 @@ export default function SystemMetricsPage() {
             System Metrics
           </h1>
           <p className="text-sm text-neutral-500 font-medium">
-            {metrics.os.hostname} • {metrics.os.platform} ({metrics.os.arch}) • Node {metrics.os.nodeVersion}
+            {metrics.os.hostname} • {metrics.os.platform} ({metrics.os.arch}) •
+            Node {metrics.os.nodeVersion}
           </p>
         </div>
-        <button 
+        <button
           onClick={fetchMetrics}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 text-neutral-700 rounded-xl hover:bg-neutral-50 font-medium text-sm transition-colors shadow-sm"
         >
@@ -147,36 +192,36 @@ export default function SystemMetricsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard 
-          title="CPU Usage" 
-          value={metrics.cpu.utilizationPercent} 
-          unit="%" 
+        <MetricCard
+          title="CPU Usage"
+          value={metrics.cpu.utilizationPercent}
+          unit="%"
           formatter={(v) => v.toFixed(1)}
           icon={<Cpu className="w-5 h-5" />}
           color="indigo"
-          subtitle={`${metrics.cpu.cores} Cores ${metrics.cpu.containerLimited ? '(Docker Limit)' : ''}`}
+          subtitle={`${metrics.cpu.cores} Cores ${metrics.cpu.containerLimited ? "(Docker Limit)" : ""}`}
         />
-        <MetricCard 
-          title="Memory Usage" 
-          value={metrics.memory.utilizationPercent} 
-          unit="%" 
+        <MetricCard
+          title="Memory Usage"
+          value={metrics.memory.utilizationPercent}
+          unit="%"
           formatter={(v) => v.toFixed(1)}
           icon={<HardDrive className="w-5 h-5" />}
           color="emerald"
           subtitle={`${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}`}
         />
-        <MetricCard 
-          title="HTTP P95 Latency" 
-          value={metrics.http.latency.p95} 
-          unit="ms" 
+        <MetricCard
+          title="HTTP P95 Latency"
+          value={metrics.http.latency.p95}
+          unit="ms"
           formatter={(v) => v.toFixed(0)}
           icon={<Activity className="w-5 h-5" />}
           color="rose"
           subtitle={`Avg: ${metrics.http.latency.avg.toFixed(0)}ms (${metrics.http.totalRequests} reqs)`}
         />
-        <MetricCard 
-          title="Mongo Connections" 
-          value={metrics.mongo?.connections.current || 0} 
+        <MetricCard
+          title="Mongo Connections"
+          value={metrics.mongo?.connections.current || 0}
           icon={<Database className="w-5 h-5" />}
           color="purple"
           subtitle={`Available: ${metrics.mongo?.connections.available || 0}`}
@@ -192,14 +237,51 @@ export default function SystemMetricsPage() {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dx={-10} domain={[0, 100]} />
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#e5e7eb"
                 />
-                <Line type="monotone" dataKey="cpu" name="CPU %" stroke="#6366f1" strokeWidth={3} dot={false} activeDot={{ r: 6, strokeWidth: 0 }} />
-                <Line type="monotone" dataKey="memory" name="Memory %" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6, strokeWidth: 0 }} />
+                <XAxis
+                  dataKey="time"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  dx={-10}
+                  domain={[0, 100]}
+                />
+                <RechartsTooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow:
+                      "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="cpu"
+                  name="CPU %"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="memory"
+                  name="Memory %"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -211,22 +293,42 @@ export default function SystemMetricsPage() {
             Node.js Event Loop Delay
           </h3>
           <div className="grid grid-cols-2 gap-4 h-full">
-             <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
-                <p className="text-sm font-medium text-neutral-500 mb-1">Mean Delay</p>
-                <p className="text-2xl font-bold text-neutral-900">{metrics.eventLoop.mean.toFixed(2)}<span className="text-sm text-neutral-500 ml-1">ms</span></p>
-             </div>
-             <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
-                <p className="text-sm font-medium text-neutral-500 mb-1">P50 (Median)</p>
-                <p className="text-2xl font-bold text-neutral-900">{metrics.eventLoop.p50.toFixed(2)}<span className="text-sm text-neutral-500 ml-1">ms</span></p>
-             </div>
-             <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
-                <p className="text-sm font-medium text-neutral-500 mb-1">P95 Delay</p>
-                <p className="text-2xl font-bold text-neutral-900">{metrics.eventLoop.p95.toFixed(2)}<span className="text-sm text-neutral-500 ml-1">ms</span></p>
-             </div>
-             <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
-                <p className="text-sm font-medium text-neutral-500 mb-1">P99 Delay</p>
-                <p className="text-2xl font-bold text-neutral-900">{metrics.eventLoop.p99.toFixed(2)}<span className="text-sm text-neutral-500 ml-1">ms</span></p>
-             </div>
+            <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
+              <p className="text-sm font-medium text-neutral-500 mb-1">
+                Mean Delay
+              </p>
+              <p className="text-2xl font-bold text-neutral-900">
+                {metrics.eventLoop.mean.toFixed(2)}
+                <span className="text-sm text-neutral-500 ml-1">ms</span>
+              </p>
+            </div>
+            <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
+              <p className="text-sm font-medium text-neutral-500 mb-1">
+                P50 (Median)
+              </p>
+              <p className="text-2xl font-bold text-neutral-900">
+                {metrics.eventLoop.p50.toFixed(2)}
+                <span className="text-sm text-neutral-500 ml-1">ms</span>
+              </p>
+            </div>
+            <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
+              <p className="text-sm font-medium text-neutral-500 mb-1">
+                P95 Delay
+              </p>
+              <p className="text-2xl font-bold text-neutral-900">
+                {metrics.eventLoop.p95.toFixed(2)}
+                <span className="text-sm text-neutral-500 ml-1">ms</span>
+              </p>
+            </div>
+            <div className="bg-neutral-50 rounded-xl p-4 flex flex-col justify-center">
+              <p className="text-sm font-medium text-neutral-500 mb-1">
+                P99 Delay
+              </p>
+              <p className="text-2xl font-bold text-neutral-900">
+                {metrics.eventLoop.p99.toFixed(2)}
+                <span className="text-sm text-neutral-500 ml-1">ms</span>
+              </p>
+            </div>
           </div>
         </Card>
       </div>
@@ -238,24 +340,45 @@ export default function SystemMetricsPage() {
             MongoDB Status
           </h3>
           <div className="space-y-4">
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">Replication Lag</span>
-               <span className="text-sm font-bold text-neutral-900">
-                 {metrics.mongo?.replicationLag !== null ? `${metrics.mongo?.replicationLag}s` : <span className="text-neutral-400 font-normal">{metrics.mongo?.replicationLagReason || 'N/A'}</span>}
-               </span>
-             </div>
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">Page Faults</span>
-               <span className="text-sm font-bold text-neutral-900">{metrics.mongo?.pageFaults || 0}</span>
-             </div>
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">Queries</span>
-               <span className="text-sm font-bold text-neutral-900">{metrics.mongo?.opcounters.query || 0}</span>
-             </div>
-             <div className="flex justify-between items-center py-2">
-               <span className="text-sm font-medium text-neutral-600">Inserts / Updates</span>
-               <span className="text-sm font-bold text-neutral-900">{metrics.mongo?.opcounters.insert || 0} / {metrics.mongo?.opcounters.update || 0}</span>
-             </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                Replication Lag
+              </span>
+              <span className="text-sm font-bold text-neutral-900">
+                {metrics.mongo?.replicationLag !== null ? (
+                  `${metrics.mongo?.replicationLag}s`
+                ) : (
+                  <span className="text-neutral-400 font-normal">
+                    {metrics.mongo?.replicationLagReason || "N/A"}
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                Page Faults
+              </span>
+              <span className="text-sm font-bold text-neutral-900">
+                {metrics.mongo?.pageFaults || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                Queries
+              </span>
+              <span className="text-sm font-bold text-neutral-900">
+                {metrics.mongo?.opcounters.query || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm font-medium text-neutral-600">
+                Inserts / Updates
+              </span>
+              <span className="text-sm font-bold text-neutral-900">
+                {metrics.mongo?.opcounters.insert || 0} /{" "}
+                {metrics.mongo?.opcounters.update || 0}
+              </span>
+            </div>
           </div>
         </Card>
 
@@ -265,31 +388,54 @@ export default function SystemMetricsPage() {
             HTTP Traffic
           </h3>
           <div className="space-y-4">
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">Total Requests</span>
-               <span className="text-sm font-bold text-neutral-900">{metrics.http.totalRequests}</span>
-             </div>
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">2xx Success</span>
-               <span className="text-sm font-bold text-emerald-600">{metrics.http.statusCodes["2xx"]}</span>
-             </div>
-             <div className="flex justify-between items-center py-2 border-b border-neutral-100">
-               <span className="text-sm font-medium text-neutral-600">4xx Client Errors</span>
-               <span className="text-sm font-bold text-amber-600">{metrics.http.statusCodes["4xx"]}</span>
-             </div>
-             <div className="flex justify-between items-center py-2">
-               <span className="text-sm font-medium text-neutral-600">5xx Server Errors</span>
-               <span className="text-sm font-bold text-rose-600">{metrics.http.statusCodes["5xx"]}</span>
-             </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                Total Requests
+              </span>
+              <span className="text-sm font-bold text-neutral-900">
+                {metrics.http.totalRequests}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                2xx Success
+              </span>
+              <span className="text-sm font-bold text-emerald-600">
+                {metrics.http.statusCodes["2xx"]}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+              <span className="text-sm font-medium text-neutral-600">
+                4xx Client Errors
+              </span>
+              <span className="text-sm font-bold text-amber-600">
+                {metrics.http.statusCodes["4xx"]}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm font-medium text-neutral-600">
+                5xx Server Errors
+              </span>
+              <span className="text-sm font-bold text-rose-600">
+                {metrics.http.statusCodes["5xx"]}
+              </span>
+            </div>
           </div>
         </Card>
       </div>
-
     </div>
   );
 }
 
-function MetricCard({ title, value, unit, formatter, icon, color, subtitle }: {
+function MetricCard({
+  title,
+  value,
+  unit,
+  formatter,
+  icon,
+  color,
+  subtitle,
+}: {
   title: string;
   value: number;
   unit?: string;
@@ -308,17 +454,23 @@ function MetricCard({ title, value, unit, formatter, icon, color, subtitle }: {
   return (
     <Card padding="lg" className="flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 rounded-lg ${colorStyles[color]}`}>
-          {icon}
-        </div>
+        <div className={`p-2 rounded-lg ${colorStyles[color]}`}>{icon}</div>
         <h3 className="text-sm font-bold text-neutral-600">{title}</h3>
       </div>
       <div className="mt-auto">
         <p className="text-3xl font-extrabold text-neutral-900 tracking-tight">
           <AnimatedNumber value={value} formatter={formatter} duration={500} />
-          {unit && <span className="text-lg text-neutral-500 font-medium ml-1">{unit}</span>}
+          {unit && (
+            <span className="text-lg text-neutral-500 font-medium ml-1">
+              {unit}
+            </span>
+          )}
         </p>
-        {subtitle && <p className="text-xs font-medium text-neutral-500 mt-1">{subtitle}</p>}
+        {subtitle && (
+          <p className="text-xs font-medium text-neutral-500 mt-1">
+            {subtitle}
+          </p>
+        )}
       </div>
     </Card>
   );

@@ -19,11 +19,13 @@ export default function PrivacyPolicy() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 
+          <h1
             className="text-5xl sm:text-6xl font-medium text-neutral-900 mb-4 tracking-tight leading-tight text-left"
             style={{ fontFamily: "'Instrument Serif', serif" }}
           >
-            <span className="italic">{title.substring(0, title.lastIndexOf(" "))}</span>{" "}
+            <span className="italic">
+              {title.substring(0, title.lastIndexOf(" "))}
+            </span>{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 italic pr-2">
               {title.substring(title.lastIndexOf(" ") + 1)}
             </span>
@@ -51,20 +53,27 @@ export default function PrivacyPolicy() {
             </p>
             <ul className="list-disc pl-6 space-y-2 mb-8">
               <li>
-                <strong className="font-semibold text-neutral-800">Account Information:</strong> When you create an account,
-                we collect your username, email address, and password (which is
-                securely hashed).
+                <strong className="font-semibold text-neutral-800">
+                  Account Information:
+                </strong>{" "}
+                When you create an account, we collect your username, email
+                address, and password (which is securely hashed).
               </li>
               <li>
-                <strong className="font-semibold text-neutral-800">Usage Data:</strong> We collect data related to the
-                problems you track, notes you take, review intervals, and your
-                interactions with the curated roadmaps.
+                <strong className="font-semibold text-neutral-800">
+                  Usage Data:
+                </strong>{" "}
+                We collect data related to the problems you track, notes you
+                take, review intervals, and your interactions with the curated
+                roadmaps.
               </li>
               <li>
-                <strong className="font-semibold text-neutral-800">LeetCode Data:</strong> If you choose to provide your
-                LeetCode username, our application fetches your public submission
-                history from the LeetCode GraphQL API to automatically sync your
-                progress.
+                <strong className="font-semibold text-neutral-800">
+                  LeetCode Data:
+                </strong>{" "}
+                If you choose to provide your LeetCode username, our application
+                fetches your public submission history from the LeetCode GraphQL
+                API to automatically sync your progress.
               </li>
             </ul>
 
@@ -85,8 +94,8 @@ export default function PrivacyPolicy() {
                 you request.
               </li>
               <li>
-                To synchronize your completed problems from third-party platforms
-                like LeetCode.
+                To synchronize your completed problems from third-party
+                platforms like LeetCode.
               </li>
               <li>
                 To improve the user experience and analyze application usage.
@@ -97,20 +106,25 @@ export default function PrivacyPolicy() {
               3. Will Your Information Be Shared?
             </h2>
             <p className="mb-4">
-              We only share information with your consent, to comply with laws, to
-              provide you with services, to protect your rights, or to fulfill
-              business obligations.
+              We only share information with your consent, to comply with laws,
+              to provide you with services, to protect your rights, or to
+              fulfill business obligations.
             </p>
             <ul className="list-disc pl-6 space-y-2 mb-8">
               <li>
-                <strong className="font-semibold text-neutral-800">Third-Party Integrations:</strong> Our backend fetches
-                data from the LeetCode GraphQL API on your behalf. We do not sell
-                or share your personal data with third-party advertisers.
+                <strong className="font-semibold text-neutral-800">
+                  Third-Party Integrations:
+                </strong>{" "}
+                Our backend fetches data from the LeetCode GraphQL API on your
+                behalf. We do not sell or share your personal data with
+                third-party advertisers.
               </li>
               <li>
-                <strong className="font-semibold text-neutral-800">Infrastructure:</strong> Your data is stored securely in
-                our MongoDB databases and managed on reliable cloud
-                infrastructure.
+                <strong className="font-semibold text-neutral-800">
+                  Infrastructure:
+                </strong>{" "}
+                Your data is stored securely in our MongoDB databases and
+                managed on reliable cloud infrastructure.
               </li>
             </ul>
 
@@ -120,8 +134,9 @@ export default function PrivacyPolicy() {
             <p className="mb-8">
               We keep your information for as long as necessary to fulfill the
               purposes outlined in this privacy notice unless otherwise required
-              by law. When we have no ongoing legitimate business need to process
-              your personal information, we will either delete or anonymize it.
+              by law. When we have no ongoing legitimate business need to
+              process your personal information, we will either delete or
+              anonymize it.
             </p>
 
             <h2 className="text-xl font-bold text-neutral-900 mt-10 mb-4">
@@ -129,19 +144,19 @@ export default function PrivacyPolicy() {
             </h2>
             <p className="mb-8">
               We have implemented appropriate technical and organizational
-              security measures (such as password hashing and secure API endpoint
-              routing) designed to protect the security of any personal
-              information we process. However, please also remember that we cannot
-              guarantee that the internet itself is 100% secure.
+              security measures (such as password hashing and secure API
+              endpoint routing) designed to protect the security of any personal
+              information we process. However, please also remember that we
+              cannot guarantee that the internet itself is 100% secure.
             </p>
 
             <h2 className="text-xl font-bold text-neutral-900 mt-10 mb-4">
               6. Your Privacy Rights
             </h2>
             <p className="mb-8">
-              You may review, change, or terminate your account at any time. Upon
-              your request to terminate your account, we will deactivate or delete
-              your account and information from our active databases.
+              You may review, change, or terminate your account at any time.
+              Upon your request to terminate your account, we will deactivate or
+              delete your account and information from our active databases.
             </p>
           </div>
         </motion.div>

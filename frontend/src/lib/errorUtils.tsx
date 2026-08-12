@@ -13,10 +13,10 @@ export function getApiError(data: any, fallbackMessage: string): ReactNode {
       </ul>
     );
   }
-  
+
   if (data?.error) {
     return data.error;
   }
-  
+
   return fallbackMessage;
 }

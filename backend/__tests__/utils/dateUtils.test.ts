@@ -14,7 +14,7 @@ describe("dateUtils - calculateIsDue", () => {
     const today = new Date();
     // Set last attempted date to yesterday
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-    
+
     // Requires 2 days, only 1 day elapsed
     expect(calculateIsDue(yesterday, 2)).toBe(false);
   });
@@ -23,7 +23,7 @@ describe("dateUtils - calculateIsDue", () => {
     const today = new Date();
     // Exactly 2 days ago
     const twoDaysAgo = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000);
-    
+
     // Requires 2 days, 2 days elapsed
     expect(calculateIsDue(twoDaysAgo, 2)).toBe(true);
   });
@@ -31,26 +31,28 @@ describe("dateUtils - calculateIsDue", () => {
   it("returns true if more than enough days have elapsed", () => {
     const today = new Date();
     const threeDaysAgo = new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000);
-    
+
     // Requires 2 days, 3 days elapsed
     expect(calculateIsDue(threeDaysAgo, 2)).toBe(true);
   });
 
   it("works correctly with a string date input", () => {
     const today = new Date();
-    const twoDaysAgo = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
-    
+    const twoDaysAgo = new Date(
+      today.getTime() - 2 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+
     expect(calculateIsDue(twoDaysAgo, 2)).toBe(true);
   });
-  
+
   it("ignores the time component when calculating days", () => {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    
+
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     twoDaysAgo.setHours(0, 0, 0, 0); // Very beginning of the day 2 days ago
-    
+
     expect(calculateIsDue(twoDaysAgo, 2)).toBe(true);
   });
 });

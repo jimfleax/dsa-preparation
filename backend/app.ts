@@ -12,7 +12,10 @@ import adminRoutes from "./src/routes/admin/index.ts";
 import { requireAuth } from "./src/middleware/authMiddleware.ts";
 import { globalErrorHandler } from "./src/middleware/errorHandler.ts";
 import { validateRequest } from "./src/middleware/validateRequest.ts";
-import { scrapeTitleSchema, getLeetCodeCalendarSchema } from "./src/lib/validations/tracker.ts";
+import {
+  scrapeTitleSchema,
+  getLeetCodeCalendarSchema,
+} from "./src/lib/validations/tracker.ts";
 import {
   scrapeLeetCodeTitle,
   getLeetCodeCalendar,
@@ -128,11 +131,21 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.post("/api/problems/scrape-title", scrapeLimiter, validateRequest(scrapeTitleSchema), scrapeLeetCodeTitle);
+app.post(
+  "/api/problems/scrape-title",
+  scrapeLimiter,
+  validateRequest(scrapeTitleSchema),
+  scrapeLeetCodeTitle,
+);
 
 // PUBLIC UTILITY: LeetCode profile calendar proxy (no auth required)
 // Used by the Command Palette to render user heatmaps
-app.get("/api/leetcode/calendar/:username", scrapeLimiter, validateRequest(getLeetCodeCalendarSchema), getLeetCodeCalendar);
+app.get(
+  "/api/leetcode/calendar/:username",
+  scrapeLimiter,
+  validateRequest(getLeetCodeCalendarSchema),
+  getLeetCodeCalendar,
+);
 
 // Native Auth routes
 app.use("/api/auth", authRoutes);

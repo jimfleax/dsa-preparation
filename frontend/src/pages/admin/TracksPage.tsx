@@ -17,12 +17,9 @@ export default function TracksPage() {
 
   const fetchTracks = async () => {
     try {
-      const res = await adminFetch(
-        `${getBackendUrl()}/api/admin/tracks`,
-        {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        },
-      );
+      const res = await adminFetch(`${getBackendUrl()}/api/admin/tracks`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const json = await res.json();
       if (json.success) {
         setTracks(json.tracks);
@@ -43,13 +40,10 @@ export default function TracksPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this track?")) return;
     try {
-      await adminFetch(
-        `${getBackendUrl()}/api/admin/tracks/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${adminToken}` },
-        },
-      );
+      await adminFetch(`${getBackendUrl()}/api/admin/tracks/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       fetchTracks();
     } catch (err) {
       console.error(err);
@@ -127,11 +121,17 @@ export default function TracksPage() {
       </div>
 
       {loading ? (
-        <Card padding="none" className="p-12 text-center text-neutral-400 font-medium animate-pulse">
+        <Card
+          padding="none"
+          className="p-12 text-center text-neutral-400 font-medium animate-pulse"
+        >
           Loading tracks...
         </Card>
       ) : tracks.length === 0 ? (
-        <Card padding="none" className="p-16 flex flex-col items-center text-center">
+        <Card
+          padding="none"
+          className="p-16 flex flex-col items-center text-center"
+        >
           <Map className="w-12 h-12 text-neutral-200 mb-4" />
           <h3 className="text-lg font-bold text-neutral-900">
             No tracks found

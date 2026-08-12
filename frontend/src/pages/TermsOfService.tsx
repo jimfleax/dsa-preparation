@@ -19,11 +19,13 @@ export default function TermsOfService() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 
+          <h1
             className="text-5xl sm:text-6xl font-medium text-neutral-900 mb-4 tracking-tight leading-tight text-left"
             style={{ fontFamily: "'Instrument Serif', serif" }}
           >
-            <span className="italic">{title.substring(0, title.lastIndexOf(" "))}</span>{" "}
+            <span className="italic">
+              {title.substring(0, title.lastIndexOf(" "))}
+            </span>{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 italic pr-2">
               {title.substring(title.lastIndexOf(" ") + 1)}
             </span>
@@ -34,10 +36,10 @@ export default function TermsOfService() {
 
           <div className="prose prose-neutral max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline text-neutral-600 font-light">
             <p className="mb-6">
-              Please read these Terms of Service ("Terms") carefully before using
-              the DSA Preparation application (the "Service") operated by us. Your
-              access to and use of the Service is conditioned on your acceptance
-              of and compliance with these Terms.
+              Please read these Terms of Service ("Terms") carefully before
+              using the DSA Preparation application (the "Service") operated by
+              us. Your access to and use of the Service is conditioned on your
+              acceptance of and compliance with these Terms.
             </p>
 
             <h2 className="text-xl font-bold text-neutral-900 mt-10 mb-4">
@@ -53,10 +55,10 @@ export default function TermsOfService() {
               2. Accounts
             </h2>
             <p className="mb-4">
-              When you create an account with us, you must provide us information
-              that is accurate, complete, and current at all times. Failure to do
-              so constitutes a breach of the Terms, which may result in immediate
-              termination of your account on our Service.
+              When you create an account with us, you must provide us
+              information that is accurate, complete, and current at all times.
+              Failure to do so constitutes a breach of the Terms, which may
+              result in immediate termination of your account on our Service.
             </p>
             <p className="mb-8">
               You are responsible for safeguarding the password that you use to
@@ -70,7 +72,9 @@ export default function TermsOfService() {
             </h2>
             <p className="mb-4">You agree not to use the Service to:</p>
             <ul className="list-disc pl-6 space-y-2 mb-8">
-              <li>Violate any local, state, national, or international laws.</li>
+              <li>
+                Violate any local, state, national, or international laws.
+              </li>
               <li>
                 Attempt to gain unauthorized access to our computer systems or
                 engage in any activity that disrupts, diminishes the quality of,
@@ -89,9 +93,10 @@ export default function TermsOfService() {
             <p className="mb-8">
               Our Service relies on third-party APIs (such as LeetCode) to
               function fully. We are not affiliated with, endorsed by, or
-              sponsored by LeetCode or any other third-party services whose public
-              data we may fetch. We are not responsible for the availability,
-              accuracy, or reliability of such third-party services.
+              sponsored by LeetCode or any other third-party services whose
+              public data we may fetch. We are not responsible for the
+              availability, accuracy, or reliability of such third-party
+              services.
             </p>
 
             <h2 className="text-xl font-bold text-neutral-900 mt-10 mb-4">
@@ -128,9 +133,9 @@ export default function TermsOfService() {
             </h2>
             <p className="mb-8">
               We reserve the right, at our sole discretion, to modify or replace
-              these Terms at any time. By continuing to access or use our Service
-              after those revisions become effective, you agree to be bound by the
-              revised terms.
+              these Terms at any time. By continuing to access or use our
+              Service after those revisions become effective, you agree to be
+              bound by the revised terms.
             </p>
           </div>
         </motion.div>

@@ -9,10 +9,22 @@ export class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
-  static badRequest(msg: string = "Bad Request") { return new AppError(msg, 400); }
-  static unauthorized(msg: string = "Unauthorized") { return new AppError(msg, 401); }
-  static forbidden(msg: string = "Forbidden") { return new AppError(msg, 403); }
-  static notFound(msg: string = "Not Found") { return new AppError(msg, 404); }
-  static conflict(msg: string = "Conflict") { return new AppError(msg, 409); }
-  static internal(msg: string = "Internal Server Error") { return new AppError(msg, 500); }
+  static badRequest(msg: string = "Bad Request") {
+    return new AppError(msg, 400);
+  }
+  static unauthorized(msg: string = "Unauthorized") {
+    return new AppError(msg, 401);
+  }
+  static forbidden(msg: string = "Forbidden") {
+    return new AppError(msg, 403);
+  }
+  static notFound(msg: string = "Not Found") {
+    return new AppError(msg, 404);
+  }
+  static conflict(msg: string = "Conflict") {
+    return new AppError(msg, 409);
+  }
+  static internal(msg: string = "Internal Server Error") {
+    return new AppError(msg, 500);
+  }
 }

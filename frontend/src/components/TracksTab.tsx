@@ -22,7 +22,9 @@ import { getVerifiedActiveTrackData } from "../lib/activeTrackUtils";
 
 export default function TracksTab() {
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [trackedProblems, setTrackedProblems] = useState<Set<string>>(new Set());
+  const [trackedProblems, setTrackedProblems] = useState<Set<string>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
@@ -52,8 +54,7 @@ export default function TracksTab() {
     }
   };
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   useEffect(() => {
     fetchTracksAndProgress(1);
@@ -82,9 +83,12 @@ export default function TracksTab() {
 
       if (pageNum === 1) {
         // Fetch tracks and progress map together on initial load
-        const progressPromise = apiFetch(`${apiBase}/api/tracker/solved-slugs`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const progressPromise = apiFetch(
+          `${apiBase}/api/tracker/solved-slugs`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const metricsPromise = apiFetch(`${apiBase}/api/tracks/metrics`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -129,10 +133,14 @@ export default function TracksTab() {
           setTrackedProblems(progressSet);
 
           // Clear active track/part if it's now completed
-          const { activeTrackId: validTrackId, activePartIndex: validPartIndex } = getVerifiedActiveTrackData(tracksData.tracks, progressSet);
-          
+          const {
+            activeTrackId: validTrackId,
+            activePartIndex: validPartIndex,
+          } = getVerifiedActiveTrackData(tracksData.tracks, progressSet);
+
           if (validTrackId !== activeTrackId) setActiveTrackId(validTrackId);
-          if (validPartIndex !== activePartIndex) setActivePartIndex(validPartIndex);
+          if (validPartIndex !== activePartIndex)
+            setActivePartIndex(validPartIndex);
         }
       }
 
@@ -143,7 +151,7 @@ export default function TracksTab() {
         }
       }
 
-      // The states activeTrackId and activePartIndex are already correctly managed 
+      // The states activeTrackId and activePartIndex are already correctly managed
       // by getVerifiedActiveTrackData, so no extra syncing is needed here.
     } catch (err) {
       console.error("Error fetching tracks", err);
@@ -174,10 +182,12 @@ export default function TracksTab() {
         setTrackedProblems(progressSet);
 
         // Clear active track/part if it's now completed
-        const { activeTrackId: validTrackId, activePartIndex: validPartIndex } = getVerifiedActiveTrackData(tracks, progressSet);
-        
+        const { activeTrackId: validTrackId, activePartIndex: validPartIndex } =
+          getVerifiedActiveTrackData(tracks, progressSet);
+
         if (validTrackId !== activeTrackId) setActiveTrackId(validTrackId);
-        if (validPartIndex !== activePartIndex) setActivePartIndex(validPartIndex);
+        if (validPartIndex !== activePartIndex)
+          setActivePartIndex(validPartIndex);
       }
 
       const metricsData = await metricsRes.json();
@@ -250,10 +260,8 @@ export default function TracksTab() {
     },
   );
 
-  const {
-    incomplete: incompleteTracks,
-    completed: completedTracks,
-  } = categorizedTracks;
+  const { incomplete: incompleteTracks, completed: completedTracks } =
+    categorizedTracks;
 
   const sortedIncompleteTracks = [...incompleteTracks].sort((a, b) => {
     if (a._id === activeTrackId) return -1;
@@ -333,9 +341,9 @@ export default function TracksTab() {
               tracks.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
-              <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-4">
+              <div className="bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 px-4 py-2 rounded-[20px] flex items-center gap-4">
                 <div>
-                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
                     Problems Solved
                   </p>
                   <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
@@ -344,7 +352,7 @@ export default function TracksTab() {
                 </div>
                 <div className="w-px h-8 bg-emerald-200 mx-2"></div>
                 <div>
-                  <p className="text-[10px] text-emerald-600/80 font-bold uppercase tracking-wider">
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
                     Tracks Mastered
                   </p>
                   <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
@@ -352,21 +360,21 @@ export default function TracksTab() {
                   </p>
                 </div>
               </div>
-              <div className="bg-neutral-50 border border-neutral-200 px-4 py-2 rounded-xl flex items-center gap-4">
+              <div className="bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 px-4 py-2 rounded-[20px] flex items-center gap-4">
                 <div>
-                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
+                  <p className="text-[10px] text-[#635F69] font-bold uppercase tracking-wider">
                     Problems Left
                   </p>
-                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-[#332F3A]">
                     <AnimatedNumber value={totalProblems - totalSolved} />
                   </p>
                 </div>
-                <div className="w-px h-8 bg-neutral-200 mx-2"></div>
+                <div className="w-px h-8 bg-[#E6E0F8] mx-2"></div>
                 <div>
-                  <p className="text-[10px] text-neutral-500/80 font-bold uppercase tracking-wider">
+                  <p className="text-[10px] text-[#635F69] font-bold uppercase tracking-wider">
                     Tracks Left
                   </p>
-                  <p className="text-lg sm:text-xl font-extrabold text-neutral-700">
+                  <p className="text-lg sm:text-xl font-extrabold text-[#332F3A]">
                     <AnimatedNumber
                       value={Math.max(
                         0,

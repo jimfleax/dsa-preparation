@@ -1,6 +1,12 @@
 import request from "supertest";
 import app from "../../app.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections, createTestAdmin, createTestUser } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+  createTestAdmin,
+  createTestUser,
+} from "../setup/testHelpers.ts";
 import { Admin } from "../../src/models/Admin.ts";
 import Track from "../../src/models/Track.ts";
 import LearningDoc from "../../src/models/LearningDoc.ts";
@@ -26,12 +32,16 @@ describe("Admin API", () => {
 
   describe("Admin Auth (/api/admin/auth)", () => {
     it("rejects missing token", async () => {
-      const response = await request(app).post("/api/admin/auth/google").send({});
+      const response = await request(app)
+        .post("/api/admin/auth/google")
+        .send({});
       expect(response.status).toBe(400);
     });
 
     it("rejects invalid Google token", async () => {
-      const response = await request(app).post("/api/admin/auth/google").send({ token: "invalid" });
+      const response = await request(app)
+        .post("/api/admin/auth/google")
+        .send({ token: "invalid" });
       expect(response.status).toBe(401);
     });
   });
@@ -49,7 +59,7 @@ describe("Admin API", () => {
       const response = await request(app)
         .get("/api/admin/users")
         .set("Authorization", `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body.length).toBeGreaterThanOrEqual(2);
     });
@@ -66,18 +76,22 @@ describe("Admin API", () => {
         .post("/api/admin/tracks")
         .set("Authorization", `Bearer ${adminToken}`)
         .send({ title: "New Track", description: "Desc", problems: [] });
-        
+
       expect(response.status).toBe(201);
       expect(response.body.title).toBe("New Track");
     });
 
     it("deletes a track", async () => {
-      const track = await Track.create({ title: "To Delete", description: "Desc", problems: [] });
-      
+      const track = await Track.create({
+        title: "To Delete",
+        description: "Desc",
+        problems: [],
+      });
+
       const response = await request(app)
         .delete(`/api/admin/tracks/${track._id}`)
         .set("Authorization", `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       const exists = await Track.findById(track._id);
       expect(exists).toBeNull();
@@ -94,8 +108,13 @@ describe("Admin API", () => {
       const response = await request(app)
         .post("/api/admin/docs")
         .set("Authorization", `Bearer ${adminToken}`)
-        .send({ filename: "test.md", title: "Test", tags: [], content: "body" });
-        
+        .send({
+          filename: "test.md",
+          title: "Test",
+          tags: [],
+          content: "body",
+        });
+
       expect(response.status).toBe(201);
       expect(response.body.filename).toBe("test.md");
     });
@@ -106,7 +125,7 @@ describe("Admin API", () => {
       const response = await request(app)
         .get("/api/admin/analytics")
         .set("Authorization", `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("users");
       expect(response.body).toHaveProperty("content");

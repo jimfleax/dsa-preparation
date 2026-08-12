@@ -78,10 +78,14 @@ export default function ProblemsTab({
     null,
   );
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>("");
-  const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
+  const searchQuery =
+    externalSearchQuery !== undefined
+      ? externalSearchQuery
+      : internalSearchQuery;
   const setSearchQuery = setExternalSearchQuery || setInternalSearchQuery;
 
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(searchQuery);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] =
+    useState<string>(searchQuery);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
@@ -106,8 +110,7 @@ export default function ProblemsTab({
   const [noteProblem, setNoteProblem] = useState<TrackedProblem | null>(null);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   useEscapeKey(
     !!problemToDelete,
@@ -132,7 +135,7 @@ export default function ProblemsTab({
         setHighlightedProblemId(null);
       }
     };
-    
+
     // Add document listener with delay so current click doesn't trigger it
     const clickTimeout = setTimeout(() => {
       document.addEventListener("click", handleClickOutside);
@@ -145,9 +148,13 @@ export default function ProblemsTab({
     };
   }, [highlightedProblemId, problems, setHighlightedProblemId]);
 
-  const fetchProblems = async (pageNum: number = 1, searchOverride?: string) => {
-    const q = searchOverride !== undefined ? searchOverride : debouncedSearchQuery;
-    
+  const fetchProblems = async (
+    pageNum: number = 1,
+    searchOverride?: string,
+  ) => {
+    const q =
+      searchOverride !== undefined ? searchOverride : debouncedSearchQuery;
+
     if (pageNum > 1) {
       setIsFetchingMore(true);
     } else {
@@ -156,12 +163,17 @@ export default function ProblemsTab({
 
     try {
       const token = await getToken();
-      
-      const searchParam = q.trim() ? `&search=${encodeURIComponent(q.trim())}` : "";
+
+      const searchParam = q.trim()
+        ? `&search=${encodeURIComponent(q.trim())}`
+        : "";
       const promises: Promise<Response>[] = [
-        apiFetch(`${apiBase}/api/tracker?page=${pageNum}&limit=20${searchParam}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        apiFetch(
+          `${apiBase}/api/tracker?page=${pageNum}&limit=20${searchParam}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
       ];
 
       if (pageNum === 1) {
@@ -336,10 +348,12 @@ export default function ProblemsTab({
     <tr
       id={`problem-row-${problem._id}`}
       key={problem._id}
-      className={`border-b border-neutral-50 transition-all duration-500 ease-in-out group ${
+      className={`border-b border-white/60 transition-all duration-500 ease-in-out group ${
         highlightedProblemId === problem._id
-          ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
-          : "hover:bg-indigo-50/20"
+          ? "bg-[#E6E0F8] border-indigo-200 shadow-clay-pressed z-10 relative"
+          : isDueGroup
+            ? "bg-rose-50/30 hover:bg-rose-50/60"
+            : "bg-transparent hover:bg-white/40"
       }`}
     >
       {/* Problem Title + Link */}
@@ -350,9 +364,7 @@ export default function ProblemsTab({
           rel="noopener noreferrer"
           className="text-sm font-semibold text-neutral-800 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group/link"
         >
-          <span className="truncate max-w-[300px]">
-            {problem.title}
-          </span>
+          <span className="truncate max-w-[300px]">{problem.title}</span>
           {(problem.notes || problem.hasNotes) && (
             <StickyNote className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
           )}
@@ -413,7 +425,7 @@ export default function ProblemsTab({
         <button
           onClick={() => handleRevisit(problem._id)}
           disabled={revisitingId === problem._id}
-          className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 hover:shadow-sm text-indigo-600 rounded-lg text-[11px] font-bold active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 border border-indigo-100/50 hover:border-indigo-200"
+          className="inline-flex items-center gap-1 px-4 py-2 bg-[#F4F1FA] shadow-clay-button hover:shadow-clay-button-hover active:shadow-clay-pressed border border-white/80 text-indigo-600 rounded-[16px] text-[11px] font-bold active:scale-[0.98] transition-all duration-300 cursor-pointer disabled:opacity-50"
           title="I revisited and solved this problem again"
         >
           {revisitingId === problem._id ? (
@@ -448,7 +460,9 @@ export default function ProblemsTab({
                 ? "text-indigo-500 bg-indigo-50 hover:bg-indigo-100"
                 : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
             }`}
-            title={problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"}
+            title={
+              problem.notes || problem.hasNotes ? "View/Edit Note" : "Add Note"
+            }
           >
             <StickyNote className="w-3.5 h-3.5" />
           </button>
@@ -495,7 +509,12 @@ export default function ProblemsTab({
         className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
       >
         {/* Total Solved Card */}
-        <Card padding="responsive" hoverEffect="lift" hoverColor="indigo" className="col-span-1 flex flex-col justify-center items-center gap-2 sm:gap-4 cursor-default group">
+        <Card
+          padding="responsive"
+          hoverEffect="lift"
+          hoverColor="indigo"
+          className="col-span-1 flex flex-col justify-center items-center gap-2 sm:gap-4 cursor-default group"
+        >
           <div className="bg-indigo-50 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
             <Inbox className="w-5 h-5 sm:w-8 sm:h-8" />
           </div>
@@ -520,7 +539,11 @@ export default function ProblemsTab({
         </Card>
 
         {/* Difficulty Distribution Chart */}
-        <Card padding="none" className="p-3 sm:p-4 col-span-1 flex flex-col justify-center items-center h-36 sm:h-48 transition-all duration-300" hoverEffect="lift">
+        <Card
+          padding="none"
+          className="p-3 sm:p-4 col-span-1 flex flex-col justify-center items-center h-36 sm:h-48 transition-all duration-300"
+          hoverEffect="lift"
+        >
           {problems.length > 0 ? (
             <div className="w-full h-full flex flex-col justify-center">
               <div className="flex-1 min-h-0 w-full hide-legend-mobile">
@@ -591,7 +614,12 @@ export default function ProblemsTab({
         </Card>
 
         {/* Quick Actions Card */}
-        <Card padding="lg" hoverEffect="lift" hoverColor="indigo" className="col-span-2 md:col-span-1 flex flex-col justify-center items-center gap-4 transition-all duration-300">
+        <Card
+          padding="lg"
+          hoverEffect="lift"
+          hoverColor="indigo"
+          className="col-span-2 md:col-span-1 flex flex-col justify-center items-center gap-4 transition-all duration-300"
+        >
           <div className="text-center mb-1">
             <p className="text-sm text-neutral-400 font-semibold uppercase tracking-wider">
               Quick Actions
@@ -630,15 +658,11 @@ export default function ProblemsTab({
       </div>
 
       {/* Controls Panel */}
-      <Card
-        padding="md"
-        id="problems-controls-panel"
-        className="shadow-2xs space-y-4"
-      >
+      <Card padding="md" id="problems-controls-panel" className="space-y-4">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
             <Tooltip content="Quick Search" shortcut="/">
               <input
                 id="problems-search-input"
@@ -646,13 +670,13 @@ export default function ProblemsTab({
                 placeholder="Search problems by title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-100 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium"
+                className="w-full pl-11 pr-4 py-3 bg-[#F4F1FA] shadow-clay-pressed border-2 border-white/40 rounded-[20px] text-sm text-[#332F3A] placeholder-[#635F69] focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all font-medium"
               />
             </Tooltip>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 rounded-full"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -663,19 +687,19 @@ export default function ProblemsTab({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setIsUntrackedModalOpen(true)}
-              className="px-3 py-1.5 bg-neutral-50 hover:bg-neutral-200 text-neutral-600 rounded-lg text-xs font-bold border border-neutral-200 hover:border-neutral-300 transition-all duration-200 flex items-center gap-1.5 active:scale-95"
+              className="px-4 py-2.5 bg-[#F4F1FA] shadow-clay-button hover:shadow-clay-button-hover active:shadow-clay-pressed border border-white/60 text-[#635F69] hover:text-[#332F3A] rounded-[16px] text-xs font-bold transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
             >
-              <EyeOff className="w-3.5 h-3.5" />
+              <EyeOff className="w-4 h-4" />
               Untracked
             </button>
             <div className="w-px h-6 bg-neutral-200 mx-1"></div>
-            <ArrowUpDown className="w-3.5 h-3.5 text-indigo-500" />
+            <ArrowUpDown className="w-4 h-4 text-indigo-500" />
             <span className="text-neutral-400 font-medium text-xs">Sort:</span>
             <select
               id="problems-sort-select"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-white border border-neutral-200 px-2.5 py-1.5 rounded-lg text-xs font-medium text-neutral-700 outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-[#F4F1FA] shadow-clay-pressed border border-white/40 px-3 py-2 rounded-[16px] text-xs font-medium text-neutral-700 outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="date">Last Attempted</option>
               <option value="title">Title</option>
@@ -785,8 +809,8 @@ export default function ProblemsTab({
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-b border-neutral-100 bg-neutral-50/50">
-                  <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                <tr className="border-b border-white/60 bg-[#F4F1FA]/50">
+                  <th className="px-5 py-3 text-[11px] font-bold text-[#635F69] uppercase tracking-wider">
                     Problem
                   </th>
                   <th className="px-5 py-3 text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center">
@@ -811,7 +835,7 @@ export default function ProblemsTab({
                   <tr>
                     <td
                       colSpan={6}
-                      className="bg-rose-50/50 text-rose-700 font-bold px-5 py-2.5 border-y border-rose-100 text-[11px] uppercase tracking-wide"
+                      className="bg-rose-50/30 text-rose-700 font-bold px-5 py-2.5 border-y border-white/60 text-[11px] uppercase tracking-wide"
                     >
                       Due for Review ({dueProblems.length})
                     </td>
@@ -823,13 +847,15 @@ export default function ProblemsTab({
                   <tr>
                     <td
                       colSpan={6}
-                      className="bg-neutral-50/50 text-neutral-600 font-bold px-5 py-2.5 border-y border-neutral-100 text-[11px] uppercase tracking-wide"
+                      className="bg-[#F4F1FA]/50 text-[#635F69] font-bold px-5 py-2.5 border-y border-white/60 text-[11px] uppercase tracking-wide"
                     >
                       Other Problems
                     </td>
                   </tr>
                 )}
-                {(showGroups ? otherProblems : filteredProblems).map((problem) => renderDesktopRow(problem, false))}
+                {(showGroups ? otherProblems : filteredProblems).map(
+                  (problem) => renderDesktopRow(problem, false),
+                )}
               </tbody>
             </table>
           </div>

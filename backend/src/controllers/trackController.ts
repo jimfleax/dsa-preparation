@@ -7,21 +7,21 @@ import { catchAsync } from "../lib/catchAsync.ts";
 
 export const listTracks = catchAsync(async (req: Request, res: Response) => {
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = req.query.limit
-      ? Math.min(100, Math.max(1, parseInt(req.query.limit as string)))
-      : null;
+  const limit = req.query.limit
+    ? Math.min(100, Math.max(1, parseInt(req.query.limit as string)))
+    : null;
 
-    let query = Track.find();
+  let query = Track.find();
 
-    if (limit) {
-      const skip = (page - 1) * limit;
-      query = query.skip(skip).limit(limit);
-    }
+  if (limit) {
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+  }
 
-    const [tracks, totalCount] = await Promise.all([
-      query,
-      limit ? Track.countDocuments() : Promise.resolve(0),
-    ]);
+  const [tracks, totalCount] = await Promise.all([
+    query,
+    limit ? Track.countDocuments() : Promise.resolve(0),
+  ]);
 
   if (limit) {
     res.json({
@@ -39,11 +39,12 @@ export const listTracks = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-export const getTrackMetrics = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    throw AppError.unauthorized("Unauthorized");
-  }
+export const getTrackMetrics = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw AppError.unauthorized("Unauthorized");
+    }
 
     const tracks = await Track.find()
       .select("_id problems.url parts.problems.url")
@@ -57,9 +58,7 @@ export const getTrackMetrics = catchAsync(async (req: Request, res: Response) =>
       .lean();
 
     const trackedSlugs = new Set(
-      trackedProblems
-        .map((p) => p.titleSlug)
-        .filter(Boolean),
+      trackedProblems.map((p) => p.titleSlug).filter(Boolean),
     );
 
     let totalProblems = 0;
@@ -92,14 +91,15 @@ export const getTrackMetrics = catchAsync(async (req: Request, res: Response) =>
       }
     });
 
-  res.json({
-    success: true,
-    metrics: {
-      totalProblems,
-      totalSolved,
-      totalTracks: tracks.length,
-      masteredTracks,
-      completedTrackIds,
-    },
-  });
-});
+    res.json({
+      success: true,
+      metrics: {
+        totalProblems,
+        totalSolved,
+        totalTracks: tracks.length,
+        masteredTracks,
+        completedTrackIds,
+      },
+    });
+  },
+);

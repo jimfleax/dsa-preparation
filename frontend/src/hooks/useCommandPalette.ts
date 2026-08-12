@@ -19,8 +19,7 @@ export function useCommandPalette(leetcodeUsername?: string) {
   );
   const [error, setError] = useState<string | null>(null);
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   const fetchCalendarData = useCallback(async () => {
     if (!leetcodeUsername) return;

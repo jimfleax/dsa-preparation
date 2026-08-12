@@ -1,6 +1,11 @@
 import request from "supertest";
 import app from "../../app.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections, createTestUser } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+  createTestUser,
+} from "../setup/testHelpers.ts";
 
 describe("User API", () => {
   let userToken: string;
@@ -34,7 +39,7 @@ describe("User API", () => {
       const response = await request(app)
         .get("/api/user/settings")
         .set("Authorization", `Bearer ${userToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.userId).toBe(userId);
@@ -48,7 +53,7 @@ describe("User API", () => {
         .post("/api/user/settings")
         .set("Authorization", `Bearer ${userToken}`)
         .send({ leetcodeUsername: "testuser" });
-        
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.leetcodeUsername).toBe("testuser");
@@ -59,7 +64,7 @@ describe("User API", () => {
         .post("/api/user/settings")
         .set("Authorization", `Bearer ${userToken}`)
         .send({ leetcodeUsername: "  spaces  " });
-        
+
       expect(response.status).toBe(200);
       expect(response.body.data.leetcodeUsername).toBe("spaces");
     });
@@ -70,7 +75,7 @@ describe("User API", () => {
         .post("/api/user/settings")
         .set("Authorization", `Bearer ${userToken}`)
         .send({ leetcodeUsername: "test" });
-        
+
       expect(response.status).toBe(401);
     });
   });

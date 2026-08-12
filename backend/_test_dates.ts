@@ -8,7 +8,9 @@ async function run() {
   await mongoose.connect(process.env.MONGODB_URI as string);
   console.log("Connected to MongoDB.");
 
-  const problems = await TrackedProblem.find({}).select("title lastAttemptedDate attemptCount").lean();
+  const problems = await TrackedProblem.find({})
+    .select("title lastAttemptedDate attemptCount")
+    .lean();
   console.log(`Found ${problems.length} tracked problems.`);
 
   const now = new Date();
@@ -18,10 +20,12 @@ async function run() {
   console.log("Server current time:", now.toISOString());
   console.log("Server 'today' start:", todayServer.toISOString());
 
-  problems.forEach(p => {
+  problems.forEach((p) => {
     const attempted = new Date(p.lastAttemptedDate);
     const isToday = attempted >= todayServer;
-    console.log(`- ${p.title}: ${attempted.toISOString()} (isToday: ${isToday})`);
+    console.log(
+      `- ${p.title}: ${attempted.toISOString()} (isToday: ${isToday})`,
+    );
   });
 
   await mongoose.disconnect();

@@ -71,8 +71,7 @@ export default function PreviewPanel({
       setLoading(true);
       setError(null);
       try {
-        const apiBase =
-          getBackendUrl();
+        const apiBase = getBackendUrl();
         const response = await apiFetch(
           `${apiBase}/api/document?filename=${activeDoc.filename}`,
         );

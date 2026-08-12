@@ -8,7 +8,7 @@ export function getRequiredEnv(key: string): string {
   if (!value) {
     throw new Error(
       `CRITICAL: Required environment variable "${key}" is not set. ` +
-      `Set it in .env or your deployment environment to continue.`
+        `Set it in .env or your deployment environment to continue.`,
     );
   }
   return value;

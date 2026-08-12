@@ -10,7 +10,11 @@ interface EditDocModalProps {
   onSuccess: () => void;
 }
 
-export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalProps) {
+export default function EditDocModal({
+  doc,
+  onClose,
+  onSuccess,
+}: EditDocModalProps) {
   const { adminToken } = useAdminAuth();
 
   // Form states
@@ -48,17 +52,14 @@ export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalPr
 
     setIsSaving(true);
     try {
-      const res = await fetch(
-        `${getBackendUrl()}/api/admin/docs/${doc._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({ title, filename, tags: tagArray, content }),
+      const res = await fetch(`${getBackendUrl()}/api/admin/docs/${doc._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
         },
-      );
+        body: JSON.stringify({ title, filename, tags: tagArray, content }),
+      });
 
       if (res.ok) {
         onSuccess();
@@ -87,7 +88,6 @@ export default function EditDocModal({ doc, onClose, onSuccess }: EditDocModalPr
     >
       <div className="flex-1 overflow-y-auto p-6">
         <form id="edit-doc-form" onSubmit={handleSubmit} className="space-y-6">
-
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-bold text-neutral-700 mb-2">

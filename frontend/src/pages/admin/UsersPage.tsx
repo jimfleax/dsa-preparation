@@ -19,12 +19,9 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await adminFetch(
-        `${getBackendUrl()}/api/admin/users`,
-        {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        },
-      );
+      const res = await adminFetch(`${getBackendUrl()}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const json = await res.json();
       setUsers(Array.isArray(json) ? json : []);
     } catch (err) {

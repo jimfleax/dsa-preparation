@@ -42,12 +42,12 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
   isDueGroup,
 }: ProblemMobileCardProps) {
   return (
-    <Card 
-      id={id} 
-      padding="sm" 
+    <Card
+      id={id}
+      padding="sm"
       className={`flex flex-col gap-3 rounded-none border-x-0 border-t-0 shadow-none transition-all duration-500 ease-in-out ${
-        isHighlighted 
-          ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative" 
+        isHighlighted
+          ? "bg-indigo-50/60 border-indigo-200 ring-2 ring-indigo-500/50 shadow-inner z-10 relative"
           : "hover:bg-indigo-50/20"
       }`}
     >

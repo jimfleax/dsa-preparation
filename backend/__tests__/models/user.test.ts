@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import User from "../../src/models/User.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+} from "../setup/testHelpers.ts";
 
 describe("User Model", () => {
   beforeAll(async () => {
@@ -21,7 +25,7 @@ describe("User Model", () => {
       email: "test@example.com",
     });
     const savedUser = await user.save();
-    
+
     expect(savedUser._id).toBeDefined();
     expect(savedUser.name).toBe("Test User");
     expect(savedUser.email).toBe("test@example.com");
@@ -32,14 +36,14 @@ describe("User Model", () => {
 
   it("requires name and email", async () => {
     const user = new User({});
-    
+
     let error;
     try {
       await user.save();
     } catch (e: any) {
       error = e;
     }
-    
+
     expect(error).toBeDefined();
     expect(error.errors.name).toBeDefined();
     expect(error.errors.email).toBeDefined();
@@ -73,7 +77,7 @@ describe("User Model", () => {
       email: "  MIXEDcase@Example.com  ",
     });
     const savedUser = await user.save();
-    
+
     expect(savedUser.email).toBe("mixedcase@example.com");
   });
 
@@ -93,7 +97,7 @@ describe("User Model", () => {
     const usersCount = await User.countDocuments();
     expect(usersCount).toBe(2);
   });
-  
+
   it("enforces unique googleId if provided", async () => {
     await User.create({
       name: "User One",

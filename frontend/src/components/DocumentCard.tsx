@@ -32,10 +32,17 @@ const DocumentCard = React.memo(function DocumentCard({
     >
       <div id={`doc-card-top-${doc.id}`} className="space-y-3 w-full">
         {/* Title */}
-        <div id={`doc-card-title-sec-${doc.id}`} className="flex items-start gap-3">
-          <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-            isActive ? "bg-indigo-100 text-indigo-700" : "bg-neutral-50 text-neutral-500 group-hover:bg-indigo-50 group-hover:text-indigo-600"
-          }`}>
+        <div
+          id={`doc-card-title-sec-${doc.id}`}
+          className="flex items-start gap-3"
+        >
+          <div
+            className={`p-2 rounded-lg shrink-0 transition-colors ${
+              isActive
+                ? "bg-indigo-100 text-indigo-700"
+                : "bg-neutral-50 text-neutral-500 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+            }`}
+          >
             <BookOpen className="w-4 h-4" />
           </div>
           <h3
@@ -88,9 +95,13 @@ const DocumentCard = React.memo(function DocumentCard({
                   </span>
                 ))}
                 {hiddenCount > 0 && (
-                  <span className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                    isActive ? "bg-indigo-100/55 text-indigo-700" : "bg-neutral-50 text-neutral-500"
-                  }`}>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                      isActive
+                        ? "bg-indigo-100/55 text-indigo-700"
+                        : "bg-neutral-50 text-neutral-500"
+                    }`}
+                  >
                     ...more
                   </span>
                 )}

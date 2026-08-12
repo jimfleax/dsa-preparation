@@ -20,7 +20,11 @@ const metrics: HttpRequestMetrics = {
 
 const MAX_LATENCY_SAMPLES = 1000;
 
-export const httpMetricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const httpMetricsMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const start = process.hrtime.bigint();
 
   res.on("finish", () => {
@@ -53,8 +57,8 @@ export const getHttpMetricsSnapshot = () => {
     return latencies[index];
   };
 
-  const avg = latencies.length 
-    ? latencies.reduce((a, b) => a + b, 0) / latencies.length 
+  const avg = latencies.length
+    ? latencies.reduce((a, b) => a + b, 0) / latencies.length
     : 0;
 
   return {
@@ -68,6 +72,6 @@ export const getHttpMetricsSnapshot = () => {
       min: latencies[0] || 0,
       max: latencies[latencies.length - 1] || 0,
       samples: latencies.length,
-    }
+    },
   };
 };

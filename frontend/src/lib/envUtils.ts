@@ -8,7 +8,7 @@ export function getBackendUrl(): string {
   const url = import.meta.env.VITE_API_URL;
   if (!url) {
     console.error(
-      "CRITICAL: VITE_API_URL environment variable is missing. Falling back to relative path."
+      "CRITICAL: VITE_API_URL environment variable is missing. Falling back to relative path.",
     );
     return "";
   }
@@ -24,7 +24,7 @@ export function getGoogleClientId(): string {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   if (!clientId) {
     console.error(
-      "CRITICAL: VITE_GOOGLE_CLIENT_ID environment variable is missing. Google Sign-In will not work."
+      "CRITICAL: VITE_GOOGLE_CLIENT_ID environment variable is missing. Google Sign-In will not work.",
     );
     return "";
   }

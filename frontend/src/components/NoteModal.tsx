@@ -33,8 +33,7 @@ export default function NoteModal({
   const [originalNotes, setOriginalNotes] = useState<string>("");
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   // Fetch the full problem data (including notes) when modal opens
   useEffect(() => {

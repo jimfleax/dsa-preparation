@@ -92,11 +92,9 @@ export async function createTestAdmin(overrides: Record<string, any> = {}) {
 
   const admin = await Admin.create(adminData);
 
-  const token = jwt.sign(
-    { id: admin._id.toString() },
-    JWT_SECRET,
-    { expiresIn: "1d" },
-  );
+  const token = jwt.sign({ id: admin._id.toString() }, JWT_SECRET, {
+    expiresIn: "1d",
+  });
 
   return { admin, token };
 }

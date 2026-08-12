@@ -9,10 +9,20 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
 async function run() {
-  await mongoose.connect(process.env.TEST_MONGODB_URI || process.env.MONGODB_URI!);
-  const admin = await Admin.create({ name: "T", email: "t@t.com", googleId: "123", tokenVersion: 0 });
+  await mongoose.connect(
+    process.env.TEST_MONGODB_URI || process.env.MONGODB_URI!,
+  );
+  const admin = await Admin.create({
+    name: "T",
+    email: "t@t.com",
+    googleId: "123",
+    tokenVersion: 0,
+  });
   const token = jwt.sign({ id: admin._id.toString() }, process.env.JWT_SECRET!);
-  const response = await request(app).post("/api/admin/tracks").set("Authorization", `Bearer ${token}`).send({ title: "New", description: "Desc", problems: [] });
+  const response = await request(app)
+    .post("/api/admin/tracks")
+    .set("Authorization", `Bearer ${token}`)
+    .send({ title: "New", description: "Desc", problems: [] });
   console.log("Status:", response.status);
   console.log("Body:", response.body);
   await Admin.deleteMany({});

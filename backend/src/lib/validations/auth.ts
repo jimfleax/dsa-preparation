@@ -2,9 +2,11 @@ import { z } from "zod";
 
 export const googleLoginSchema = z.object({
   body: z.object({
-    token: z.string({
-      message: "Token is required",
-    }).min(1, "Token cannot be empty"),
+    token: z
+      .string({
+        message: "Token is required",
+      })
+      .min(1, "Token cannot be empty"),
   }),
 });
 

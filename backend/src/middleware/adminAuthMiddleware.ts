@@ -26,7 +26,10 @@ export const requireAdminAuth = async (
     req.admin = { id: admin.id };
     next();
   } catch (error) {
-    console.error("Admin Auth Error:", error instanceof Error ? error.message : "Unknown error");
+    console.error(
+      "Admin Auth Error:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
     return next(AppError.unauthorized("Invalid token."));
   }
 };

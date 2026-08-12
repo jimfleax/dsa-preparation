@@ -8,11 +8,9 @@ import { catchAsync } from "../../lib/catchAsync.ts";
 
 const client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
 
-export const adminGoogleLogin = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
-  const { token } = req.body;
+export const adminGoogleLogin = catchAsync(
+  async (req: Request, res: Response) => {
+    const { token } = req.body;
 
     let ticket;
     try {
@@ -20,15 +18,18 @@ export const adminGoogleLogin = catchAsync(async (
         idToken: token,
         audience: getRequiredEnv("GOOGLE_CLIENT_ID"),
       });
-  } catch (verifyError: any) {
-    console.warn("Admin Google Token verification failed:", verifyError.message);
-    throw AppError.unauthorized("Invalid or expired Google token");
-  }
+    } catch (verifyError: any) {
+      console.warn(
+        "Admin Google Token verification failed:",
+        verifyError.message,
+      );
+      throw AppError.unauthorized("Invalid or expired Google token");
+    }
     const payload = ticket.getPayload();
 
-  if (!payload || !payload.email) {
-    throw AppError.badRequest("Invalid Google token payload");
-  }
+    if (!payload || !payload.email) {
+      throw AppError.badRequest("Invalid Google token payload");
+    }
 
     const email = payload.email.toLowerCase();
     const googleId = payload.sub;
@@ -37,10 +38,12 @@ export const adminGoogleLogin = catchAsync(async (
     // Find existing admin
     const admin = await Admin.findOne({ email });
 
-  if (!admin) {
-    // Security: Do NOT create a new admin if not found. Only existing admins can log in.
-    throw AppError.forbidden("Unauthorized. Admin account not found for this email.");
-  }
+    if (!admin) {
+      // Security: Do NOT create a new admin if not found. Only existing admins can log in.
+      throw AppError.forbidden(
+        "Unauthorized. Admin account not found for this email.",
+      );
+    }
 
     let changed = false;
     if (!admin.googleId) {
@@ -63,19 +66,16 @@ export const adminGoogleLogin = catchAsync(async (
 
     const secret = getRequiredEnv("JWT_SECRET");
 
-    const jwtToken = jwt.sign(
-      { id: admin._id },
-      secret,
-      { expiresIn: "1d" },
-    );
+    const jwtToken = jwt.sign({ id: admin._id }, secret, { expiresIn: "1d" });
 
-  res.json({
-    success: true,
-    token: jwtToken,
-    admin: {
-      id: admin._id,
-      name: admin.name,
-      email: admin.email,
-    },
-  });
-});
+    res.json({
+      success: true,
+      token: jwtToken,
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+      },
+    });
+  },
+);

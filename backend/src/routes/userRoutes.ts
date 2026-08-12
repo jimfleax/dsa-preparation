@@ -12,6 +12,10 @@ const router = Router();
 router.get("/settings", getUserSettings);
 
 // POST /api/user/settings — Update current user's settings (e.g. leetcodeUsername)
-router.post("/settings", validateRequest(updateUserSettingsSchema), updateUserSettings);
+router.post(
+  "/settings",
+  validateRequest(updateUserSettingsSchema),
+  updateUserSettings,
+);
 
 export default router;

@@ -28,8 +28,7 @@ export default function ScheduleReviewModal({
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   useEffect(() => {
     if (problem && isOpen) {

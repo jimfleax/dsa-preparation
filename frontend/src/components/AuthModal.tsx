@@ -16,8 +16,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   if (!isOpen) return null;
 
@@ -37,11 +36,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         // Server returned a non-2xx status (e.g. 503 from HF Space cold start).
         // The body may be HTML, not JSON — avoid parsing it directly.
         const errorText = await res.text();
-        console.error(`[Auth] Server responded with ${res.status}:`, errorText.substring(0, 200));
+        console.error(
+          `[Auth] Server responded with ${res.status}:`,
+          errorText.substring(0, 200),
+        );
         setError(
           res.status >= 500
             ? "Server is starting up. Please try again in a few seconds."
-            : "Authentication failed. Please try again."
+            : "Authentication failed. Please try again.",
         );
         return;
       }
@@ -85,7 +87,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         <div className="flex flex-col items-center justify-center space-y-6">
-
           {isLoading ? (
             <div className="flex flex-col items-center justify-center p-6 space-y-4">
               <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
@@ -111,11 +112,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-8 text-center">
           <p className="text-xs text-neutral-400">
             By continuing, you agree to our{" "}
-            <a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-500">
+            <a
+              href="/terms-of-service.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-neutral-500"
+            >
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-500">
+            <a
+              href="/privacy-policy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-neutral-500"
+            >
               Privacy Policy
             </a>
             .

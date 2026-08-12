@@ -67,7 +67,10 @@ export const getLeetCodeCalendarSchema = z.object({
     username: z.string().min(1, "Username is required"),
   }),
   query: z.object({
-    year: z.string().regex(/^\d{4}$/, "Invalid year").optional(),
+    year: z
+      .string()
+      .regex(/^\d{4}$/, "Invalid year")
+      .optional(),
   }),
 });
 

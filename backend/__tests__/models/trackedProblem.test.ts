@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import TrackedProblem from "../../src/models/TrackedProblem.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+} from "../setup/testHelpers.ts";
 
 describe("TrackedProblem Model", () => {
   beforeAll(async () => {
@@ -23,9 +27,9 @@ describe("TrackedProblem Model", () => {
       url: "https://leetcode.com/problems/two-sum/",
       difficulty: "Easy",
     });
-    
+
     const saved = await problem.save();
-    
+
     expect(saved._id).toBeDefined();
     expect(saved.userId).toBe("user_123");
     expect(saved.titleSlug).toBe("two-sum");
@@ -37,14 +41,14 @@ describe("TrackedProblem Model", () => {
 
   it("requires userId, titleSlug, and title", async () => {
     const problem = new TrackedProblem({});
-    
+
     let error;
     try {
       await problem.save();
     } catch (e: any) {
       error = e;
     }
-    
+
     expect(error).toBeDefined();
     expect(error.errors.userId).toBeDefined();
     expect(error.errors.titleSlug).toBeDefined();

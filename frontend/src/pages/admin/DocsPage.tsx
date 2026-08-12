@@ -16,12 +16,9 @@ export default function DocsPage() {
 
   const fetchDocs = async () => {
     try {
-      const res = await adminFetch(
-        `${getBackendUrl()}/api/admin/docs`,
-        {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        },
-      );
+      const res = await adminFetch(`${getBackendUrl()}/api/admin/docs`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const json = await res.json();
       setDocs(Array.isArray(json) ? json : []);
     } catch (err) {
@@ -38,13 +35,10 @@ export default function DocsPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this document?")) return;
     try {
-      await adminFetch(
-        `${getBackendUrl()}/api/admin/docs/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${adminToken}` },
-        },
-      );
+      await adminFetch(`${getBackendUrl()}/api/admin/docs/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       fetchDocs();
     } catch (error) {
       console.error(error);
@@ -73,11 +67,17 @@ export default function DocsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <Card padding="none" className="col-span-full p-12 text-center text-neutral-400 font-medium animate-pulse">
+          <Card
+            padding="none"
+            className="col-span-full p-12 text-center text-neutral-400 font-medium animate-pulse"
+          >
             Loading documents...
           </Card>
         ) : docs.length === 0 ? (
-          <Card padding="none" className="col-span-full p-16 flex flex-col items-center text-center">
+          <Card
+            padding="none"
+            className="col-span-full p-16 flex flex-col items-center text-center"
+          >
             <FileText className="w-12 h-12 text-neutral-200 mb-4" />
             <h3 className="text-lg font-bold text-neutral-900">
               No documents found

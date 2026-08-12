@@ -20,7 +20,7 @@ function ReviewActionCard({
   onSelect: (problem: TrackedProblem) => void;
 }) {
   return (
-    <div 
+    <div
       onClick={() => onSelect(problem)}
       className="bg-white hover:bg-indigo-50/50 rounded-xl border border-neutral-200 hover:border-indigo-200 overflow-hidden cursor-pointer group transition-all duration-200 shadow-sm hover:shadow-md animate-in slide-in-from-bottom-2 fade-in"
     >
@@ -52,10 +52,11 @@ export default function ReviewDuePopup({
 }: ReviewDuePopupProps) {
   const [dueProblems, setDueProblems] = useState<TrackedProblem[]>([]);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
-  const [selectedProblem, setSelectedProblem] = useState<TrackedProblem | null>(null);
+  const [selectedProblem, setSelectedProblem] = useState<TrackedProblem | null>(
+    null,
+  );
   const { getToken, isSignedIn } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   const fetchDueProblems = useCallback(async () => {
     if (!isSignedIn) return [];

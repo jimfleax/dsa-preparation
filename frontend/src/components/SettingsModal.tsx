@@ -27,8 +27,7 @@ export default function SettingsModal({
   const [success, setSuccess] = useState<boolean>(false);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   // Sync local state when the modal opens with a new value
   useEffect(() => {

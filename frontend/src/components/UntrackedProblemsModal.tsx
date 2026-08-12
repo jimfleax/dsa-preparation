@@ -23,8 +23,7 @@ export default function UntrackedProblemsModal({
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const { getToken } = useAuth();
-  const apiBase =
-    getBackendUrl();
+  const apiBase = getBackendUrl();
 
   useEffect(() => {
     if (isOpen) {

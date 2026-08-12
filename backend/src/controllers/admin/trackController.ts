@@ -15,11 +15,9 @@ export const createTrack = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const updateTrack = catchAsync(async (req: Request, res: Response) => {
-  const track = await Track.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true },
-  );
+  const track = await Track.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   if (!track) {
     throw AppError.notFound("Track not found");
   }

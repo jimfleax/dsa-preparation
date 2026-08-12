@@ -210,17 +210,14 @@ export default function TrackModal({
     const slug = match[1].toLowerCase();
     setIsFetchingProblem(true);
     try {
-      const res = await fetch(
-        `${getBackendUrl()}/api/problems/scrape-title`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({ url: url.trim() }),
+      const res = await fetch(`${getBackendUrl()}/api/problems/scrape-title`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
         },
-      );
+        body: JSON.stringify({ url: url.trim() }),
+      });
       const data = await res.json();
       if (res.ok && data.success && data.title) {
         setProblemPreview({
@@ -341,7 +338,12 @@ export default function TrackModal({
       onClose={onClose}
       modalId="track-wizard"
       title={initialData ? "Edit Track" : "Add New Track"}
-      subtitle={<Stepper steps={["Track Details", "Track Structure"]} currentStep={phase} />}
+      subtitle={
+        <Stepper
+          steps={["Track Details", "Track Structure"]}
+          currentStep={phase}
+        />
+      }
       icon={<ListTree className="w-5 h-5" />}
       maxWidthClass="max-w-3xl"
       error={error || null}

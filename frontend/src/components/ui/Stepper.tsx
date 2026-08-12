@@ -34,8 +34,8 @@ export function Stepper({ steps, currentStep }: StepperProps) {
                 isActive
                   ? "bg-indigo-600 flex-[2]"
                   : isCompleted
-                  ? "bg-indigo-200 flex-1"
-                  : "bg-neutral-200 flex-1"
+                    ? "bg-indigo-200 flex-1"
+                    : "bg-neutral-200 flex-1"
               }`}
             />
           );

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import LearningDoc from "../../src/models/LearningDoc.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+} from "../setup/testHelpers.ts";
 
 describe("LearningDoc Model", () => {
   beforeAll(async () => {
@@ -22,9 +26,9 @@ describe("LearningDoc Model", () => {
       content: "# Hello World",
       tags: ["test", "jest"],
     });
-    
+
     const saved = await doc.save();
-    
+
     expect(saved._id).toBeDefined();
     expect(saved.filename).toBe("test.md");
     expect(saved.title).toBe("Test Document");
@@ -35,14 +39,14 @@ describe("LearningDoc Model", () => {
 
   it("requires filename, title, and content", async () => {
     const doc = new LearningDoc({});
-    
+
     let error;
     try {
       await doc.save();
     } catch (e: any) {
       error = e;
     }
-    
+
     expect(error).toBeDefined();
     expect(error.errors.filename).toBeDefined();
     expect(error.errors.title).toBeDefined();
@@ -79,7 +83,7 @@ describe("LearningDoc Model", () => {
       title: "Doc",
       content: "Content",
     });
-    
+
     const saved = await doc.save();
     expect(saved.tags).toEqual([]);
   });

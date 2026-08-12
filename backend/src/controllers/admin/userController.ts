@@ -29,23 +29,26 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
   res.json({ message: "User deleted successfully" });
 });
 
-export const getUserProgress = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const progress = await TrackedProblem.find({ userId: id }).sort({
-    lastAttemptedDate: -1,
-  });
-  res.json(progress);
-});
+export const getUserProgress = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const progress = await TrackedProblem.find({ userId: id }).sort({
+      lastAttemptedDate: -1,
+    });
+    res.json(progress);
+  },
+);
 
-export const getLeetCodeData = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user = await User.findById(id);
-  if (!user || !user.leetcodeUsername) {
-    throw AppError.notFound("User or LeetCode username not found");
-  }
+export const getLeetCodeData = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user || !user.leetcodeUsername) {
+      throw AppError.notFound("User or LeetCode username not found");
+    }
 
-  const username = user.leetcodeUsername;
-  const query = `
+    const username = user.leetcodeUsername;
+    const query = `
     query getUserProfile($username: String!) {
       matchedUser(username: $username) {
         submitStats: submitStatsGlobal {
@@ -65,19 +68,20 @@ export const getLeetCodeData = catchAsync(async (req: Request, res: Response) =>
     }
   `;
 
-  const response = await fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Referer: "https://leetcode.com",
-    },
-    body: JSON.stringify({ query, variables: { username } }),
-  });
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Referer: "https://leetcode.com",
+      },
+      body: JSON.stringify({ query, variables: { username } }),
+    });
 
-  if (!response.ok) {
-    throw AppError.badRequest("Failed to fetch from LeetCode API");
-  }
+    if (!response.ok) {
+      throw AppError.badRequest("Failed to fetch from LeetCode API");
+    }
 
-  const data = await response.json();
-  res.json(data?.data?.matchedUser || {});
-});
+    const data = await response.json();
+    res.json(data?.data?.matchedUser || {});
+  },
+);

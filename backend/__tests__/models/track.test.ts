@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import Track from "../../src/models/Track.ts";
-import { connectTestDB, disconnectTestDB, cleanCollections } from "../setup/testHelpers.ts";
+import {
+  connectTestDB,
+  disconnectTestDB,
+  cleanCollections,
+} from "../setup/testHelpers.ts";
 
 describe("Track Model", () => {
   beforeAll(async () => {
@@ -25,12 +29,12 @@ describe("Track Model", () => {
           titleSlug: "two-sum",
           difficulty: "Easy",
           url: "https://leetcode.com/problems/two-sum/",
-        }
+        },
       ],
     });
-    
+
     const saved = await track.save();
-    
+
     expect(saved._id).toBeDefined();
     expect(saved.title).toBe("Blind 75");
     expect(saved.problems.length).toBe(1);
@@ -39,14 +43,14 @@ describe("Track Model", () => {
 
   it("requires title and description", async () => {
     const track = new Track({});
-    
+
     let error;
     try {
       await track.save();
     } catch (e: any) {
       error = e;
     }
-    
+
     expect(error).toBeDefined();
     expect(error.errors.title).toBeDefined();
     expect(error.errors.description).toBeDefined();
@@ -60,7 +64,7 @@ describe("Track Model", () => {
         {
           title: "Missing fields",
           // Missing titleSlug, difficulty, url
-        }
+        },
       ],
     });
 
@@ -87,7 +91,7 @@ describe("Track Model", () => {
           titleSlug: "two-sum",
           difficulty: "InvalidDifficulty",
           url: "https://leetcode.com/problems/two-sum/",
-        }
+        },
       ],
     });
 
@@ -117,10 +121,10 @@ describe("Track Model", () => {
               titleSlug: "contains-duplicate",
               difficulty: "Easy",
               url: "https://leetcode.com/problems/contains-duplicate/",
-            }
-          ]
-        }
-      ]
+            },
+          ],
+        },
+      ],
     });
 
     const saved = await track.save();

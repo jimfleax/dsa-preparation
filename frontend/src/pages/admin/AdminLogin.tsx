@@ -17,24 +17,24 @@ export default function AdminLogin() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${getBackendUrl()}/api/admin/auth/google`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: credentialResponse.credential }),
-        },
-      );
+      const response = await fetch(`${getBackendUrl()}/api/admin/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
 
       if (!response.ok) {
         // Server returned a non-2xx status (e.g. 503 from HF Space cold start).
         // The body may be HTML, not JSON — avoid parsing it directly.
         const errorText = await response.text();
-        console.error(`[AdminAuth] Server responded with ${response.status}:`, errorText.substring(0, 200));
+        console.error(
+          `[AdminAuth] Server responded with ${response.status}:`,
+          errorText.substring(0, 200),
+        );
         throw new Error(
           response.status >= 500
             ? "Server is starting up. Please try again in a few seconds."
-            : "Authentication failed. Please try again."
+            : "Authentication failed. Please try again.",
         );
       }
 
@@ -48,7 +48,10 @@ export default function AdminLogin() {
       navigate("/admin");
     } catch (err) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : "An error occurred during authentication";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "An error occurred during authentication";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -68,8 +71,7 @@ export default function AdminLogin() {
         <div
           className="absolute inset-0 z-0 opacity-[0.03]"
           style={{
-            backgroundImage:
-              "radial-gradient(#4f46e5 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(#4f46e5 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />
@@ -116,7 +118,7 @@ export default function AdminLogin() {
                 width="100%"
               />
             </div>
-            
+
             <p className="text-center text-xs text-neutral-400 mt-6 font-medium">
               Only authorized Google accounts are permitted.
             </p>

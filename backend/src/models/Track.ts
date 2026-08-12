@@ -47,7 +47,8 @@ const TrackSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-const TrackModel = (mongoose.models.Track as mongoose.Model<ITrack>) ||
+const TrackModel =
+  (mongoose.models.Track as mongoose.Model<ITrack>) ||
   mongoose.model<ITrack>("Track", TrackSchema);
 
 export default TrackModel;

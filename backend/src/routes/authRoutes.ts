@@ -17,6 +17,11 @@ const authLimiter = rateLimit({
 
 const router = Router();
 
-router.post("/google", authLimiter, validateRequest(googleLoginSchema), googleLogin);
+router.post(
+  "/google",
+  authLimiter,
+  validateRequest(googleLoginSchema),
+  googleLogin,
+);
 
 export default router;

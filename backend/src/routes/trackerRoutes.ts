@@ -49,13 +49,25 @@ router.get("/slim", getSlimProblems);
 router.post("/", validateRequest(addProblemSchema), addProblem);
 
 // PATCH /api/tracker/:id/revisit — Record a revisit (increment count + update date)
-router.patch("/:id/revisit", validateRequest(revisitProblemSchema), revisitProblem);
+router.patch(
+  "/:id/revisit",
+  validateRequest(revisitProblemSchema),
+  revisitProblem,
+);
 
 // PATCH /api/tracker/:id/toggle-track — Toggle notrack status
-router.patch("/:id/toggle-track", validateRequest(toggleTrackProblemSchema), toggleTrackProblem);
+router.patch(
+  "/:id/toggle-track",
+  validateRequest(toggleTrackProblemSchema),
+  toggleTrackProblem,
+);
 
 // PATCH /api/tracker/slug/:titleSlug/revisit — Record a revisit by title slug
-router.patch("/slug/:titleSlug/revisit", validateRequest(revisitProblemBySlugSchema), revisitProblemBySlug);
+router.patch(
+  "/slug/:titleSlug/revisit",
+  validateRequest(revisitProblemBySlugSchema),
+  revisitProblemBySlug,
+);
 
 // GET /api/tracker/:id — Get a single problem with full data (including notes)
 router.get("/:id", getProblemById);

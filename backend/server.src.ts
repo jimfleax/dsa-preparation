@@ -9,7 +9,7 @@ async function startServer() {
   try {
     // Connect to MongoDB before accepting requests
     await connectDB();
-    
+
     // Start background metrics collection
     metricsCollector.start();
 

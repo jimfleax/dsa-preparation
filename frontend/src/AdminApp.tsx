@@ -34,53 +34,53 @@ function AdminApp() {
             </AdminProtectedRoute>
           }
         >
-          <Route 
-            index 
+          <Route
+            index
             element={
               <Suspense fallback={<AdminLoading />}>
                 <AdminDashboard />
               </Suspense>
-            } 
+            }
           />
-          <Route 
-            path="users" 
+          <Route
+            path="users"
             element={
               <Suspense fallback={<AdminLoading />}>
                 <UsersPage />
               </Suspense>
-            } 
+            }
           />
-          <Route 
-            path="tracks" 
+          <Route
+            path="tracks"
             element={
               <Suspense fallback={<AdminLoading />}>
                 <TracksPage />
               </Suspense>
-            } 
+            }
           />
-          <Route 
-            path="docs" 
+          <Route
+            path="docs"
             element={
               <Suspense fallback={<AdminLoading />}>
                 <DocsPage />
               </Suspense>
-            } 
+            }
           />
-          <Route 
-            path="analytics" 
+          <Route
+            path="analytics"
             element={
               <Suspense fallback={<AdminLoading />}>
                 <AnalyticsPage />
               </Suspense>
-            } 
+            }
           />
-          <Route 
-            path="system" 
+          <Route
+            path="system"
             element={
               <Suspense fallback={<AdminLoading />}>
                 <SystemMetricsPage />
               </Suspense>
-            } 
+            }
           />
         </Route>
         {/* Catch-all 404 route */}

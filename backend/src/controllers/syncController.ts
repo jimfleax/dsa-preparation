@@ -40,65 +40,65 @@ export const checkSync = catchAsync(async (req: Request, res: Response) => {
     return;
   }
 
-    // Deduplicate fetched submissions by titleSlug (in case of multiple recent attempts)
-    const uniqueSlugs = new Map();
-    recentSubmissions.forEach((sub) => {
-      if (!uniqueSlugs.has(sub.titleSlug)) {
-        uniqueSlugs.set(sub.titleSlug, sub);
-      }
-    });
-    const dedupedSubmissions = Array.from(uniqueSlugs.values());
+  // Deduplicate fetched submissions by titleSlug (in case of multiple recent attempts)
+  const uniqueSlugs = new Map();
+  recentSubmissions.forEach((sub) => {
+    if (!uniqueSlugs.has(sub.titleSlug)) {
+      uniqueSlugs.set(sub.titleSlug, sub);
+    }
+  });
+  const dedupedSubmissions = Array.from(uniqueSlugs.values());
 
-    // Fetch existing slugs and dates for this user
-    const slugs = dedupedSubmissions.map((s) => s.titleSlug);
-    const existingRecords = await TrackedProblem.find({
-      userId,
-      titleSlug: { $in: slugs },
-    })
-      .select("titleSlug lastAttemptedDate _id")
-      .lean();
+  // Fetch existing slugs and dates for this user
+  const slugs = dedupedSubmissions.map((s) => s.titleSlug);
+  const existingRecords = await TrackedProblem.find({
+    userId,
+    titleSlug: { $in: slugs },
+  })
+    .select("titleSlug lastAttemptedDate _id")
+    .lean();
 
-    const existingMap = new Map();
-    existingRecords.forEach((r) => existingMap.set(r.titleSlug, r));
+  const existingMap = new Map();
+  existingRecords.forEach((r) => existingMap.set(r.titleSlug, r));
 
-    const newSubmissions: any[] = [];
-    const revisitedSubmissions: any[] = [];
+  const newSubmissions: any[] = [];
+  const revisitedSubmissions: any[] = [];
 
-    dedupedSubmissions.forEach((sub) => {
-      const existing = existingMap.get(sub.titleSlug);
-      if (!existing) {
-        newSubmissions.push(sub);
-      } else {
-        const subDate = new Date(Number(sub.timestamp) * 1000);
-        if (!isNaN(subDate.getTime()) && existing.lastAttemptedDate) {
-          const existingDate = new Date(existing.lastAttemptedDate);
+  dedupedSubmissions.forEach((sub) => {
+    const existing = existingMap.get(sub.titleSlug);
+    if (!existing) {
+      newSubmissions.push(sub);
+    } else {
+      const subDate = new Date(Number(sub.timestamp) * 1000);
+      if (!isNaN(subDate.getTime()) && existing.lastAttemptedDate) {
+        const existingDate = new Date(existing.lastAttemptedDate);
 
-          // Compare dates (year, month, day) in UTC to avoid local timezone shifts causing weirdness
-          const subDay = new Date(
-            Date.UTC(
-              subDate.getUTCFullYear(),
-              subDate.getUTCMonth(),
-              subDate.getUTCDate(),
-            ),
-          );
-          const existingDay = new Date(
-            Date.UTC(
-              existingDate.getUTCFullYear(),
-              existingDate.getUTCMonth(),
-              existingDate.getUTCDate(),
-            ),
-          );
+        // Compare dates (year, month, day) in UTC to avoid local timezone shifts causing weirdness
+        const subDay = new Date(
+          Date.UTC(
+            subDate.getUTCFullYear(),
+            subDate.getUTCMonth(),
+            subDate.getUTCDate(),
+          ),
+        );
+        const existingDay = new Date(
+          Date.UTC(
+            existingDate.getUTCFullYear(),
+            existingDate.getUTCMonth(),
+            existingDate.getUTCDate(),
+          ),
+        );
 
-          // If the submission is on a strictly newer day than the recorded lastAttemptedDate
-          if (subDay.getTime() > existingDay.getTime()) {
-            revisitedSubmissions.push({
-              submission: sub,
-              problemId: existing._id,
-            });
-          }
+        // If the submission is on a strictly newer day than the recorded lastAttemptedDate
+        if (subDay.getTime() > existingDay.getTime()) {
+          revisitedSubmissions.push({
+            submission: sub,
+            problemId: existing._id,
+          });
         }
       }
-    });
+    }
+  });
 
   res.json({
     success: true,
@@ -113,25 +113,26 @@ export const checkSync = catchAsync(async (req: Request, res: Response) => {
  * POST /api/sync/track
  * Saves the provided submissions to the DB with the given notrack flag.
  */
-export const trackSubmissions = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    throw AppError.unauthorized("Unauthorized");
-  }
+export const trackSubmissions = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw AppError.unauthorized("Unauthorized");
+    }
 
-  const { submissions, notrack } = req.body;
-  if (!Array.isArray(submissions)) {
-    throw AppError.badRequest("Invalid submissions payload");
-  }
+    const { submissions, notrack } = req.body;
+    if (!Array.isArray(submissions)) {
+      throw AppError.badRequest("Invalid submissions payload");
+    }
 
-  if (submissions.length === 0) {
-    res.json({
-      success: true,
-      message: "No submissions to process.",
-      added: 0,
-    });
-    return;
-  }
+    if (submissions.length === 0) {
+      res.json({
+        success: true,
+        message: "No submissions to process.",
+        added: 0,
+      });
+      return;
+    }
 
     // 1. Fetch all existing records in a single query
     const titleSlugs = submissions.map((sub: any) => sub.titleSlug);
@@ -149,14 +150,14 @@ export const trackSubmissions = catchAsync(async (req: Request, res: Response) =
       (sub: any) => !existingSet.has(sub.titleSlug),
     );
 
-  if (newSubmissions.length === 0) {
-    res.json({
-      success: true,
-      message: "Processed 0 submissions.",
-      added: 0,
-    });
-    return;
-  }
+    if (newSubmissions.length === 0) {
+      res.json({
+        success: true,
+        message: "Processed 0 submissions.",
+        added: 0,
+      });
+      return;
+    }
 
     // 2. Fetch LeetCode details in parallel
     const enrichedSubmissions = await Promise.all(
@@ -192,12 +193,13 @@ export const trackSubmissions = catchAsync(async (req: Request, res: Response) =
       }),
     );
 
-  // 3. Batch insert new tracked problems
-  const results = await TrackedProblem.insertMany(enrichedSubmissions);
+    // 3. Batch insert new tracked problems
+    const results = await TrackedProblem.insertMany(enrichedSubmissions);
 
-  res.json({
-    success: true,
-    message: `Processed ${results.length} submissions.`,
-    added: results.length,
-  });
-});
+    res.json({
+      success: true,
+      message: `Processed ${results.length} submissions.`,
+      added: results.length,
+    });
+  },
+);

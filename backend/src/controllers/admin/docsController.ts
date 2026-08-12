@@ -26,12 +26,12 @@ export const createDoc = catchAsync(async (req: Request, res: Response) => {
     throw AppError.badRequest("Valid markdown filename (.md) is required");
   }
 
-    let processedTags: string[] = [];
-    if (Array.isArray(tags)) {
-      processedTags = tags.filter(
-        (t) => typeof t === "string" && t.trim() !== "",
-      );
-    }
+  let processedTags: string[] = [];
+  if (Array.isArray(tags)) {
+    processedTags = tags.filter(
+      (t) => typeof t === "string" && t.trim() !== "",
+    );
+  }
 
   const doc = new LearningDoc({
     title: title.trim(),
@@ -72,12 +72,12 @@ export const updateDoc = catchAsync(async (req: Request, res: Response) => {
     throw AppError.badRequest("Valid markdown filename (.md) is required");
   }
 
-    let processedTags: string[] = [];
-    if (Array.isArray(tags)) {
-      processedTags = tags.filter(
-        (t) => typeof t === "string" && t.trim() !== "",
-      );
-    }
+  let processedTags: string[] = [];
+  if (Array.isArray(tags)) {
+    processedTags = tags.filter(
+      (t) => typeof t === "string" && t.trim() !== "",
+    );
+  }
 
   const updatedDoc = await LearningDoc.findByIdAndUpdate(
     id,
@@ -87,7 +87,7 @@ export const updateDoc = catchAsync(async (req: Request, res: Response) => {
       tags: processedTags,
       filename: filename.trim(),
     },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 
   if (!updatedDoc) {

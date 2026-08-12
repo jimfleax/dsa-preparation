@@ -12,7 +12,8 @@ describe("slugUtils - extractTitleSlug", () => {
   });
 
   it("extracts slug from URL with query parameters", () => {
-    const url = "https://leetcode.com/problems/two-sum/?envType=study-plan-v2&envId=top-interview-150";
+    const url =
+      "https://leetcode.com/problems/two-sum/?envType=study-plan-v2&envId=top-interview-150";
     expect(extractTitleSlug(url)).toBe("two-sum");
   });
 

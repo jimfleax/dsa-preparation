@@ -15,7 +15,7 @@ describe("Health Check API", () => {
   describe("GET /api/health", () => {
     it("returns 200 OK and database status", async () => {
       const response = await request(app).get("/api/health");
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("status", "healthy");
       expect(response.body).toHaveProperty("dbConnected");
