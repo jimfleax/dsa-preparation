@@ -122,37 +122,39 @@ export default function HomeTab({
       </div>
 
       {/* Sleek Metrics Section */}
-      <div className="mt-8 md:mt-12 w-full flex justify-center md:justify-end">
-        <div className="text-center md:text-right text-sm sm:text-base md:text-lg font-medium text-[#635F69] leading-relaxed tracking-wide font-sans">
-          <p>
-            we have a total of{" "}
-            <span className="font-semibold text-indigo-500 not-italic mx-1">
-              <AnimatedNumber value={totalDocuments} />
-            </span>{" "}
-            learning resources
-          </p>
-          <p>
-            you have solved{" "}
-            <span className="font-semibold text-emerald-500 not-italic mx-1">
-              <AnimatedNumber value={totalSolved} />
-            </span>{" "}
-            problems so far
-          </p>
-          <p>
-            progressed through{" "}
-            <span className="font-semibold text-purple-500 not-italic mx-1">
-              <AnimatedNumber
-                value={trackProgress ? trackProgress.completed : null}
-              />
-            </span>{" "}
-            out of{" "}
-            <span className="font-semibold text-rose-500 not-italic mx-1">
-              <AnimatedNumber
-                value={trackProgress ? trackProgress.total : null}
-              />
-            </span>{" "}
-            tracks
-          </p>
+      <div className="mt-8 md:mt-12 w-full flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6">
+        {/* Metric 1: Learning Resources */}
+        <div className="flex flex-col items-center justify-center w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 hover:-translate-y-1 hover:shadow-clay-surface transition-all duration-300">
+          <span className="text-2xl sm:text-3xl font-extrabold text-indigo-500 font-nunito tracking-tight">
+            <AnimatedNumber value={totalDocuments} />
+          </span>
+          <span className="text-[10px] sm:text-xs font-bold text-[#635F69] uppercase tracking-wider mt-1 text-center leading-tight">
+            Resources
+          </span>
+        </div>
+
+        {/* Metric 2: Solved Problems */}
+        <div className="flex flex-col items-center justify-center w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 hover:-translate-y-1 hover:shadow-clay-surface transition-all duration-300">
+          <span className="text-2xl sm:text-3xl font-extrabold text-emerald-500 font-nunito tracking-tight">
+            <AnimatedNumber value={totalSolved} />
+          </span>
+          <span className="text-[10px] sm:text-xs font-bold text-[#635F69] uppercase tracking-wider mt-1 text-center leading-tight">
+            Solved
+          </span>
+        </div>
+
+        {/* Metric 3: Tracks Progress */}
+        <div className="flex flex-col items-center justify-center w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/70 backdrop-blur-xl shadow-clay-card border-2 border-white/60 hover:-translate-y-1 hover:shadow-clay-surface transition-all duration-300">
+          <span className="text-xl sm:text-2xl font-extrabold text-purple-500 font-nunito tracking-tight flex items-baseline">
+            <AnimatedNumber value={trackProgress ? trackProgress.completed : null} />
+            <span className="text-rose-400 text-sm sm:text-base mx-0.5">/</span>
+            <span className="text-rose-500 text-lg sm:text-xl">
+              <AnimatedNumber value={trackProgress ? trackProgress.total : null} />
+            </span>
+          </span>
+          <span className="text-[10px] sm:text-xs font-bold text-[#635F69] uppercase tracking-wider mt-1 text-center leading-tight">
+            Track Progress
+          </span>
         </div>
       </div>
 
