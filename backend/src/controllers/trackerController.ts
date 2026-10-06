@@ -13,9 +13,12 @@ import { catchAsync } from "../lib/catchAsync.ts";
 const withDueFlag = (doc: any) => {
   if (!doc) return doc;
   const obj = typeof doc.toObject === "function" ? doc.toObject() : doc;
-  if (!obj.lastAttemptedDate) return obj;
+  if (!obj.lastAttemptedDate) {
+    return { ...obj, attemptCount: obj.attemptCount || 1 };
+  }
   return {
     ...obj,
+    attemptCount: obj.attemptCount || 1,
     isDueToday: calculateIsDue(obj.lastAttemptedDate, obj.reviewDurationDays),
   };
 };
@@ -142,6 +145,7 @@ export const listProblems = catchAsync(async (req: Request, res: Response) => {
     const { notes, ...rest } = p as any;
     return {
       ...rest,
+      attemptCount: p.attemptCount || 1,
       url: p.url || `https://leetcode.com/problems/${p.titleSlug}/`,
       hasNotes: !!notes,
       isDueToday: calculateIsDue(p.lastAttemptedDate, p.reviewDurationDays),
