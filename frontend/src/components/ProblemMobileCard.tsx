@@ -8,6 +8,7 @@ import {
   StickyNote,
   CalendarPlus,
   Trash2,
+  History,
 } from "lucide-react";
 import { TrackedProblem } from "../types";
 import { timeAgo } from "../lib/dateUtils";
@@ -23,6 +24,7 @@ interface ProblemMobileCardProps {
   onEdit: (problem: TrackedProblem) => void;
   onNote: (problem: TrackedProblem) => void;
   onSchedule: (problem: TrackedProblem) => void;
+  onHistory?: (problem: TrackedProblem) => void;
   id?: string;
   isHighlighted?: boolean;
   isDueGroup?: boolean;
@@ -37,6 +39,7 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
   onEdit,
   onNote,
   onSchedule,
+  onHistory,
   id,
   isHighlighted,
   isDueGroup,
@@ -108,11 +111,11 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 pt-3 border-t border-neutral-50">
+      <div className="flex items-center gap-2 pt-3 border-t border-neutral-50 flex-wrap">
         <button
           onClick={() => onRevisit(problem._id)}
           disabled={revisitingId === problem._id}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer disabled:opacity-50 min-w-[100px]"
         >
           {revisitingId === problem._id ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -143,6 +146,15 @@ export const ProblemMobileCard = React.memo(function ProblemMobileCard({
         >
           <CalendarPlus className="w-3.5 h-3.5" />
         </button>
+        {problem.attemptCount > 1 && onHistory && (
+          <button
+            onClick={() => onHistory(problem)}
+            className="px-3 py-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-xl text-xs font-bold active:scale-95 transition-all cursor-pointer"
+            title="View Attempt History"
+          >
+            <History className="w-3.5 h-3.5" />
+          </button>
+        )}
         <button
           onClick={() => onDelete(problem._id)}
           disabled={deletingId === problem._id}

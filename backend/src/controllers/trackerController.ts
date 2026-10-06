@@ -222,6 +222,7 @@ export const addProblem = catchAsync(async (req: Request, res: Response) => {
     difficulty: difficulty as "Easy" | "Medium" | "Hard" | undefined,
     attemptCount: 1,
     lastAttemptedDate: new Date(),
+    attemptHistory: [{ date: new Date() }],
     ...(reviewDurationDays ? { reviewDurationDays } : {}),
   });
   res.status(201).json({ success: true, problem: withDueFlag(problem) });
@@ -247,12 +248,18 @@ export const revisitProblem = catchAsync(
       throw AppError.notFound("Problem not found.");
     }
     const { timestamp, reviewDurationDays } = req.body || {};
-    problem.attemptCount += 1;
-    if (timestamp) {
-      problem.lastAttemptedDate = new Date(Number(timestamp) * 1000);
-    } else {
-      problem.lastAttemptedDate = new Date();
+
+    if (!problem.attemptHistory || problem.attemptHistory.length === 0) {
+      problem.attemptHistory = [{ date: problem.createdAt }];
+      if (problem.attemptCount > 1 && problem.lastAttemptedDate > problem.createdAt) {
+        problem.attemptHistory.push({ date: problem.lastAttemptedDate });
+      }
     }
+    const newDate = timestamp ? new Date(Number(timestamp) * 1000) : new Date();
+    problem.attemptHistory.push({ date: newDate });
+
+    problem.attemptCount += 1;
+    problem.lastAttemptedDate = newDate;
     if (reviewDurationDays !== undefined) {
       if (reviewDurationDays === null) {
         problem.reviewDurationDays = undefined; // Unset
@@ -284,12 +291,18 @@ export const revisitProblemBySlug = catchAsync(
       throw AppError.notFound("Problem not found.");
     }
     const { timestamp, reviewDurationDays } = req.body || {};
-    problem.attemptCount += 1;
-    if (timestamp) {
-      problem.lastAttemptedDate = new Date(Number(timestamp) * 1000);
-    } else {
-      problem.lastAttemptedDate = new Date();
+
+    if (!problem.attemptHistory || problem.attemptHistory.length === 0) {
+      problem.attemptHistory = [{ date: problem.createdAt }];
+      if (problem.attemptCount > 1 && problem.lastAttemptedDate > problem.createdAt) {
+        problem.attemptHistory.push({ date: problem.lastAttemptedDate });
+      }
     }
+    const newDate = timestamp ? new Date(Number(timestamp) * 1000) : new Date();
+    problem.attemptHistory.push({ date: newDate });
+
+    problem.attemptCount += 1;
+    problem.lastAttemptedDate = newDate;
     if (reviewDurationDays !== undefined) {
       if (reviewDurationDays === null) {
         problem.reviewDurationDays = undefined;

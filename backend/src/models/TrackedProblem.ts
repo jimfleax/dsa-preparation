@@ -17,6 +17,7 @@ export interface ITrackedProblem extends Document {
   difficulty?: "Easy" | "Medium" | "Hard";
   attemptCount: number;
   lastAttemptedDate: Date;
+  attemptHistory: { date: Date }[];
   reviewDurationDays?: number;
   notrack: boolean;
   notes?: string;
@@ -59,6 +60,11 @@ const TrackedProblemSchema = new Schema<ITrackedProblem>(
       type: Date,
       default: Date.now,
     },
+    attemptHistory: [
+      {
+        date: { type: Date, required: true },
+      },
+    ],
     reviewDurationDays: {
       type: Number,
       required: false,

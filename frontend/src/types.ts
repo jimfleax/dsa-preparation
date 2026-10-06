@@ -27,6 +27,7 @@ export interface TrackedProblem {
   isDueToday?: boolean;
   createdAt: string;
   updatedAt: string;
+  attemptHistory?: { _id?: string; date: string }[];
 }
 
 export interface TrackProblem {

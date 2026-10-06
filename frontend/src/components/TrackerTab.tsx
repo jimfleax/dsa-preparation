@@ -19,6 +19,7 @@ import {
   CalendarPlus,
   StickyNote,
   TrendingUp,
+  History,
 } from "lucide-react";
 import {
   PieChart,
@@ -41,6 +42,7 @@ import { useEscapeKey } from "../hooks/useEscapeKey";
 import Tooltip from "./Tooltip";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import TrackerSkeleton from "./skeletons/TrackerSkeleton";
+import HistoryModal from "./HistoryModal";
 
 import { apiFetch } from "@/src/lib/apiFetch";
 
@@ -108,6 +110,8 @@ export default function ProblemsTab({
     useState<TrackedProblem | null>(null);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const [noteProblem, setNoteProblem] = useState<TrackedProblem | null>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
+  const [historyProblem, setHistoryProblem] = useState<TrackedProblem | null>(null);
 
   const { getToken } = useAuth();
   const apiBase = getBackendUrl();
@@ -476,6 +480,18 @@ export default function ProblemsTab({
           >
             <CalendarPlus className="w-3.5 h-3.5" />
           </button>
+          {problem.attemptCount > 1 && (
+            <button
+              onClick={() => {
+                setHistoryProblem(problem);
+                setIsHistoryModalOpen(true);
+              }}
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 active:scale-90 transition-all duration-200 cursor-pointer"
+              title="View Attempt History"
+            >
+              <History className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             onClick={() => setProblemToDelete(problem)}
             disabled={deletingId === problem._id}
@@ -769,6 +785,10 @@ export default function ProblemsTab({
                   setSchedulingProblem(p);
                   setIsScheduleModalOpen(true);
                 }}
+                onHistory={(p) => {
+                  setHistoryProblem(p);
+                  setIsHistoryModalOpen(true);
+                }}
                 isDueGroup={true}
               />
             ))}
@@ -799,6 +819,10 @@ export default function ProblemsTab({
                 onSchedule={(p) => {
                   setSchedulingProblem(p);
                   setIsScheduleModalOpen(true);
+                }}
+                onHistory={(p) => {
+                  setHistoryProblem(p);
+                  setIsHistoryModalOpen(true);
                 }}
                 isDueGroup={false}
               />
@@ -992,6 +1016,15 @@ export default function ProblemsTab({
           </div>
         </>
       )}
+
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => {
+          setIsHistoryModalOpen(false);
+          setHistoryProblem(null);
+        }}
+        problem={historyProblem}
+      />
     </div>
   );
 }
