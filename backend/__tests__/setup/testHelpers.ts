@@ -17,7 +17,15 @@ import LearningDoc from "../../src/models/LearningDoc.ts";
 // Ensure env is loaded
 dotenv.config({ path: ".env" });
 
-const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+if (!process.env.GOOGLE_CLIENT_ID) {
+  process.env.GOOGLE_CLIENT_ID = "test-google-client-id";
+}
+
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "test-secret";
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 let mongoServer: MongoMemoryServer;
 
@@ -28,6 +36,7 @@ export async function connectTestDB() {
   if (mongoose.connection.readyState === 0) {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
+    process.env.MONGODB_URI = mongoUri;
     await mongoose.connect(mongoUri);
   }
 }

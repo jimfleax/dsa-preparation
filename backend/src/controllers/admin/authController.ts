@@ -6,7 +6,13 @@ import { OAuth2Client } from "google-auth-library";
 import { AppError } from "../../lib/AppError.ts";
 import { catchAsync } from "../../lib/catchAsync.ts";
 
-const client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
+let _client: OAuth2Client | null = null;
+const getClient = (): OAuth2Client => {
+  if (!_client) {
+    _client = new OAuth2Client(getRequiredEnv("GOOGLE_CLIENT_ID"));
+  }
+  return _client;
+};
 
 export const adminGoogleLogin = catchAsync(async (
   req: Request,
@@ -16,7 +22,7 @@ export const adminGoogleLogin = catchAsync(async (
 
     let ticket;
     try {
-      ticket = await client.verifyIdToken({
+      ticket = await getClient().verifyIdToken({
         idToken: token,
         audience: getRequiredEnv("GOOGLE_CLIENT_ID"),
       });

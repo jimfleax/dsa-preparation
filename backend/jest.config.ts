@@ -19,7 +19,7 @@ const config: JestConfigWithTsJest = {
     "^(\\.{1,2}/.*)\\.ts$": "$1",
   },
   testMatch: ["**/__tests__/**/*.test.ts"],
-  setupFilesAfterFramework: [],
+  setupFilesAfterEnv: [],
   setupFiles: ["dotenv/config"],
   testTimeout: 30000, // Real DB + LeetCode API calls need time
   clearMocks: true,

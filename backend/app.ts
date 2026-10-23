@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import mongoose from "mongoose";
+import { connectDB, checkDatabaseHealth } from "./src/lib/db.ts";
 
 import trackerRoutes from "./src/routes/trackerRoutes.ts";
 import userRoutes from "./src/routes/userRoutes.ts";
@@ -21,65 +23,76 @@ import { httpMetricsMiddleware } from "./src/middleware/httpMetrics.ts";
 
 const app = express();
 
-// Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      try {
-        const originHostname = new URL(origin).hostname;
+// Enable Cross-Origin Resource Sharing (CORS) for external frontend hosting & Vercel deployments
+const configuredOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
+  : [];
 
-        let allowedDomain = "localhost";
-        if (process.env.FRONTEND_URL) {
-          const rawFrontendUrl = process.env.FRONTEND_URL.trim();
-          if (rawFrontendUrl.startsWith("http")) {
-            allowedDomain = new URL(rawFrontendUrl).hostname;
-          } else {
-            allowedDomain = rawFrontendUrl.split("/")[0]; // Strip trailing paths if any
-          }
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    try {
+      const originHostname = new URL(origin).hostname;
+
+      let allowedDomain = "localhost";
+      if (process.env.FRONTEND_URL) {
+        const rawFrontendUrl = process.env.FRONTEND_URL.trim();
+        if (rawFrontendUrl.startsWith("http")) {
+          allowedDomain = new URL(rawFrontendUrl).hostname;
+        } else {
+          allowedDomain = rawFrontendUrl.split("/")[0]; // Strip trailing paths if any
         }
-
-        const isLocal =
-          originHostname === "localhost" ||
-          originHostname === "127.0.0.1" ||
-          originHostname === "::1" ||
-          originHostname.startsWith("192.168.") ||
-          originHostname.startsWith("10.") ||
-          originHostname.endsWith(".local");
-
-        if (
-          originHostname === allowedDomain ||
-          isLocal ||
-          originHostname === "dsa.jimfleax.in"
-        ) {
-          return callback(null, true);
-        }
-
-        console.warn(
-          `[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`,
-        );
-        const corsError = new Error(
-          `CORS Error: Origin ${origin} is not allowed.`,
-        );
-        (corsError as any).status = 403;
-        return callback(corsError);
-      } catch (err) {
-        return callback(new Error("Invalid origin"));
       }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
-  }),
-);
+
+      const isLocal =
+        originHostname === "localhost" ||
+        originHostname === "127.0.0.1" ||
+        originHostname === "::1" ||
+        originHostname.startsWith("192.168.") ||
+        originHostname.startsWith("10.") ||
+        originHostname.endsWith(".local");
+
+      const isVercelPreview = originHostname.endsWith(".vercel.app");
+      const isConfigured =
+        configuredOrigins.includes(origin) ||
+        configuredOrigins.includes(originHostname);
+
+      if (
+        originHostname === allowedDomain ||
+        isLocal ||
+        isVercelPreview ||
+        isConfigured ||
+        originHostname === "dsa.jimfleax.in"
+      ) {
+        return callback(null, true);
+      }
+
+      console.warn(
+        `[CORS] Blocked request from origin: ${origin} (Hostname: ${originHostname}). Allowed Domain: ${allowedDomain}`,
+      );
+      const corsError = new Error(
+        `CORS Error: Origin ${origin} is not allowed.`,
+      );
+      (corsError as any).status = 403;
+      return callback(corsError);
+    } catch (err) {
+      return callback(new Error("Invalid origin"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
+};
+
+app.use(cors(corsOptions));
 
 // Pre-flight handler for all routes
-app.options("*", cors() as any);
+app.options("*", cors(corsOptions) as any);
 
 app.use(express.json());
 
@@ -92,14 +105,29 @@ app.use(httpMetricsMiddleware);
 
 // Mount Document API routes (public)
 app.use("/api", documentRoutes);
-// Added lightweight /api/health endpoint for separate hosting connectivity checks
+// ─── Dual-Tier Health Probes ─────────────────────────────
+// Liveness Probe: process health only — never queries the database
+app.get("/healthz/live", (_req, res) => {
+  res.status(200).json({ status: "UP", uptime: process.uptime() });
+});
+
+// Readiness Probe: checks active database connection and ping latency
+app.get("/healthz/ready", async (_req, res) => {
+  const health = await checkDatabaseHealth();
+  if (!health.ok) {
+    return res.status(503).json({ status: "DOWN", health });
+  }
+  return res.status(200).json({ status: "READY", health });
+});
+
+// Added lightweight /api/health endpoint for backward compatibility
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    dbConnected: !!process.env.MONGODB_URI,
+    dbConnected: mongoose.connection.readyState === 1 || !!process.env.MONGODB_URI,
   });
 });
 
@@ -161,4 +189,17 @@ app.use("/api/admin", adminRoutes);
 // ──────────────────────────────────────────────────────────
 app.use(globalErrorHandler);
 
+// Serverless handler bridge — initializes DB connection if not already active
+let isDbConnected = false;
+export const handler = async (req: any, res: any) => {
+  if (!isDbConnected && mongoose.connection.readyState !== 1) {
+    if (process.env.MONGODB_URI) {
+      await connectDB();
+      isDbConnected = true;
+    }
+  }
+  return app(req, res);
+};
+
+export { app };
 export default app;
